@@ -1,13 +1,32 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <router-view/>
+    <header>
+      <router-link to="/">Stage Wing</router-link>
+      <template v-if="!isAuthenticated">
+        <router-link to="/signup">Sign Up</router-link>
+        <router-link to="/login">Log In</router-link>
+      </template>
+      <template v-else>
+        <span  class="logout" @click="logOut">Log Out</span>
+      </template>
+    </header>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  computed: {
+    isAuthenticated () {
+      return this.$store.getters.authData !== null
+    }
+  },
+  methods: {
+    logOut () {
+      this.$store.dispatch('logout', this.$store.getters.authData)
+    }
+  }
 }
 </script>
 
@@ -19,5 +38,9 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.logout {
+  cursor: pointer;
 }
 </style>
