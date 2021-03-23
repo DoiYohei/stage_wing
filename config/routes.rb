@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :events
   mount_devise_token_auth_for 'Band', at: 'auth', skip: [:registrations], controllers: {
     sessions: 'auth/sessions'
   }
