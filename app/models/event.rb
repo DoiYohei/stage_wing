@@ -4,4 +4,6 @@ class Event < ApplicationRecord
   validates :content, length: { maximum: 1000 }, presence:true
   validates :open_at, presence:true
   validates :start_at, presence:true
+
+  belongs_to :owner, class_name: "Band"
 end
