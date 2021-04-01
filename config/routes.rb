@@ -7,4 +7,8 @@ Rails.application.routes.draw do
     patch '/auth/account/edit', to: 'auth/registrations#update', as: :edit_user_registration
     delete '/auth/account/delete', to: 'auth/registrations#destroy', as: :destroy_user_registration
   end
+
+  scope format: 'json' do
+    resources :events
+  end
 end
