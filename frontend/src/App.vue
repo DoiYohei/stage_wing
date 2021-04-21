@@ -3,6 +3,7 @@
     <header>
       <router-link to="/">Stage Wing</router-link>
       <router-link to="/events">Event</router-link>
+      <router-link to="/bands">Band</router-link>
       <template v-if="!isAuthenticated">
         <router-link to="/signup">Sign Up</router-link>
         <router-link to="/login">Log In</router-link>
@@ -25,7 +26,9 @@ export default {
   },
   methods: {
     logOut () {
-      this.$store.dispatch('logout', this.$store.getters.authData)
+      this.$store.dispatch('logout', {
+        headers: this.$store.getters.authData
+      })
     }
   }
 }

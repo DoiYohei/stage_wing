@@ -10,5 +10,6 @@ Rails.application.routes.draw do
 
   scope format: 'json' do
     resources :events
+    resources :bands, only: [:index, :show]
   end
 end
