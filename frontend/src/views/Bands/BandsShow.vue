@@ -31,7 +31,10 @@ export default {
   },
   methods: {
     deleteBand () {
-      this.$store.dispatch('deleteBandData')
+      this.$store.dispatch('deleteBandData', {
+        headers: this.$store.getters.authData
+      })
+      this.$store.dispatch('deleteTokenData')
     }
   },
   created () {

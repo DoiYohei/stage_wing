@@ -26,7 +26,9 @@ export default {
   },
   methods: {
     logOut () {
-      this.$store.dispatch('logout', this.$store.getters.authData)
+      this.$store.dispatch('logout', {
+        headers: this.$store.getters.authData
+      })
     }
   }
 }

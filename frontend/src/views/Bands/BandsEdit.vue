@@ -25,7 +25,9 @@ export default {
   methods: {
     updateData () {
       const editData = {
-        headers: this.$store.getters.authData,
+        tokenData: {
+          headers: this.$store.getters.authData
+        },
         formData: {
           name: this.name,
           email: this.email

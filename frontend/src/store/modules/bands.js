@@ -29,17 +29,17 @@ const actions = {
     })
   },
   editBandData ({commit}, editData) {
-    axios.patch('/auth/account/edit', editData.formData, {
-      headers: editData.headers
-    }).then(response => {
-      commit('updataBandData', response.data)
-      commit('updataBandsData', null)
-      router.replace('/bands/' + response.data.uid)
-    })
+    axios.patch('/auth/account/edit', editData.formData, editData.tokenData)
+      .then(response => {
+        commit('updateBandData', response.data)
+        commit('updateBandsData', null)
+        router.replace('/bands/' + response.data.data.id)
+      })
   },
-  deleteBandData ({commit}) {
-    axios.delete('/auth/account/delete')
+  deleteBandData ({commit}, tokenData) {
+    axios.delete('/auth/account/delete', tokenData)
     commit('updateBandData', {})
+    commit('updateBandsData', null)
     router.replace('/')
   }
 }
