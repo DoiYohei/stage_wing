@@ -12,23 +12,30 @@
 </template>
 
 <script>
-import axios from '@/axios'
-
 export default {
   data () {
     return {
       events: []
     }
   },
-  created () {
-    axios.get('/events').then(response => {
-      this.events = response.data.events
-    })
-  },
   computed: {
     isAuthenticated () {
       return this.$store.getters.authData !== null
+    },
+    eventsData () {
+      return this.$store.getters.eventsData
     }
+  },
+  watch: {
+    eventsData: function (newData) {
+      this.events = newData
+    }
+  },
+  created () {
+    if (this.eventsData === null) {
+      return this.$store.dispatch('getEventsData')
+    }
+    this.events = this.eventsData
   }
 }
 </script>

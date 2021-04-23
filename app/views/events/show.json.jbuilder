@@ -3,5 +3,9 @@ json.event do
 end
 
 json.owner do
-  json.extract! @owner, :id, :name
+  if @owner
+    json.extract! @owner, :id, :name, :email
+  else
+    json.null
+  end
 end

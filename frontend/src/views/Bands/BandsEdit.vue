@@ -15,7 +15,6 @@
 
 <script>
 export default {
-  props: ['id'],
   data () {
     return {
       name: '',
@@ -24,16 +23,14 @@ export default {
   },
   methods: {
     updateData () {
-      const editData = {
-        tokenData: {
-          headers: this.$store.getters.authData
-        },
-        formData: {
-          name: this.name,
-          email: this.email
-        }
+      const formData = {
+        name: this.name,
+        email: this.email
       }
-      this.$store.dispatch('editBandData', editData)
+      const tokenData = {
+        headers: this.$store.getters.authData
+      }
+      this.$store.dispatch('editBandData', {formData, tokenData})
     }
   },
   created () {

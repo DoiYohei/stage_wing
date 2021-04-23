@@ -21,7 +21,10 @@ export default {
       return this.$store.getters.bandData
     },
     isMyPage () {
-      return this.$store.getters.authData.uid === this.band.email
+      const authData = this.$store.getters.authData
+      if (authData) {
+        return this.$store.getters.authData.uid === this.band.email
+      }
     }
   },
   watch: {

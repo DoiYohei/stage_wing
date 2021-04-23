@@ -26,9 +26,6 @@
 </template>
 
 <script>
-import axios from '@/axios'
-import router from '@/router'
-
 export default {
   props: ['id'],
   data () {
@@ -42,6 +39,7 @@ export default {
   },
   methods: {
     updateEvent () {
+      const eventId = this.id
       const formData = {
         event: {
           name: this.name,
@@ -54,8 +52,17 @@ export default {
       const tokenData = {
         headers: this.$store.getters.authData
       }
-      axios.patch('/events/' + this.id, formData, tokenData)
-      router.replace('/events/' + this.id)
+      this.$store.dispatch('editEventData', {eventId, formData, tokenData})
+    }
+  },
+  created () {
+    const eventData = this.$store.getters.eventData.event
+    if (eventData) {
+      this.name = eventData.name
+      this.place = eventData.place
+      this.openAt = eventData.openAt
+      this.startAt = eventData.startAt
+      this.content = eventData.content
     }
   }
 }

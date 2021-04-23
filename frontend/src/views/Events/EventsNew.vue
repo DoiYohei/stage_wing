@@ -26,9 +26,6 @@
 </template>
 
 <script>
-import axios from '@/axios'
-import router from '@/router'
-
 export default {
   data () {
     return {
@@ -53,8 +50,7 @@ export default {
       const tokenData = {
         headers: this.$store.getters.authData
       }
-      axios.post('/events', formData, tokenData)
-      router.replace('/')
+      this.$store.dispatch('postEvent', {formData, tokenData})
     }
   }
 }
