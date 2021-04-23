@@ -1,7 +1,10 @@
 <template>
   <div>
-    <div>{{owner.name}}</div>
-    <template v-if="isAuthenticated">
+    <template v-if="owner">
+      <div>{{owner.name}}</div>
+    </template>
+    <p v-else>作成者は退会しました</p>
+    <template v-if="isEventOwner">
       <router-link :to="'/events/' + id + '/edit'">編集する</router-link>
       <button @click='deleteEvent'>削除する</button>
     </template>
@@ -14,9 +17,6 @@
 </template>
 
 <script>
-import axios from '@/axios'
-import router from '@/router'
-
 export default {
   props: ['id'],
   data () {
@@ -25,24 +25,38 @@ export default {
       owner: []
     }
   },
-  created () {
-    axios.get('/events/' + this.id).then(response => {
-      this.event = response.data.event
-      this.owner = response.data.owner
-    })
-  },
   computed: {
-    isAuthenticated () {
-      return this.$store.getters.authData !== null
+    eventData () {
+      return this.$store.getters.eventData
+    },
+    isEventOwner () {
+      const authData = this.$store.getters.authData
+      if (authData & this.owner) {
+        return authData.uid === this.owner.email
+      }
+    }
+  },
+  watch: {
+    eventData: function (newData) {
+      this.event = newData.event
+      this.owner = newData.owner
     }
   },
   methods: {
     deleteEvent () {
-      axios.delete('/events/' + this.id, {
+      const eventId = this.id
+      const tokenData = {
         headers: this.$store.getters.authData
-      })
-      router.replace('/')
+      }
+      this.$store.dispatch('deleteEventData', {eventId, tokenData})
     }
+  },
+  created () {
+    if (!this.eventData.event || this.eventData.event.id !== Number(this.id)) {
+      return this.$store.dispatch('getEventData', this.id)
+    }
+    this.event = this.eventData.event
+    this.owner = this.eventData.owner
   }
 }
 </script>

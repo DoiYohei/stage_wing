@@ -6,5 +6,5 @@ class Band < ActiveRecord::Base
   devise :database_authenticatable, :registerable, :recoverable, :rememberable, :validatable
   include DeviseTokenAuth::Concerns::User
 
-  has_many :created_events, class_name: "Event", foreign_key: "owner_id"
+  has_many :created_events, class_name: "Event", foreign_key: "owner_id", dependent: :nullify
 end
