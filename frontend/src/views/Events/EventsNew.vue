@@ -21,21 +21,11 @@
       <label for="content">詳細</label>
       <textarea v-model="content" id="content" rows="20" cols="50"></textarea>
     </div>
-    <div class="form" v-for="(performer, index) in performers" :key="index">
-      <label for="performer">Lineup</label>
-      <input type="text" v-model="performer.name" class="performer">
-    </div>
-    <div class="form">
-      <label for="unregistered-performers">登録されていないアーティスト</label>
-      <textarea v-model="unregisteredPerformers" id="unregistered-performers" rows="20" cols="50"></textarea>
-    </div>
     <button @click="postEvent">投稿する</button>
   </div>
 </template>
 
 <script>
-import router from '@/router'
-
 export default {
   data () {
     return {
@@ -43,45 +33,12 @@ export default {
       place: '',
       openAt: '',
       startAt: '',
-      content: '',
-      performers: [{name: ''}],
-      unregisteredPerformers: ''
-    }
-  },
-  computed: {
-    bandsData () {
-      return this.$store.getters.bandsData
-    },
-    countEmptyForm () {
-      return this.performers.filter(el => el.name === '').length
-    }
-  },
-  watch: {
-    countEmptyForm (newData) {
-      if (newData === 0) {
-        this.performers.push({ name: '' })
-      }
-      if (newData >= 2) {
-        // this.performersから、{name: ''}を持つ最後の要素を削除する
-        const isEmptyForm = []
-        for (let performer of this.performers) {
-          let isEmptyName = performer.name === ''
-          isEmptyForm.push(isEmptyName)
-        }
-        this.performers.splice(isEmptyForm.lastIndexOf(true), 1)
-      }
+      content: ''
     }
   },
   methods: {
     postEvent () {
-      const performerIds = []
-      for (let performer of this.performers) {
-        let registeredPerformer = this.bandsData.find(el => el.name === performer.name)
-        if (registeredPerformer) {
-          performerIds.push(registeredPerformer.id)
-        }
-      }
-      const eventForm = {
+      const formData = {
         event: {
           name: this.name,
           place: this.place,
@@ -90,25 +47,10 @@ export default {
           content: this.content
         }
       }
-      const token = {
+      const tokenData = {
         headers: this.$store.getters.authData
       }
-      this.$store.dispatch('postEvent', {eventForm, token})
-        .then(() => {
-          const lineupForm = {
-            eventId: this.$store.getters.eventData.event.id,
-            performerIds: performerIds,
-            unregisteredPerformers: this.unregisteredPerformers,
-            token: token
-          }
-          this.$store.dispatch('postLineup', lineupForm)
-        })
-        .then(() => router.replace('/'))
-    }
-  },
-  created () {
-    if (this.bandsData === null) {
-      this.$store.dispatch('getBandsData')
+      this.$store.dispatch('postEvent', {formData, tokenData})
     }
   }
 }
