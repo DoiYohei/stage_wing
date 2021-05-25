@@ -19,12 +19,12 @@ const mutations = {
 }
 const actions = {
   getBandsData ({commit}) {
-    return axios.get('/bands').then(response => {
+    axios.get('/bands').then(response => {
       commit('updateBandsData', response.data.bands)
     })
   },
   getBandData ({commit}, bandId) {
-    return axios.get('/bands/' + bandId).then(response => {
+    axios.get('/bands/' + bandId).then(response => {
       commit('updateBandData', response.data.band)
     })
   },

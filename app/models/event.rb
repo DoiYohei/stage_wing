@@ -7,5 +7,4 @@ class Event < ApplicationRecord
 
   belongs_to :owner, class_name: "Band"
   has_many :lineups, dependent: :destroy
-  has_many :performers, class_name: "Band", through: :lineups
 end
