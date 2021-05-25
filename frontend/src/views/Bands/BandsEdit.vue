@@ -14,7 +14,10 @@
 </template>
 
 <script>
+import axios from '@/axios'
+
 export default {
+  props: ['id'],
   data () {
     return {
       name: '',
@@ -34,11 +37,11 @@ export default {
     }
   },
   created () {
-    const bandData = this.$store.getters.bandData
-    if (bandData) {
-      this.name = bandData.name
-      this.email = bandData.email
-    }
+    axios.get('/bands/' + this.id)
+      .then(response => {
+        this.name = response.data.band.name
+        this.email = response.data.band.email
+      })
   }
 }
 </script>
