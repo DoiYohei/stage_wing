@@ -1,7 +1,7 @@
 <template>
   <div>
     <router-link to="/event/new" v-if="isAuthenticated">Eventを投稿する</router-link>
-    <div v-for="event in events" :key="event.name">
+    <div v-for="(event, index) in events" :key="index">
       <router-link :to="'/events/' + event.id">
         <div>{{event.open_at}}</div>
         <span> {{event.name}}</span>
@@ -26,16 +26,14 @@ export default {
       return this.$store.getters.eventsData
     }
   },
-  watch: {
-    eventsData: function (newData) {
-      this.events = newData
-    }
+  methods: {
+    assignData () { this.events = this.eventsData }
   },
-  created () {
-    if (this.eventsData === null) {
-      return this.$store.dispatch('getEventsData')
+  async created () {
+    if (!this.eventsData) {
+      await this.$store.dispatch('getEventsData')
     }
-    this.events = this.eventsData
+    this.assignData()
   }
 }
 </script>

@@ -6,6 +6,7 @@ import LogIn from '@/views/Auth/LogIn'
 import EventsIndex from '@/views/Events/EventsIndex'
 import EventsShow from '@/views/Events/EventsShow'
 import EventsEdit from '@/views/Events/EventsEdit'
+import LineupEdit from '@/views/Events/LineupEdit'
 import EventsNew from '@/views/Events/EventsNew'
 import BandsIndex from '@/views/Bands/BandsIndex'
 import BandsShow from '@/views/Bands/BandsShow'
@@ -49,6 +50,12 @@ export default new Router({
       props: true
     },
     {
+      path: '/events/:id/lineup/edit',
+      name: 'LineupEdit',
+      component: LineupEdit,
+      props: true
+    },
+    {
       path: '/event/new',
       name: 'EventsNew',
       component: EventsNew
@@ -67,7 +74,8 @@ export default new Router({
     {
       path: '/bands/:id/edit',
       name: 'BandsEdit',
-      component: BandsEdit
+      component: BandsEdit,
+      props: true
     }
   ]
 })

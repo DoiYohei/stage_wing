@@ -27,12 +27,10 @@ export default {
       }
     }
   },
-  watch: {
-    bandData: function (newData) {
-      this.band = newData
-    }
-  },
   methods: {
+    assignData () {
+      this.band = this.bandData
+    },
     deleteBand () {
       this.$store.dispatch('deleteBandData', {
         headers: this.$store.getters.authData
@@ -40,11 +38,11 @@ export default {
       this.$store.dispatch('deleteTokenData')
     }
   },
-  created () {
+  async created () {
     if (!this.bandData || this.bandData.id !== Number(this.id)) {
-      return this.$store.dispatch('getBandData', this.id)
+      await this.$store.dispatch('getBandData', this.id)
     }
-    this.band = this.bandData
+    this.assignData()
   }
 }
 </script>
