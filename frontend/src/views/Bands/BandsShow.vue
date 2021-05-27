@@ -5,6 +5,12 @@
       <router-link :to="'/bands/' + id + '/edit'">編集する</router-link>
       <button @click='deleteBand'>削除する</button>
     </template>
+    <div>LIVEスケジュール</div>
+    <template v-if="band.performing_events">
+      <div v-for="(event, index) in band.performing_events" :key="index">
+        <router-link :to="'/events/' + event.id">{{event.open_at}}: {{event.name}}</router-link>
+      </div>
+    </template>
   </div>
 </template>
 

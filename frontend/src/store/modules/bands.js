@@ -25,7 +25,7 @@ const actions = {
   },
   getBandData ({commit}, bandId) {
     return axios.get('/bands/' + bandId).then(response => {
-      commit('updateBandData', response.data.band)
+      commit('updateBandData', response.data)
     })
   },
   editBandData ({commit}, editData) {
