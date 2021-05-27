@@ -7,5 +7,7 @@ class BandsController < ApplicationController
 
   def show
     @band = Band.find(params[:id])
+    performings = Lineup.where(performer_id: params[:id])
+    @performing_events = Event.where(performings)
   end
 end
