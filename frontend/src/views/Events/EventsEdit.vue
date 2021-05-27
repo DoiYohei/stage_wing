@@ -37,7 +37,19 @@ export default {
       content: ''
     }
   },
+  computed: {
+    eventData () {
+      return this.$store.getters.eventData.event
+    }
+  },
   methods: {
+    assignData () {
+      this.name = this.eventData.name
+      this.place = this.eventData.place
+      this.openAt = this.eventData.openAt
+      this.startAt = this.eventData.startAt
+      this.content = this.eventData.content
+    },
     updateEvent () {
       const eventId = this.id
       const formData = {
@@ -55,15 +67,11 @@ export default {
       this.$store.dispatch('editEventData', {eventId, formData, tokenData})
     }
   },
-  created () {
-    const eventData = this.$store.getters.eventData.event
-    if (eventData) {
-      this.name = eventData.name
-      this.place = eventData.place
-      this.openAt = eventData.openAt
-      this.startAt = eventData.startAt
-      this.content = eventData.content
+  async created () {
+    if (!this.eventData || this.eventData.id !== Number(this.id)) {
+      await this.$store.dispatch('getEventData', this.id)
     }
+    this.assignData()
   }
 }
 </script>
