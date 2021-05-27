@@ -18,29 +18,28 @@ const mutations = {
   }
 }
 const actions = {
-  postEvent ({commit}, postData) {
-    axios.post('/events', postData.formData, postData.tokenData)
+  postEvent ({commit, dispatch}, data) {
+    return axios.post('/events', data.eventForm, data.token)
       .then(response => {
-        commit('updateEventsData', null)
         commit('updateEventData', response.data)
-        router.replace('/')
+        dispatch('getEventsData')
       })
   },
   getEventsData ({commit}) {
-    axios.get('/events').then(response => {
+    return axios.get('/events').then(response => {
       commit('updateEventsData', response.data.events)
     })
   },
   getEventData ({commit}, eventId) {
-    axios.get('/events/' + eventId).then(response => {
+    return axios.get('/events/' + eventId).then(response => {
       commit('updateEventData', response.data)
     })
   },
-  editEventData ({commit}, editData) {
+  editEventData ({commit, dispatch}, editData) {
     axios.patch('/events/' + editData.eventId, editData.formData, editData.tokenData)
       .then(response => {
         commit('updateEventData', response.data)
-        commit('updateEventsData', null)
+        dispatch('getEventsData')
         router.replace('/events/' + response.data.event.id)
       })
   },
