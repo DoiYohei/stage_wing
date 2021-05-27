@@ -21,16 +21,16 @@ export default {
       return this.$store.getters.bandsData
     }
   },
-  watch: {
-    bandsData: function (newData) {
-      this.bands = newData
+  methods: {
+    assignData () {
+      this.bands = this.bandsData
     }
   },
-  created () {
+  async created () {
     if (this.bandsData === null) {
-      return this.$store.dispatch('getBandsData')
+      await this.$store.dispatch('getBandsData')
     }
-    this.bands = this.bandsData
+    this.assignData()
   }
 }
 </script>
