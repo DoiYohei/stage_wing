@@ -3,19 +3,19 @@ class EventsController < ApplicationController
   before_action :set_event, only: [:update, :destroy]
 
   def index
-    @events = Event.all.order(:open_at)
+    @events = Event.where("open_at > ?", Time.zone.now).order(:open_at)
   end
 
   def show
     @event = Event.find(params[:id])
     @owner = @event.owner
+    @performers = Lineup.where(params[:event_id]).performer
   end
 
   def create
     @event = current_band.created_events.build(event_params)
-    @owner = @event.owner
     if @event.save
-      render :show, status: :ok
+      render json: :created
     else
       render json: @event.error, status: :unprocessable_entity
     end
