@@ -6,5 +6,4 @@ class Event < ApplicationRecord
   validates :start_at, presence:true
 
   belongs_to :owner, class_name: "Band"
-  has_many :lineups, dependent: :destroy
 end
