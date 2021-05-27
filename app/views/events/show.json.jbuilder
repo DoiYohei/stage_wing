@@ -9,11 +9,3 @@ json.owner do
     json.null
   end
 end
-
-json.performers do
-  if @performers
-    json.array! @performers, :id, :name
-  else
-    json.null
-  end
-end

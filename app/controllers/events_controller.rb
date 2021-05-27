@@ -9,7 +9,6 @@ class EventsController < ApplicationController
   def show
     @event = Event.find(params[:id])
     @owner = @event.owner
-    @performers = Lineup.where(params[:event_id]).performer
   end
 
   def create
