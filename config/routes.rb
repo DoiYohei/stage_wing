@@ -9,9 +9,7 @@ Rails.application.routes.draw do
   end
 
   scope format: 'json' do
-    resources :events do
-      resources :lineups
-    end
+    resources :events
     resources :bands, only: [:index, :show]
   end
 end
