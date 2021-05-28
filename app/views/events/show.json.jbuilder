@@ -1,5 +1,5 @@
 json.event do
-  json.extract! @event, :id, :owner_id, :name, :place, :open_at, :start_at, :content
+  json.extract! @event, :id, :owner_id, :name, :place, :open_at, :start_at, :ticket_price, :content
 end
 if @owner
   json.owner do

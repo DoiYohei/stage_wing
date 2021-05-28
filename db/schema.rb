@@ -30,8 +30,11 @@ ActiveRecord::Schema.define(version: 2021_04_29_061241) do
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
     t.string "name", default: "", null: false
-    t.string "image"
     t.string "email", default: "", null: false
+    t.string "image"
+    t.text "profile"
+    t.string "website"
+    t.string "twitter"
     t.text "tokens"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -44,9 +47,11 @@ ActiveRecord::Schema.define(version: 2021_04_29_061241) do
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "owner_id"
     t.string "name", null: false
+    t.string "flyer"
     t.string "place", null: false
     t.datetime "open_at", null: false
     t.datetime "start_at", null: false
+    t.integer "ticket_price"
     t.text "content"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false

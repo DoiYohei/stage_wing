@@ -37,8 +37,11 @@ class DeviseTokenAuthCreateBands < ActiveRecord::Migration[6.1]
 
       ## Band Info
       t.string :name, null: false, default: ''
-      t.string :image
       t.string :email, null: false, default: ''
+      t.string :image
+      t.text :profile
+      t.string :website
+      t.string :twitter
 
       ## Tokens
       t.text :tokens
