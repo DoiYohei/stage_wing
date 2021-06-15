@@ -1,6 +1,10 @@
 <template>
   <div>
     <div>{{band.name}}</div>
+    <div v-if="band.profile">
+      <iframe id="sc-widget" :src="band.profile"></iframe>
+    </div>
+    <img :src="band.image">
     <template v-if="isMyPage">
       <router-link :to="'/bands/' + id + '/edit'">編集する</router-link>
       <button @click='deleteBand'>削除する</button>

@@ -1,4 +1,5 @@
-json.extract! @band, :id, :name, :email
+json.extract! @band, :id, :name, :image, :email, :profile, :website, :twitter
+json.image @image
 
 if @events
   json.performing_events do

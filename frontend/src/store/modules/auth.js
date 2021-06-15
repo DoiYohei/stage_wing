@@ -13,12 +13,8 @@ const mutations = {
   }
 }
 const actions = {
-  signup ({dispatch}, authParams) {
-    axios.post('/auth/sign_up', {
-      name: authParams.name,
-      email: authParams.email,
-      password: authParams.password
-    })
+  signup ({dispatch}, formData) {
+    return axios.post('/auth/sign_up', formData)
       .then(response => {
         dispatch('setAuthData', response.headers)
         router.replace('/')
