@@ -9,6 +9,7 @@
       <button @click='deleteEvent'>削除する</button>
     </template>
     <div>{{event.name}}</div>
+    <img :src="event.flyer">
     <div>{{event.open_at}}</div>
     <div>{{event.start_at}}</div>
     <div>{{event.place}}</div>
@@ -55,7 +56,7 @@ export default {
   },
   methods: {
     assignData () {
-      this.event = this.eventData.event
+      this.event = this.eventData
       this.owner = this.eventData.owner
       this.performers = this.lineupData.performers
       this.unregisteredPerformers = this.lineupData.unregistered_performers

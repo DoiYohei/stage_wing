@@ -9,6 +9,14 @@
       <label for="email">Email</label>
       <input type="text" v-model="email" id="email">
     </div>
+    <div class="form">
+      <label for="profile">profile</label>
+      <input type="text" v-model="profile" id="profile">
+    </div>
+    <div class="form">
+      <label for="image">プロフィール画像</label>
+      <input type="file" id="image" @change="setImage">
+    </div>
     <button @click="updateData">更新する</button>
   </div>
 </template>
@@ -21,26 +29,33 @@ export default {
   data () {
     return {
       name: '',
-      email: ''
+      email: '',
+      image: '',
+      profile: ''
     }
   },
   methods: {
+    setImage (e) {
+      this.image = e.target.files[0]
+    },
     updateData () {
-      const formData = {
-        name: this.name,
-        email: this.email
-      }
-      const tokenData = {
+      const token = {
         headers: this.$store.getters.authData
       }
-      this.$store.dispatch('editBandData', {formData, tokenData})
+      const formData = new FormData()
+      formData.append('name', this.name)
+      formData.append('email', this.email)
+      formData.append('profile', this.profile)
+      formData.append('image', this.image)
+      this.$store.dispatch('editBandData', {formData, token})
     }
   },
   created () {
     axios.get('/bands/' + this.id)
       .then(response => {
-        this.name = response.data.band.name
-        this.email = response.data.band.email
+        this.name = response.data.name
+        this.email = response.data.email
+        this.image = response.data.image
       })
   }
 }
