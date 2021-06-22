@@ -11,6 +11,9 @@ import EventsNew from '@/views/Events/EventsNew'
 import BandsIndex from '@/views/Bands/BandsIndex'
 import BandsShow from '@/views/Bands/BandsShow'
 import BandsEdit from '@/views/Bands/BandsEdit'
+import PostsIndex from '@/views/Posts/PostsIndex'
+import PostsNew from '@/views/Posts/PostsNew'
+import PostsEdit from '@/views/Posts/PostsEdit'
 
 Vue.use(Router)
 
@@ -75,6 +78,24 @@ export default new Router({
       path: '/bands/:id/edit',
       name: 'BandsEdit',
       component: BandsEdit,
+      props: true
+    },
+    {
+      path: '/bands/:id/posts',
+      name: 'PostsIndex',
+      component: PostsIndex,
+      props: true
+    },
+    {
+      path: '/bands/:id/posts/new',
+      name: 'PostsNew',
+      component: PostsNew,
+      props: true
+    },
+    {
+      path: '/bands/:id/posts/:postId/edit',
+      name: 'PostsEdit',
+      component: PostsEdit,
       props: true
     }
   ]
