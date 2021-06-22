@@ -1,8 +1,9 @@
 <template>
   <div>
+    <router-link :to="'/bands/' + id + '/posts'">Posts</router-link>
     <div>{{band.name}}</div>
     <div v-if="band.profile">
-      <iframe id="sc-widget" :src="band.profile"></iframe>
+      <iframe :src="band.profile"></iframe>
     </div>
     <img :src="band.image">
     <template v-if="isMyPage">
