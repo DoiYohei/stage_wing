@@ -9,6 +9,7 @@ class EventsController < ApplicationController
   def show
     @event = Event.find(params[:id])
     @owner = @event.owner
+    @flyer = @event.flyer.thumb.url
   end
 
   def create
@@ -17,7 +18,7 @@ class EventsController < ApplicationController
     if @event.save
       render :show, status: :ok
     else
-      render json: @event.error, status: :unprocessable_entity
+      render json: @event.errors, status: :unprocessable_entity
     end
   end
 
@@ -26,7 +27,7 @@ class EventsController < ApplicationController
     if @event.update(event_params)
       render :show, status: :ok
     else
-      render json: @event.error, status: :unprocessable_entity
+      render json: @event.errors, status: :unprocessable_entity
     end
   end
 
@@ -42,6 +43,6 @@ class EventsController < ApplicationController
   end
 
   def event_params
-    params.require(:event).permit(:name, :place, :open_at, :start_at, :content)
+    params.require(:event).permit(:name, :flyer, :place, :open_at, :start_at, :content)
   end
 end

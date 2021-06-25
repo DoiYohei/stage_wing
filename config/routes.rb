@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   mount_devise_token_auth_for 'Band', at: 'auth', skip: [:registrations], controllers: {
     sessions: 'auth/sessions'
   }
+  
   devise_scope :band do
     post '/auth/sign_up', to: 'auth/registrations#create', as: :user_registration
     patch '/auth/account/edit', to: 'auth/registrations#update', as: :edit_user_registration
@@ -12,6 +13,7 @@ Rails.application.routes.draw do
     resources :events do
       resources :lineups
     end
-    resources :bands, only: [:index, :show]
+    resources :bands, only: %i(show index)
+    resources :posts, only: %i(index create edit update destroy)
   end
 end

@@ -3,45 +3,55 @@
     <h1>アカウント情報編集</h1>
     <div class="form">
       <label for="name">バンド名</label>
-      <input type="text" v-model="name" id="name">
+      <input type="text" v-model="band.name" id="name">
     </div>
     <div class="form">
       <label for="email">Email</label>
-      <input type="text" v-model="email" id="email">
+      <input type="text" v-model="band.email" id="email">
     </div>
-    <button @click="updateData">更新する</button>
+    <div class="form">
+      <label for="profile">profile</label>
+      <input type="text" v-model="band.profile" id="profile">
+    </div>
+    <div class="form">
+      <label for="image">プロフィール画像</label>
+      <input type="file" id="image" @change="setImage">
+      <div v-if="url">
+        <img :src="url">
+      </div>
+    </div>
+    <button @click="patchBand">更新する</button>
   </div>
 </template>
 
 <script>
-import axios from '@/axios'
-
 export default {
   props: ['id'],
   data () {
     return {
-      name: '',
-      email: ''
+      band: {},
+      url: ''
     }
   },
   methods: {
-    updateData () {
-      const formData = {
-        name: this.name,
-        email: this.email
-      }
-      const tokenData = {
-        headers: this.$store.getters.authData
-      }
-      this.$store.dispatch('editBandData', {formData, tokenData})
+    setImage (e) {
+      this.image = e.target.files[0]
+      this.url = URL.createObjectURL(this.image)
+    },
+    async patchBand () {
+      const token = { headers: this.$store.getters.token }
+      const formData = new FormData()
+      formData.append('name', this.band.name)
+      formData.append('email', this.band.email)
+      formData.append('profile', this.band.profile)
+      formData.append('image', this.band.image)
+      await this.$axios.patch('/auth/account/edit', formData, token)
+      this.$router.replace(`/bands/${this.id}`)
     }
   },
-  created () {
-    axios.get('/bands/' + this.id)
-      .then(response => {
-        this.name = response.data.band.name
-        this.email = response.data.band.email
-      })
+  async created () {
+    const res = await this.$axios.get(`/bands/${this.id}`)
+    this.band = res.data
   }
 }
 </script>

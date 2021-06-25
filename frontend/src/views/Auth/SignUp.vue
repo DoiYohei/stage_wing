@@ -13,6 +13,13 @@
       <label for="password">Password</label>
       <input type="password" v-model="password" id="password">
     </div>
+    <div class="form">
+      <label for="image">プロフィール画像</label>
+      <input type="file" id="image" @change="setImage">
+      <div v-if="url">
+        <img :src="url">
+      </div>
+    </div>
     <button @click="signUp">Sign Up</button>
   </div>
 </template>
@@ -23,16 +30,23 @@ export default {
     return {
       name: '',
       email: '',
-      password: ''
+      password: '',
+      image: '',
+      url: ''
     }
   },
   methods: {
+    setImage (e) {
+      this.image = e.target.files[0]
+      this.url = URL.createObjectURL(this.image)
+    },
     signUp () {
-      this.$store.dispatch('signup', {
-        name: this.name,
-        email: this.email,
-        password: this.password
-      })
+      const formData = new FormData()
+      formData.append('name', this.name)
+      formData.append('email', this.email)
+      formData.append('password', this.password)
+      formData.append('image', this.image)
+      this.$store.dispatch('signup', formData)
     }
   }
 }

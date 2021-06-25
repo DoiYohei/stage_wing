@@ -6,6 +6,13 @@
       <input type="text" v-model="name" id="name">
     </div>
     <div class="form">
+      <label for="flyer">フライヤー</label>
+      <input type="file" id="flyer" @change="setFlyer">
+      <div v-if="url">
+        <img :src="url">
+      </div>
+    </div>
+    <div class="form">
       <label for="place">場所</label>
       <input type="text" v-model="place" id="place">
     </div>
@@ -40,12 +47,14 @@ export default {
   data () {
     return {
       name: '',
+      flyer: '',
       place: '',
       openAt: '',
       startAt: '',
       content: '',
       performers: [{name: ''}],
-      unregisteredPerformers: ''
+      unregisteredPerformers: '',
+      url: ''
     }
   },
   computed: {
@@ -73,6 +82,10 @@ export default {
     }
   },
   methods: {
+    setFlyer (e) {
+      this.flyer = e.target.files[0]
+      this.url = URL.createObjectURL(this.image)
+    },
     postEvent () {
       const performerIds = []
       for (let performer of this.performers) {
@@ -81,29 +94,25 @@ export default {
           performerIds.push(registeredPerformer.id)
         }
       }
-      const eventForm = {
-        event: {
-          name: this.name,
-          place: this.place,
-          open_at: this.openAt,
-          start_at: this.startAt,
-          content: this.content
-        }
-      }
-      const token = {
-        headers: this.$store.getters.authData
-      }
-      this.$store.dispatch('postEvent', {eventForm, token})
+      const token = { headers: this.$store.getters.token }
+      const formData = new FormData()
+      formData.append('event[name]', this.name)
+      formData.append('event[flyer]', this.flyer)
+      formData.append('event[place]', this.place)
+      formData.append('event[open_at]', this.openAt)
+      formData.append('event[start_at]', this.startAt)
+      formData.append('event[content]', this.content)
+      this.$store.dispatch('postEvent', {formData, token})
         .then(() => {
           const lineupForm = {
-            eventId: this.$store.getters.eventData.event.id,
+            eventId: this.$store.getters.eventData.id,
             performerIds: performerIds,
             unregisteredPerformers: this.unregisteredPerformers,
             token: token
           }
           this.$store.dispatch('postLineup', lineupForm)
         })
-        .then(() => router.replace('/'))
+        .then(() => router.replace('/events/' + this.$store.getters.eventData.id))
     }
   },
   created () {

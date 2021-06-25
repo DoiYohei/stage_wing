@@ -25,12 +25,13 @@ const actions = {
   },
   getBandData ({commit}, bandId) {
     return axios.get('/bands/' + bandId).then(response => {
-      commit('updateBandData', response.data.band)
+      commit('updateBandData', response.data)
     })
   },
   editBandData ({commit}, editData) {
-    axios.patch('/auth/account/edit', editData.formData, editData.tokenData)
+    axios.patch('/auth/account/edit', editData.formData, editData.token)
       .then(response => {
+        console.log(response)
         commit('updateBandData', response.data)
         commit('updateBandsData', null)
         router.replace('/bands/' + response.data.data.id)

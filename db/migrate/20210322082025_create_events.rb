@@ -3,9 +3,11 @@ class CreateEvents < ActiveRecord::Migration[6.1]
     create_table :events do |t|
       t.bigint :owner_id
       t.string :name, null:false
+      t.string :flyer
       t.string :place, null:false
       t.datetime :open_at, null:false
       t.datetime :start_at, null:false
+      t.integer :ticket_price
       t.text :content
 
       t.timestamps

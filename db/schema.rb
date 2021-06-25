@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_29_061241) do
+ActiveRecord::Schema.define(version: 2021_06_15_070746) do
 
   create_table "bands", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "provider", default: "email", null: false
@@ -30,8 +30,11 @@ ActiveRecord::Schema.define(version: 2021_04_29_061241) do
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
     t.string "name", default: "", null: false
-    t.string "image"
     t.string "email", default: "", null: false
+    t.string "image"
+    t.text "profile"
+    t.string "website"
+    t.string "twitter"
     t.text "tokens"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -44,9 +47,11 @@ ActiveRecord::Schema.define(version: 2021_04_29_061241) do
   create_table "events", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "owner_id"
     t.string "name", null: false
+    t.string "flyer"
     t.string "place", null: false
     t.datetime "open_at", null: false
     t.datetime "start_at", null: false
+    t.integer "ticket_price"
     t.text "content"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -63,5 +68,20 @@ ActiveRecord::Schema.define(version: 2021_04_29_061241) do
     t.index ["performer_id"], name: "index_lineups_on_performer_id"
   end
 
+  create_table "posts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "title"
+    t.string "format", null: false
+    t.string "photo"
+    t.string "audio"
+    t.string "media_pass"
+    t.text "description"
+    t.bigint "band_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["band_id", "created_at"], name: "index_posts_on_band_id_and_created_at"
+    t.index ["band_id"], name: "index_posts_on_band_id"
+  end
+
   add_foreign_key "lineups", "events"
+  add_foreign_key "posts", "bands"
 end

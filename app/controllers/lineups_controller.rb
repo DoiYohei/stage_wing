@@ -36,7 +36,7 @@ class LineupsController < ApplicationController
     if @lineup.update(lineup_params)
       render json: :ok
     else
-      render json: @lineup.error, status: :unprocessable_entity
+      render json: @lineup.errors, status: :unprocessable_entity
     end
   end
   
