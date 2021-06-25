@@ -16,6 +16,9 @@
     <div class="form">
       <label for="image">プロフィール画像</label>
       <input type="file" id="image" @change="setImage">
+      <div v-if="url">
+        <img :src="url">
+      </div>
     </div>
     <button @click="signUp">Sign Up</button>
   </div>
@@ -28,12 +31,14 @@ export default {
       name: '',
       email: '',
       password: '',
-      image: ''
+      image: '',
+      url: ''
     }
   },
   methods: {
     setImage (e) {
       this.image = e.target.files[0]
+      this.url = URL.createObjectURL(this.image)
     },
     signUp () {
       const formData = new FormData()

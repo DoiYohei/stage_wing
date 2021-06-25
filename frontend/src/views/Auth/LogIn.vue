@@ -23,10 +23,10 @@ export default {
   },
   methods: {
     logIn () {
-      this.$store.dispatch('login', {
-        email: this.email,
-        password: this.password
-      })
+      const formData = new FormData()
+      formData.append('email', this.email)
+      formData.append('password', this.password)
+      this.$store.dispatch('login', formData)
     }
   }
 }

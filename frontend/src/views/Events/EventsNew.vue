@@ -8,6 +8,9 @@
     <div class="form">
       <label for="flyer">フライヤー</label>
       <input type="file" id="flyer" @change="setFlyer">
+      <div v-if="url">
+        <img :src="url">
+      </div>
     </div>
     <div class="form">
       <label for="place">場所</label>
@@ -50,7 +53,8 @@ export default {
       startAt: '',
       content: '',
       performers: [{name: ''}],
-      unregisteredPerformers: ''
+      unregisteredPerformers: '',
+      url: ''
     }
   },
   computed: {
@@ -80,6 +84,7 @@ export default {
   methods: {
     setFlyer (e) {
       this.flyer = e.target.files[0]
+      this.url = URL.createObjectURL(this.image)
     },
     postEvent () {
       const performerIds = []
@@ -89,9 +94,7 @@ export default {
           performerIds.push(registeredPerformer.id)
         }
       }
-      const token = {
-        headers: this.$store.getters.authData
-      }
+      const token = { headers: this.$store.getters.token }
       const formData = new FormData()
       formData.append('event[name]', this.name)
       formData.append('event[flyer]', this.flyer)

@@ -16,12 +16,18 @@
         <option value="news">お知らせ</option>
       </select>
     </div>
-    <template v-if="this.whatStyle === 'file'">
+    <template v-if="whatStyle === 'file'">
       <div class="form">
         <input type="file" id="file" @change="setFile">
+        <div v-if="url && format === 'photo'">
+          <img :src="url">
+        </div>
+        <div v-if="url && format === 'audio'">
+          <audio controls :src="url"></audio>
+        </div>
       </div>
     </template>
-    <template v-if="this.whatStyle === 'media_pass'">
+    <template v-if="whatStyle === 'media_pass'">
       <div class="form">
         <input type="text" v-model="mediaPass" id="media-pass">
       </div>
@@ -43,7 +49,8 @@ export default {
       format: '',
       file: '',
       mediaPass: '',
-      description: ''
+      description: '',
+      url: ''
     }
   },
   computed: {
@@ -55,11 +62,10 @@ export default {
   methods: {
     setFile (e) {
       this.file = e.target.files[0]
+      this.url = URL.createObjectURL(this.file)
     },
     async postInputs () {
-      const token = {
-        headers: this.$store.getters.authData
-      }
+      const token = { headers: this.$store.getters.token }
       const formData = new FormData()
       formData.append('post[title]', this.title)
       formData.append('post[format]', this.format)

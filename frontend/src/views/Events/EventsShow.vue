@@ -1,11 +1,11 @@
 <template>
   <div>
-    <template v-if="owner">
-      <div>{{owner.name}}</div>
+    <template v-if="event.owner">
+      <div>{{event.owner.name}}</div>
     </template>
     <p v-else>作成者は退会しました</p>
     <template v-if="isEventOwner">
-      <router-link :to="'/events/' + id + '/edit'">イベント情報を編集する</router-link>
+      <router-link :to="`/events/${id}/edit`">イベント情報を編集する</router-link>
       <button @click='deleteEvent'>削除する</button>
     </template>
     <div>{{event.name}}</div>
@@ -15,16 +15,16 @@
     <div>{{event.place}}</div>
     <div>{{event.content}}</div>
     <p>Lineup: </p>
-    <template v-if="performers">
-      <div v-for="(performer, index) in performers" :key="index">
-        <router-link :to="'/bands/' + performer.id">{{performer.name}}</router-link>
+    <template v-if="lineup.performers">
+      <div v-for="(performer, index) in lineup.performers" :key="index">
+        <router-link :to="`/bands/${performer.id}`">{{performer.name}}</router-link>
       </div>
     </template>
-    <template v-if="unregisteredPerformers">
-      <div>/ {{unregisteredPerformers.name}}</div>
+    <template v-if="lineup.unregistered_performers">
+      <div>/ {{lineup.unregistered_performers.name}}</div>
     </template>
     <template v-if="isEventOwner">
-      <router-link :to="'/events/' + id + '/lineup/edit'">Lineupを編集する</router-link>
+      <router-link :to="`/events/${id}/lineup/edit`">Lineupを編集する</router-link>
     </template>
   </div>
 </template>
@@ -34,50 +34,27 @@ export default {
   props: ['id'],
   data () {
     return {
-      event: [],
-      owner: [],
-      performers: [],
-      unregisteredPerformers: []
+      event: {},
+      lineup: {}
     }
   },
   computed: {
-    eventData () {
-      return this.$store.getters.eventData
-    },
-    lineupData () {
-      return this.$store.getters.lineup
-    },
     isEventOwner () {
-      const authData = this.$store.getters.authData
-      if (authData && this.owner) {
-        return authData.uid === this.owner.email
-      }
+      return this.$store.getters.currentUserId === this.event.owner_id
     }
   },
   methods: {
-    assignData () {
-      this.event = this.eventData
-      this.owner = this.eventData.owner
-      this.performers = this.lineupData.performers
-      this.unregisteredPerformers = this.lineupData.unregistered_performers
-    },
-    deleteEvent () {
-      const eventId = this.id
-      const tokenData = {
-        headers: this.$store.getters.authData
-      }
-      this.$store.dispatch('deleteEventData', {eventId, tokenData})
+    async deleteEvent () {
+      const token = { headers: this.$store.getters.token }
+      await this.$axios.delete(`/events/${this.id}`, token)
+      this.$router.replace('/')
     }
   },
   async created () {
-    if (!this.eventData.event || this.eventData.event.id !== Number(this.id)) {
-      await this.$store.dispatch('getEventData', this.id)
-        .then(() => this.$store.dispatch('getLineup', this.id))
-    }
-    if (!this.lineupData || this.lineupData.event_id !== Number(this.id)) {
-      await this.$store.dispatch('getLineup', this.id)
-    }
-    this.assignData()
+    const res = await this.$axios.get(`/events/${this.id}`)
+    this.event = res.data
+    const res2 = await this.$axios.get(`/events/${this.id}/lineups`)
+    this.lineup = res2.data
   }
 }
 </script>

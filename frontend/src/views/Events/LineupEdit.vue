@@ -15,9 +15,6 @@
 </template>
 
 <script>
-import router from '@/router'
-import axios from '@/axios'
-
 export default {
   props: ['id'],
   data () {
@@ -106,20 +103,16 @@ export default {
       }
       await this.$store.dispatch('editLineup', {eventId, lineupId, formData, token})
       this.$store.dispatch('getLineup', eventId)
-        .then(() => router.replace('/events/' + eventId))
+        .then(() => this.$router.replace('/events/' + eventId))
     }
   },
-  created () {
-    if (!this.bandsData) {
-      this.$store.dispatch('getBandsData')
-    }
-    axios.get('/events/' + this.id + '/lineups')
-      .then(response => {
-        this.performers = response.data.performers
-        this.lineupIds = response.data.lineup_ids
-        this.performers.push({name: ''})
-        this.unregisteredPerformers = response.data.unregistered_performers
-      })
+  async created () {
+    this.$store.dispatch('getBandsData')
+    const res = await this.$axios.get(`/events/${this.id}/lineups`)
+    this.performers = res.data.performers
+    this.lineupIds = res.data.lineup_ids
+    this.performers.push({name: ''})
+    this.unregisteredPerformers = res.data.unregistered_performers
   }
 }
 </script>
