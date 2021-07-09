@@ -1,124 +1,165 @@
 <template>
   <div>
     <h1>新規イベント投稿</h1>
-    <div class="form">
-      <label for="name">イベント名</label>
-      <input type="text" v-model="name" id="name">
-    </div>
-    <div class="form">
-      <label for="flyer">フライヤー</label>
-      <input type="file" id="flyer" @change="setFlyer">
-      <div v-if="url">
-        <img :src="url">
-      </div>
-    </div>
-    <div class="form">
-      <label for="place">場所</label>
-      <input type="text" v-model="place" id="place">
-    </div>
-    <div class="form">
-      <label for="open-at">Open</label>
-      <input type="datetime-local" v-model="openAt" id="open-at">
-    </div>
-    <div class="form">
-      <label for="start-at">Start</label>
-      <input type="datetime-local" v-model="startAt" id="start-at">
-    </div>
-    <div class="form">
-      <label for="content">詳細</label>
-      <textarea v-model="content" id="content" rows="20" cols="50"></textarea>
-    </div>
-    <div class="form" v-for="(performer, index) in performers" :key="index">
-      <label for="performer">Lineup</label>
-      <input type="text" v-model="performer.name" class="performer">
-    </div>
-    <div class="form">
-      <label for="unregistered-performers">登録されていないアーティスト</label>
-      <textarea v-model="unregisteredPerformers" id="unregistered-performers" rows="20" cols="50"></textarea>
-    </div>
-    <button @click="postEvent">投稿する</button>
+    <v-container>
+      <v-row>
+        <v-col md="4" offset-md="4">
+          <v-text-field v-model="name" label="イベント名" />
+        </v-col>
+        <v-col md="2" offset-md="4">
+          <v-file-input
+            v-model="flyer"
+            @change="fetchUrl"
+            label="フライヤー"
+            placeholder="ファイルを選択してください"
+            chips
+          />
+        </v-col>
+        <v-col md="2">
+          <v-img v-if="url" :src="url" />
+        </v-col>
+        <v-col md="4" offset-md="4">
+          <v-text-field v-model="place" label="場所" />
+        </v-col>
+        <v-col md="2" offset-md="4">
+          <vue-ctk-date-time-picker
+            v-model="openAt"
+            format="YYYY-MM-DD HH:mm"
+            label="Open"
+            id="open-at"
+          />
+        </v-col>
+        <v-col md="2">
+          <vue-ctk-date-time-picker
+            v-model="startAt"
+            format="YYYY-MM-DD HH:mm"
+            label="Start"
+            id="start-at"
+          />
+        </v-col>
+        <v-col md="4" offset-md="4">
+          <v-textarea v-model="content" label="詳細" outlined />
+        </v-col>
+        <v-col cols="12">
+          <div>Lineup</div>
+          <v-col
+            md="4"
+            offset-md="4"
+            v-for="(performer, index) in performers"
+            :key="index"
+          >
+            <v-text-field v-model="performer.name" />
+          </v-col>
+        </v-col>
+        <v-col md="4" offset-md="4">
+          <v-textarea
+            v-model="unregisteredPerformers"
+            label="登録されていないアーティスト"
+            outlined
+          />
+        </v-col>
+        <v-col cols="12">
+          <v-btn elevation="4" @click="postEvent">投稿する</v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script>
-import router from '@/router'
+import router from "@/routes";
 
 export default {
-  data () {
+  data() {
     return {
-      name: '',
-      flyer: '',
-      place: '',
-      openAt: '',
-      startAt: '',
-      content: '',
-      performers: [{name: ''}],
-      unregisteredPerformers: '',
-      url: ''
-    }
+      name: "",
+      flyer: [],
+      place: "",
+      openAt: "",
+      startAt: "",
+      content: "",
+      performers: [{ name: "" }],
+      unregisteredPerformers: "",
+      url: "",
+    };
   },
   computed: {
-    bandsData () {
-      return this.$store.getters.bandsData
+    bandsData() {
+      return this.$store.getters.bandsData;
     },
-    countEmptyForm () {
-      return this.performers.filter(el => el.name === '').length
-    }
+    countEmptyForm() {
+      return this.performers.filter((el) => el.name === "").length;
+    },
   },
   watch: {
-    countEmptyForm (newData) {
+    countEmptyForm(newData) {
       if (newData === 0) {
-        this.performers.push({ name: '' })
+        this.performers.push({ name: "" });
       }
       if (newData >= 2) {
         // this.performersから、{name: ''}を持つ最後の要素を削除する
-        const isEmptyForm = []
+        const isEmptyForm = [];
         for (let performer of this.performers) {
-          let isEmptyName = performer.name === ''
-          isEmptyForm.push(isEmptyName)
+          let isEmptyName = performer.name === "";
+          isEmptyForm.push(isEmptyName);
         }
-        this.performers.splice(isEmptyForm.lastIndexOf(true), 1)
+        this.performers.splice(isEmptyForm.lastIndexOf(true), 1);
       }
-    }
+    },
   },
   methods: {
-    setFlyer (e) {
-      this.flyer = e.target.files[0]
-      this.url = URL.createObjectURL(this.image)
+    fetchUrl(file) {
+      if (file !== undefined && file !== null) {
+        if (file.name.lastIndexOf(".") <= 0) {
+          return;
+        }
+        const fr = new FileReader();
+        fr.readAsDataURL(file);
+        fr.addEventListener("load", () => {
+          this.url = fr.result;
+        });
+      } else {
+        this.url = "";
+      }
     },
-    postEvent () {
-      const performerIds = []
+    postEvent() {
+      const performerIds = [];
       for (let performer of this.performers) {
-        let registeredPerformer = this.bandsData.find(el => el.name === performer.name)
+        let registeredPerformer = this.bandsData.find(
+          (el) => el.name === performer.name
+        );
         if (registeredPerformer) {
-          performerIds.push(registeredPerformer.id)
+          performerIds.push(registeredPerformer.id);
         }
       }
-      const token = { headers: this.$store.getters.token }
-      const formData = new FormData()
-      formData.append('event[name]', this.name)
-      formData.append('event[flyer]', this.flyer)
-      formData.append('event[place]', this.place)
-      formData.append('event[open_at]', this.openAt)
-      formData.append('event[start_at]', this.startAt)
-      formData.append('event[content]', this.content)
-      this.$store.dispatch('postEvent', {formData, token})
+      const token = { headers: this.$store.getters.token };
+      const formData = new FormData();
+      formData.append("event[name]", this.name);
+      formData.append("event[flyer]", this.flyer);
+      formData.append("event[place]", this.place);
+      formData.append("event[open_at]", this.openAt);
+      formData.append("event[start_at]", this.startAt);
+      formData.append("event[content]", this.content);
+      this.$store
+        .dispatch("postEvent", { formData, token })
         .then(() => {
           const lineupForm = {
             eventId: this.$store.getters.eventData.id,
             performerIds: performerIds,
             unregisteredPerformers: this.unregisteredPerformers,
-            token: token
-          }
-          this.$store.dispatch('postLineup', lineupForm)
+            token: token,
+          };
+          this.$store.dispatch("postLineup", lineupForm);
         })
-        .then(() => router.replace('/events/' + this.$store.getters.eventData.id))
+        .then(() =>
+          router.replace("/events/" + this.$store.getters.eventData.id)
+        );
+    },
+  },
+  created() {
+    if (this.bandsData === null) {
+      this.$store.dispatch("getBandsData");
     }
   },
-  created () {
-    if (this.bandsData === null) {
-      this.$store.dispatch('getBandsData')
-    }
-  }
-}
+};
 </script>

@@ -2,8 +2,8 @@
   <div>
     <div v-for="(band, index) in bands" :key="index">
       <router-link :to="`/bands/${band.id}`">
-        <div>{{band.name}}</div>
-        <hr>
+        <div>{{ band.name }}</div>
+        <hr />
       </router-link>
     </div>
   </div>
@@ -11,14 +11,14 @@
 
 <script>
 export default {
-  data () {
+  data() {
     return {
-      bands: []
-    }
+      bands: [],
+    };
   },
-  async created () {
-    const res = await this.$axios.get('/bands')
-    this.bands = res.data.bands
-  }
-}
+  async created() {
+    const res = await this.$axios.get("/bands");
+    this.bands = res.data.bands;
+  },
+};
 </script>
