@@ -3,7 +3,18 @@
     <router-link to="/event/new" v-if="isAuthenticated"
       >Eventを投稿する</router-link
     >
-    <div v-for="(event, index) in events" :key="index">
+    <v-container>
+      <v-row>
+        <v-text-field v-model="keywordInput" label="Event名で検索" />
+        <vue-ctk-date-time-picker
+          v-model="dateInput"
+          format="YYYY-MM-DD"
+          label="開催日で検索"
+          only-date
+        />
+      </v-row>
+    </v-container>
+    <div v-for="(event, index) in filteredEvents" :key="index">
       <router-link :to="`/events/${event.id}`">
         <span>{{ $dayjs(event.open_at).format("YYYY MMM DD") }}</span>
         <span> {{ event.name }}</span>
@@ -17,17 +28,29 @@
 export default {
   data() {
     return {
-      events: [],
+      fetchedEvents: [],
+      keywordInput: "",
+      dateInput: "",
     };
+  },
+  async created() {
+    const res = await this.$axios.get("/events");
+    this.fetchedEvents = res.data.events;
   },
   computed: {
     isAuthenticated() {
       return this.$store.getters.authData !== null;
     },
-  },
-  async created() {
-    const res = await this.$axios.get("/events");
-    this.events = res.data.events;
+    filteredEvents() {
+      let keyword = this.keywordInput.toLowerCase().trim();
+      if (!keyword && !this.dateInput) return this.fetchedEvents;
+      return this.fetchedEvents.filter((event) => {
+        return (
+          event.name.toLowerCase().includes(keyword) &&
+          event.open_at.includes(this.dateInput)
+        );
+      });
+    },
   },
 };
 </script>
