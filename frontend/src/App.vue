@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <v-app>
     <header>
       <router-link to="/">Stage Wing</router-link>
       <router-link to="/events">Event</router-link>
@@ -9,33 +9,36 @@
         <router-link to="/login">Log In</router-link>
       </template>
       <template v-else>
-        <span  class="logout" @click="logOut">Log Out</span>
+        <span class="logout" @click="logOut">Log Out</span>
       </template>
     </header>
     <router-view></router-view>
-  </div>
+  </v-app>
 </template>
 
 <script>
 export default {
-  name: 'App',
+  name: "App",
   computed: {
-    isAuthenticated () {
-      return this.$store.getters.authData !== null
-    }
+    isAuthenticated() {
+      return this.$store.getters.authData !== null;
+    },
   },
   methods: {
-    logOut () {
-      const token = { headers: this.$store.getters.token }
-      this.$store.dispatch('logout', token)
-    }
-  }
-}
+    async logOut() {
+      const token = { headers: this.$store.getters.token };
+      await this.$store.dispatch("logout", token);
+      if (this.$route.path !== "/") {
+        return this.$router.replace("/");
+      }
+    },
+  },
+};
 </script>
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

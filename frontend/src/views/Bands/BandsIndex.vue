@@ -1,9 +1,14 @@
 <template>
   <div>
-    <div v-for="(band, index) in bands" :key="index">
+    <v-container>
+      <v-row>
+        <v-text-field v-model="keywordInput" label="Band 検索" />
+      </v-row>
+    </v-container>
+    <div v-for="(band, index) in filteredBands" :key="index">
       <router-link :to="`/bands/${band.id}`">
-        <div>{{band.name}}</div>
-        <hr>
+        <div>{{ band.name }}</div>
+        <hr />
       </router-link>
     </div>
   </div>
@@ -11,14 +16,24 @@
 
 <script>
 export default {
-  data () {
+  data() {
     return {
-      bands: []
-    }
+      fetchedBands: [],
+      keywordInput: "",
+    };
   },
-  async created () {
-    const res = await this.$axios.get('/bands')
-    this.bands = res.data.bands
-  }
-}
+  async created() {
+    const res = await this.$axios.get("/bands");
+    this.fetchedBands = res.data.bands;
+  },
+  computed: {
+    filteredBands() {
+      let keyword = this.keywordInput.toLowerCase().trim();
+      if (!keyword) return this.fetchedBands;
+      return this.fetchedBands.filter((band) => {
+        return band.name.toLowerCase().includes(keyword);
+      });
+    },
+  },
+};
 </script>

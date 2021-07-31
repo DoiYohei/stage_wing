@@ -1,118 +1,132 @@
 <template>
   <div>
-    <div v-for="(performer, index) in performers" :key="index">
-      <div class="form">
-        <label for="performer">Lineup</label>
-        <input type="text" v-model="performer.name" class="performer">
-      </div>
-    </div>
-    <div class="form">
-      <label for="unregistered-performers">登録されていないアーティスト</label>
-      <textarea v-model="unregisteredPerformers.name" id="unregistered-performers" rows="20" cols="50"></textarea>
-    </div>
-    <button @click="editLineup">変更する</button>
+    <v-container>
+      <v-row>
+        <v-col cols="12">
+          <div>Lineup</div>
+          <v-col md="4" offset-md="4">
+            <v-autocomplete
+              v-model="performers"
+              :items="registeredBands"
+              item-text="name"
+              no-data-text="登録されていません"
+              multiple
+              return-object
+              clearable
+              outlined
+            />
+          </v-col>
+          <v-col md="4" offset-md="4">
+            <v-textarea
+              v-model="unregisteredPerformers"
+              label="登録されていないアーティスト"
+              outlined
+            />
+          </v-col>
+        </v-col>
+        <v-col cols="12">
+          <v-btn elevation="4" @click="patchLineup">変更する</v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
 <script>
 export default {
-  props: ['id'],
-  data () {
+  props: ["id"],
+  data() {
     return {
       performers: [],
-      unregisteredPerformers: '',
-      lineupIds: []
-    }
+      unregisteredPerformers: "",
+      originalLineupIds: [],
+      registeredBands: [],
+    };
   },
-  computed: {
-    bandsData () {
-      return this.$store.getters.bandsData
-    },
-    countEmptyForm () {
-      return this.performers.filter(el => el.name === '').length
-    }
-  },
-  watch: {
-    countEmptyForm (newData) {
-      if (newData === 0) {
-        this.performers.push({ name: '' })
-      }
-      if (newData >= 2) {
-        // this.performersから、{name: ''}を持つ最後の要素を削除する
-        const isEmptyForm = []
-        for (let performer of this.performers) {
-          let isEmptyName = performer.name === ''
-          isEmptyForm.push(isEmptyName)
-        }
-        this.performers.splice(isEmptyForm.lastIndexOf(true), 1)
-      }
-    }
+  async created() {
+    const lineupRes = await this.$axios.get(`/events/${this.id}/lineups`);
+    this.performers = lineupRes.data.performers;
+    this.originalLineupIds = lineupRes.data.lineup_ids;
+    const eventRes = await this.$axios.get(`/events/${this.id}`);
+    this.unregisteredPerformers = eventRes.data.unregistered_performers;
+
+    // 出演者の入力時に検索機能を使うため、本サービスに登録されているBand一覧を取得
+    const bandsRes = await this.$axios.get("/bands");
+    this.registeredBands = bandsRes.data.bands;
   },
   methods: {
-    async editLineup () {
-      const eventId = this.id
+    async patchLineup() {
+      const eventId = this.id;
       const token = {
-        headers: this.$store.getters.authData
-      }
-      const newPerformerIds = []
-      for (let performer of this.performers) {
-        let registeredPerformer = this.bandsData.find(el => el.name === performer.name)
-        if (registeredPerformer) {
-          newPerformerIds.push(registeredPerformer.id)
-        }
-      }
-      const originalLineupLength = this.lineupIds.length
-      const newLineupLength = newPerformerIds.length
+        headers: this.$store.getters.authData,
+      };
+      const originalLineupLength = this.originalLineupIds.length;
+      const newLineupLength = this.performers.length;
+
+      // 更新する総Lineup数が元の総Lineup数より多い場合、元の数分をpatch、多い分をpostする
       if (originalLineupLength <= newLineupLength) {
         for (let i = 0; i < originalLineupLength; i++) {
-          let lineupId = this.lineupIds[i]
-          let formData = {
-            event_id: eventId,
-            performer_id: newPerformerIds[i]
-          }
-          await this.$store.dispatch('editLineup', {eventId, lineupId, formData, token})
+          let lineupId = this.originalLineupIds[i];
+          let lineupFormData = new FormData();
+          lineupFormData.append("lineup[event_id]", eventId);
+          lineupFormData.append("lineup[performer_id]", this.performers[i].id);
+          await this.$axios.patch(
+            `/events/${eventId}/lineups/${lineupId}`,
+            lineupFormData,
+            token
+          );
         }
-        const numberOfNew = newLineupLength - originalLineupLength
+        const numberOfNew = newLineupLength - originalLineupLength;
         if (numberOfNew > 0) {
-          const performerIds = []
           for (let j = originalLineupLength; j < newLineupLength; j++) {
-            let performerId = newPerformerIds[j]
-            performerIds.push(performerId)
+            let lineupFormData = new FormData();
+            lineupFormData.append("lineup[event_id]", eventId);
+            lineupFormData.append(
+              "lineup[performer_id]",
+              this.performers[j].id
+            );
+            await this.$axios.post(
+              `/events/${eventId}/lineups`,
+              lineupFormData,
+              token
+            );
           }
-          await this.$store.dispatch('postLineup', {eventId, performerIds, token})
         }
       }
+
+      // 更新する総Lineup数が元の総Lineup数より少ない場合、更新する分をpatch、少ない分をdeleteする
       if (originalLineupLength > newLineupLength) {
         for (let i = 0; i < newLineupLength; i++) {
-          let lineupId = this.lineupIds[i]
-          let formData = {
-            event_id: eventId,
-            performer_id: newPerformerIds[i]
-          }
-          await this.$store.dispatch('editLineup', {eventId, lineupId, formData, token})
+          let lineupId = this.originalLineupIds[i];
+          let lineupFormData = new FormData();
+          lineupFormData.append("lineup[event_id]", eventId);
+          lineupFormData.append("lineup[performer_id]", this.performers[i].id);
+          await this.$axios.patch(
+            `/events/${eventId}/lineups/${lineupId}`,
+            lineupFormData,
+            token
+          );
         }
         for (let j = newLineupLength; j < originalLineupLength; j++) {
-          let lineupId = this.lineupIds[j]
-          await this.$store.dispatch('deleteLineup', {eventId, lineupId, token})
+          let lineupId = this.originalLineupIds[j];
+          await this.$axios.delete(
+            `/events/${eventId}/lineups/${lineupId}`,
+            token
+          );
         }
       }
-      const lineupId = this.unregisteredPerformers.id
-      const formData = {
-        event_id: eventId,
-        unregistered_performers: this.unregisteredPerformers.name
-      }
-      await this.$store.dispatch('editLineup', {eventId, lineupId, formData, token})
-      this.$store.dispatch('getLineup', eventId)
-        .then(() => this.$router.replace('/events/' + eventId))
-    }
+
+      // 登録されていないBandsは、Eventsテーブルにpatchする
+      const eventFormData = new FormData();
+      eventFormData.append(
+        "event[unregistered_performers]",
+        this.unregisteredPerformers
+      );
+      await this.$axios.patch(`/events/${eventId}`, eventFormData, token);
+
+      // 更新したEventの詳細ページへ
+      this.$router.replace(`/events/${eventId}`);
+    },
   },
-  async created () {
-    this.$store.dispatch('getBandsData')
-    const res = await this.$axios.get(`/events/${this.id}/lineups`)
-    this.performers = res.data.performers
-    this.lineupIds = res.data.lineup_ids
-    this.performers.push({name: ''})
-    this.unregisteredPerformers = res.data.unregistered_performers
-  }
-}
+};
 </script>
