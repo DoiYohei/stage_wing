@@ -45,7 +45,11 @@ export default {
   },
   computed: {
     isMyPage() {
-      return this.$store.getters.currentUserId === Number(this.id);
+      if (this.$store.getters.authData) {
+        return this.$store.getters.currentUserId === Number(this.id);
+      } else {
+        return false;
+      }
     },
   },
   methods: {

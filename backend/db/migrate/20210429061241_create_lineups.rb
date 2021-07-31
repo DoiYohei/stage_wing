@@ -2,8 +2,7 @@ class CreateLineups < ActiveRecord::Migration[6.1]
   def change
     create_table :lineups do |t|
       t.references :event, null: false, foreign_key: true, index:false
-      t.references :performer
-      t.text :unregistered_performers
+      t.references :performer, null: false
 
       t.timestamps
     end

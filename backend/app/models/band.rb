@@ -10,6 +10,6 @@ class Band < ActiveRecord::Base
 
   has_many :created_events, class_name: "Event", foreign_key: "owner_id", dependent: :nullify
   has_many :posts, dependent: :destroy
-  has_many :performings, class_name: "Lineup", foreign_key: "performer_id", dependent: :nullify
+  has_many :performings, class_name: "Lineup", foreign_key: "performer_id", dependent: :destroy
   has_many :performing_events, class_name: "Event", through: :performings
 end

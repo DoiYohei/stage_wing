@@ -9,6 +9,7 @@ class CreateEvents < ActiveRecord::Migration[6.1]
       t.datetime :start_at, null:false
       t.integer :ticket_price
       t.text :content
+      t.text :unregistered_performers
 
       t.timestamps
     end

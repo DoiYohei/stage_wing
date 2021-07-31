@@ -45,11 +45,18 @@ const actions = {
     // トークンの期限が有効ならオートログインする。
     commit("updateAuthData", authData);
   },
-  async logout({ commit }, token) {
+  async logout({ dispatch }, token) {
     await axios.delete("/auth/sign_out", token);
+    return dispatch("deleteToken");
+  },
+  async deleteAccount({ dispatch }, token) {
+    await axios.delete("/auth/account/delete", token);
+    dispatch("deleteToken");
+    router.replace("/");
+  },
+  deleteToken({ commit }) {
     commit("updateAuthData", null);
     localStorage.removeItem("authDataSW");
-    router.replace("/");
   },
 };
 

@@ -8,7 +8,7 @@
     <img :src="band.image" />
     <template v-if="isMyPage">
       <router-link :to="`/bands/${id}/edit`">編集する</router-link>
-      <button @click="deleteBand">削除する</button>
+      <button @click="deleteAccount">退会する</button>
     </template>
     <div>LIVEスケジュール</div>
     <template v-if="band.performing_events">
@@ -31,14 +31,17 @@ export default {
   },
   computed: {
     isMyPage() {
-      return this.$store.getters.currentUserId === this.band.id;
+      if (this.$store.getters.authData) {
+        return this.$store.getters.currentUserId === this.band.id;
+      } else {
+        return false;
+      }
     },
   },
   methods: {
-    async deleteBand() {
+    async deleteAccount() {
       const token = { headers: this.$store.getters.token };
-      await this.$axios.delete("/auth/account/delete", token);
-      this.$router.replace("/");
+      this.$store.dispatch("deleteAccount", token);
     },
   },
   async created() {

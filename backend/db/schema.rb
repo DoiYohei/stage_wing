@@ -53,6 +53,7 @@ ActiveRecord::Schema.define(version: 2021_06_15_070746) do
     t.datetime "start_at", null: false
     t.integer "ticket_price"
     t.text "content"
+    t.text "unregistered_performers"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["owner_id"], name: "index_events_on_owner_id"
@@ -60,8 +61,7 @@ ActiveRecord::Schema.define(version: 2021_06_15_070746) do
 
   create_table "lineups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "event_id", null: false
-    t.bigint "performer_id"
-    t.text "unregistered_performers"
+    t.bigint "performer_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["event_id", "performer_id"], name: "index_lineups_on_event_id_and_performer_id", unique: true

@@ -42,21 +42,25 @@
         </v-col>
         <v-col cols="12">
           <div>Lineup</div>
-          <v-col
-            md="4"
-            offset-md="4"
-            v-for="(performer, index) in performers"
-            :key="index"
-          >
-            <v-text-field v-model="performer.name" />
+          <v-col md="4" offset-md="4">
+            <v-autocomplete
+              v-model="performers"
+              :items="registeredBands"
+              item-text="name"
+              no-data-text="登録されていません"
+              multiple
+              return-object
+              clearable
+              outlined
+            />
           </v-col>
-        </v-col>
-        <v-col md="4" offset-md="4">
-          <v-textarea
-            v-model="unregisteredPerformers"
-            label="登録されていないアーティスト"
-            outlined
-          />
+          <v-col md="4" offset-md="4">
+            <v-textarea
+              v-model="unregisteredPerformers"
+              label="登録されていないアーティスト"
+              outlined
+            />
+          </v-col>
         </v-col>
         <v-col cols="12">
           <v-btn elevation="4" @click="postEvent">投稿する</v-btn>
@@ -67,8 +71,6 @@
 </template>
 
 <script>
-import router from "@/routes";
-
 export default {
   data() {
     return {
@@ -78,37 +80,20 @@ export default {
       openAt: "",
       startAt: "",
       content: "",
-      performers: [{ name: "" }],
+      performers: [],
       unregisteredPerformers: "",
       url: "",
+      registeredBands: [],
     };
   },
-  computed: {
-    bandsData() {
-      return this.$store.getters.bandsData;
-    },
-    countEmptyForm() {
-      return this.performers.filter((el) => el.name === "").length;
-    },
-  },
-  watch: {
-    countEmptyForm(newData) {
-      if (newData === 0) {
-        this.performers.push({ name: "" });
-      }
-      if (newData >= 2) {
-        // this.performersから、{name: ''}を持つ最後の要素を削除する
-        const isEmptyForm = [];
-        for (let performer of this.performers) {
-          let isEmptyName = performer.name === "";
-          isEmptyForm.push(isEmptyName);
-        }
-        this.performers.splice(isEmptyForm.lastIndexOf(true), 1);
-      }
-    },
+  async created() {
+    // 出演者の入力時に検索機能を使うため、本サービスに登録されているBand一覧を取得
+    const res = await this.$axios.get("/bands");
+    this.registeredBands = res.data.bands;
   },
   methods: {
     fetchUrl(file) {
+      // 選択した画像ファイルを表示するための、URLを取得
       if (file !== undefined && file !== null) {
         if (file.name.lastIndexOf(".") <= 0) {
           return;
@@ -122,44 +107,41 @@ export default {
         this.url = "";
       }
     },
-    postEvent() {
-      const performerIds = [];
-      for (let performer of this.performers) {
-        let registeredPerformer = this.bandsData.find(
-          (el) => el.name === performer.name
-        );
-        if (registeredPerformer) {
-          performerIds.push(registeredPerformer.id);
+    async postEvent() {
+      const token = { headers: this.$store.getters.token };
+
+      // 新規Eventを投稿
+      const eventFormData = new FormData();
+      eventFormData.append("event[name]", this.name);
+      eventFormData.append("event[flyer]", this.flyer);
+      eventFormData.append("event[place]", this.place);
+      eventFormData.append("event[open_at]", this.openAt);
+      eventFormData.append("event[start_at]", this.startAt);
+      eventFormData.append("event[content]", this.content);
+      eventFormData.append(
+        "event[unregistered_performers]",
+        this.unregisteredPerformers
+      );
+      const eventRes = await this.$axios.post("/events", eventFormData, token);
+
+      // 投稿したEventの出演者を登録
+      const eventId = eventRes.data.id;
+      if (this.performers) {
+        for (let performer of this.performers) {
+          let lineupFormData = new FormData();
+          lineupFormData.append("lineup[event_id]", eventId);
+          lineupFormData.append("lineup[performer_id]", performer.id);
+          await this.$axios.post(
+            `/events/${eventId}/lineups`,
+            lineupFormData,
+            token
+          );
         }
       }
-      const token = { headers: this.$store.getters.token };
-      const formData = new FormData();
-      formData.append("event[name]", this.name);
-      formData.append("event[flyer]", this.flyer);
-      formData.append("event[place]", this.place);
-      formData.append("event[open_at]", this.openAt);
-      formData.append("event[start_at]", this.startAt);
-      formData.append("event[content]", this.content);
-      this.$store
-        .dispatch("postEvent", { formData, token })
-        .then(() => {
-          const lineupForm = {
-            eventId: this.$store.getters.eventData.id,
-            performerIds: performerIds,
-            unregisteredPerformers: this.unregisteredPerformers,
-            token: token,
-          };
-          this.$store.dispatch("postLineup", lineupForm);
-        })
-        .then(() =>
-          router.replace("/events/" + this.$store.getters.eventData.id)
-        );
+
+      // 投稿したEventの詳細ページへ
+      this.$router.replace(`/events/${eventId}`);
     },
-  },
-  created() {
-    if (this.bandsData === null) {
-      this.$store.dispatch("getBandsData");
-    }
   },
 };
 </script>

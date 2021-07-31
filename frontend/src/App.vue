@@ -25,9 +25,12 @@ export default {
     },
   },
   methods: {
-    logOut() {
+    async logOut() {
       const token = { headers: this.$store.getters.token };
-      this.$store.dispatch("logout", token);
+      await this.$store.dispatch("logout", token);
+      if (this.$route.path !== "/") {
+        return this.$router.replace("/");
+      }
     },
   },
 };

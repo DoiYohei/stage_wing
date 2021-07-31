@@ -24,8 +24,8 @@
         }}</router-link>
       </div>
     </template>
-    <template v-if="lineup.unregistered_performers">
-      <div>/ {{ lineup.unregistered_performers.name }}</div>
+    <template v-if="event.unregistered_performers">
+      <div>/ {{ event.unregistered_performers }}</div>
     </template>
     <template v-if="isEventOwner">
       <router-link :to="`/events/${id}/lineup/edit`"
@@ -57,10 +57,10 @@ export default {
     },
   },
   async created() {
-    const res = await this.$axios.get(`/events/${this.id}`);
-    this.event = res.data;
-    const res2 = await this.$axios.get(`/events/${this.id}/lineups`);
-    this.lineup = res2.data;
+    const eventRes = await this.$axios.get(`/events/${this.id}`);
+    this.event = eventRes.data;
+    const lineupRes = await this.$axios.get(`/events/${this.id}/lineups`);
+    this.lineup = lineupRes.data;
   },
 };
 </script>
