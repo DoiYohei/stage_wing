@@ -1,10 +1,8 @@
 class Event < ApplicationRecord
-  validates :name, length: { maximum: 50 }, presence:true
-  validates :place, length: { maximum: 50 }, presence:true
+  validates :name, :place, length: { maximum: 50 }, presence:true
   validates :content, length: { maximum: 1000 }
   validates :unregistered_performers, length: { maximum: 500 }
-  validates :open_at, presence:true
-  validates :start_at, presence:true
+  validates :open_at, :start_at, presence:true
 
   mount_uploader :flyer, ImageUploader
 

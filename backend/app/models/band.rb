@@ -6,6 +6,10 @@ class Band < ActiveRecord::Base
   devise :database_authenticatable, :registerable, :recoverable, :rememberable, :validatable
   include DeviseTokenAuth::Concerns::User
 
+  validates :name, presence: true, length: { maximum: 50 }
+  validates :profile, length: { maximum: 1000 }
+  validates :website, :twitter, format: { with: /\A#{URI::regexp(%w(http https))}\z/ }, allow_nil: true
+
   mount_uploader :image, ImageUploader
 
   has_many :created_events, class_name: "Event", foreign_key: "owner_id", dependent: :nullify

@@ -44,23 +44,31 @@ export default {
       lineup: {},
     };
   },
+  async created() {
+    const eventRes = await this.$axios.get(`/events/${this.id}`);
+    this.event = eventRes.data;
+    const lineupRes = await this.$axios.get(`/events/${this.id}/lineups`);
+    this.lineup = lineupRes.data;
+  },
   computed: {
     isEventOwner() {
       return this.$store.getters.currentUserId === this.event.owner_id;
     },
   },
   methods: {
+    async getEvent() {
+      const eventRes = await this.$axios.get(`/events/${this.id}`);
+      this.event = eventRes.data;
+    },
+    async getLineup() {
+      const lineupRes = await this.$axios.get(`/events/${this.id}/lineups`);
+      this.lineup = lineupRes.data;
+    },
     async deleteEvent() {
       const token = { headers: this.$store.getters.token };
       await this.$axios.delete(`/events/${this.id}`, token);
       this.$router.replace("/");
     },
-  },
-  async created() {
-    const eventRes = await this.$axios.get(`/events/${this.id}`);
-    this.event = eventRes.data;
-    const lineupRes = await this.$axios.get(`/events/${this.id}/lineups`);
-    this.lineup = lineupRes.data;
   },
 };
 </script>
