@@ -43,6 +43,11 @@ export default {
       posts: [],
     };
   },
+  async created() {
+    const bandId = { band_id: Number(this.id) };
+    const res = await this.$axios.get("/posts", { params: bandId });
+    this.posts = res.data;
+  },
   computed: {
     isMyPage() {
       if (this.$store.getters.authData) {
@@ -53,19 +58,11 @@ export default {
     },
   },
   methods: {
-    async getPosts() {
-      const bandId = { band_id: Number(this.id) };
-      const res = await this.$axios.get("/posts", { params: bandId });
-      this.posts = res.data;
-    },
     async deletePost(postId) {
       const token = { headers: this.$store.getters.authData };
       await this.$axios.delete(`/posts/${postId}`, token);
       this.getPosts();
     },
-  },
-  async created() {
-    this.getPosts();
   },
 };
 </script>

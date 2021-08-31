@@ -13,7 +13,12 @@ Rails.application.routes.draw do
     resources :events do
       resources :lineups
     end
-    resources :bands, only: %i(show index)
+    resources :bands, only: %i(show index) do
+      member do
+        get :friendships
+      end
+    end
     resources :posts, only: %i(index create edit update destroy)
+    resource :friendships, only: %i(create destroy)
   end
 end
