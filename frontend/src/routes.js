@@ -14,6 +14,7 @@ import BandsEdit from "@/views/Bands/BandsEdit";
 import PostsIndex from "@/views/Posts/PostsIndex";
 import PostsNew from "@/views/Posts/PostsNew";
 import PostsEdit from "@/views/Posts/PostsEdit";
+import Friendships from "@/views/Friendships";
 
 Vue.use(Router);
 
@@ -96,6 +97,12 @@ export default new Router({
       path: "/bands/:id/posts/:postId/edit",
       name: "PostsEdit",
       component: PostsEdit,
+      props: true,
+    },
+    {
+      path: "/bands/:id/friendships",
+      name: "Friendships",
+      component: Friendships,
       props: true,
     },
   ],

@@ -18,13 +18,13 @@ RSpec.describe Friendship, type: :model do
     expect(friendship.errors[:followed_id]).to include("can't be blank")
   end
   it "follows and unfollows a band" do
-    expect(band1.following?(band2)).to be_falsey
-    expect(band2.followed_by?(band1)).to be_falsey
+    expect(band1.friend_status(band2)).to eq nil
+    expect(band2.friend_status(band1)).to eq nil
     band1.follow(band2)
-    expect(band1.following?(band2)).to be_truthy
-    expect(band2.followed_by?(band1)).to be_truthy
-    band1.unfollow(band2)
-    expect(band1.following?(band2)).to be_falsey
-    expect(band2.followed_by?(band1)).to be_falsey
+    expect(band1.friend_status(band2)).to eq "inviting"
+    expect(band2.friend_status(band1)).to eq "invited"
+    band1.unfollow(followed_id: band2.id)
+    expect(band1.friend_status(band2)).to eq nil
+    expect(band2.friend_status(band1)).to eq nil
   end
 end

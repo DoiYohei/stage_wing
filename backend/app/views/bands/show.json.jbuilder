@@ -6,3 +6,5 @@ if @events
     json.array! @events, :id, :name, :open_at
   end
 end
+
+json.friend_status @friend_status
