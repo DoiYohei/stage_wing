@@ -1,11 +1,12 @@
 class FriendshipsController < ApplicationController
   def create
     band = Band.find(params[:followed_id])
-    current_band.follow(band)
+    @friendship = current_band.follow(band)
+    render json: @friendship, status: :created
   end
 
   def destroy
-    band = Friendship.find(params[:id]).followed
-    current_band.unfollow(band)
+    current_band.unfollow(params[:followed_id])
+    render json: :ok
   end
 end

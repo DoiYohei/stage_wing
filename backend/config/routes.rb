@@ -15,10 +15,10 @@ Rails.application.routes.draw do
     end
     resources :bands, only: %i(show index) do
       member do
-        get :friends
+        get :friendships
       end
     end
     resources :posts, only: %i(index create edit update destroy)
-    resources :friendships, only: %i(create destroy)
+    resource :friendships, only: %i(create destroy)
   end
 end
