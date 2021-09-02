@@ -10,4 +10,6 @@ class Post < ApplicationRecord
   scope :newest, -> { order(created_at: :desc) }
 
   belongs_to :band
+  has_many :likes, dependent: :destroy
+  has_many :liking_bands, through: :likes, source: :band
 end

@@ -1,1 +1,1 @@
-json.array! @posts, :id, :created_at, :title, :format, :photo, :audio, :media_pass, :description
+json.array! @posts, :id, :created_at, :title, :format, :photo, :audio, :media_pass, :description, :likes_count
