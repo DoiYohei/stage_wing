@@ -97,10 +97,10 @@ export default {
       formData.append("post[title]", this.title);
       formData.append("post[format]", this.format);
       formData.append("post[description]", this.description);
-      if (this.whatStyle === "file") {
+      if (this.isFile) {
         formData.append(`post[${this.format}]`, this.file);
       }
-      if (this.whatStyle === "media_pass") {
+      if (this.isMediaPass) {
         formData.append("post[media_pass]", this.mediaPass);
       }
       await this.$axios.post("/posts", formData, token);

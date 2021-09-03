@@ -5,6 +5,7 @@ class PostsController < ApplicationController
   def index
     @band = Band.find(params[:band_id])
     @posts = @band.posts.newest
+    @liked_post_ids = current_band.likes.pluck(:post_id)
   end
   
   def create
