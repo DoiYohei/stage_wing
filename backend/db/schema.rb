@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_19_053753) do
+ActiveRecord::Schema.define(version: 2021_09_01_092738) do
 
   create_table "bands", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "provider", default: "email", null: false
@@ -69,6 +69,15 @@ ActiveRecord::Schema.define(version: 2021_08_19_053753) do
     t.index ["follower_id"], name: "index_friendships_on_follower_id"
   end
 
+  create_table "likes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "band_id", null: false
+    t.bigint "post_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["band_id", "post_id"], name: "index_likes_on_band_id_and_post_id", unique: true
+    t.index ["post_id"], name: "index_likes_on_post_id"
+  end
+
   create_table "lineups", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "event_id", null: false
     t.bigint "performer_id", null: false
@@ -88,10 +97,15 @@ ActiveRecord::Schema.define(version: 2021_08_19_053753) do
     t.bigint "band_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "likes_count", default: 0
     t.index ["band_id", "created_at"], name: "index_posts_on_band_id_and_created_at"
     t.index ["band_id"], name: "index_posts_on_band_id"
   end
 
+  add_foreign_key "friendships", "bands", column: "followed_id"
+  add_foreign_key "friendships", "bands", column: "follower_id"
+  add_foreign_key "likes", "bands"
+  add_foreign_key "likes", "posts"
   add_foreign_key "lineups", "events"
   add_foreign_key "posts", "bands"
 end

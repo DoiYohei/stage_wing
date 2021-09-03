@@ -20,15 +20,17 @@ class Band < ActiveRecord::Base
   has_many :passive_friendships, class_name: "Friendship", foreign_key: "followed_id", dependent: :destroy
   has_many :following, through: :active_friendships, source: :followed
   has_many :followers, through: :passive_friendships, source: :follower
+  has_many :likes, dependent: :destroy
+  has_many :liked_posts, through: :likes, source: :post
 
   # Bandをフォローする
   def follow(other_band)
-    active_friendships.create(followed_id: other_band.id)
+    active_friendships.create!(followed_id: other_band.id)
   end
 
   # Bandをフォロー解除する
   def unfollow(followed_id_params)
-    active_friendships.find_by(followed_id_params).destroy
+    active_friendships.find_by(followed_id_params).destroy!
   end
 
   # 相互フォロー(友達)の関係にあるBandを返す
