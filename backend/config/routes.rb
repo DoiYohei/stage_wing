@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   scope format: 'json' do
     resources :events do
       resources :lineups
+      resources :comments, only: %i(create destroy)
     end
     resources :bands, only: %i(show index) do
       member do

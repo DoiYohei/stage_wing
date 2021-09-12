@@ -76,7 +76,7 @@ export default {
       return false;
     },
     isLiked() {
-      return function (postId) {
+      return (postId) => {
         return this.myLikes ? this.myLikes.includes(postId) : false;
       };
     },

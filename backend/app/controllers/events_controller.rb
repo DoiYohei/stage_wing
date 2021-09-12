@@ -8,8 +8,10 @@ class EventsController < ApplicationController
 
   def show
     @event = Event.find(params[:id])
-    @owner = @event.owner
     @flyer = @event.flyer.thumb.url
+    @performers = @event.performers
+    @comments = @event.comments
+    @parent_comments = @comments.select { |n| n.parent_id == nil }
   end
 
   def create

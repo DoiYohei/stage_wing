@@ -25,9 +25,9 @@ export default {
     },
   },
   methods: {
-    async logOut() {
+    logOut() {
       const token = { headers: this.$store.getters.token };
-      await this.$store.dispatch("logout", token);
+      this.$store.dispatch("logout", token);
       if (this.$route.path !== "/") {
         return this.$router.replace("/");
       }
