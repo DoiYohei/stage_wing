@@ -11,7 +11,7 @@
         </v-col>
         <v-col md="4" offset-md="4">
           <v-textarea v-model="newComment" label="コメント" outlined />
-          <v-btn elevation="4" @click="postComment">返信する</v-btn>
+          <v-btn elevation="4" @click="replyComment">返信する</v-btn>
         </v-col>
         <template v-if="hasReplies">
           <v-col
@@ -19,12 +19,7 @@
             v-for="reply of repliesToComment"
             :key="reply.id"
           >
-            <comment-comp
-              :eventId="eventId"
-              :bands="bands"
-              :comment="reply"
-              :comments="comments"
-            />
+            <comment-for-event :comment="reply" />
           </v-col>
         </template>
       </v-col>
@@ -33,28 +28,16 @@
 </template>
 
 <script>
-import CommentComp from "@/components/CommentComp";
+import CommentForEvent from "@/components/CommentForEvent";
 
 export default {
-  name: "comment-comp",
+  name: "comment-for-event",
   components: {
-    CommentComp,
+    CommentForEvent,
   },
   props: {
-    eventId: {
-      type: Number,
-      required: true,
-    },
-    bands: {
-      type: Array,
-      required: true,
-    },
     comment: {
       type: Object,
-      required: true,
-    },
-    comments: {
-      type: Array,
       required: true,
     },
   },
@@ -65,7 +48,7 @@ export default {
   },
   computed: {
     commenterName() {
-      const commenter = this.bands.filter(
+      const commenter = this.$store.getters.bandsData.filter(
         (band) => band.id === this.comment.band_id
       );
       return commenter[0].name;
@@ -74,31 +57,37 @@ export default {
       return this.$store.getters.currentUserId === this.comment.band_id;
     },
     repliesToComment() {
-      return this.comments.filter((el) => el.parent_id === this.comment.id);
+      return this.$store.getters.eventData.comments.filter(
+        (el) => el.parent_id === this.comment.id
+      );
     },
     hasReplies() {
-      return this.comments.some((el) => el.parent_id === this.comment.id);
+      return this.$store.getters.eventData.comments.some(
+        (el) => el.parent_id === this.comment.id
+      );
     },
   },
   methods: {
     async deleteComment() {
       const token = { headers: this.$store.getters.token };
       await this.$axios.delete(
-        `/events/${this.eventId}/comments/${this.comment.id}`,
+        `/events/${this.$store.getters.eventData.id}/comments/${this.comment.id}`,
         token
       );
+      this.$router.go({ path: this.$router.currentRoute.path, force: true });
     },
-    async postComment() {
+    async replyComment() {
       const token = { headers: this.$store.getters.token };
       const formData = new FormData();
-      formData.append("comment[event_id]", this.eventId);
+      formData.append("comment[event_id]", this.$store.getters.eventData.id);
       formData.append("comment[parent_id]", this.comment.id);
       formData.append("comment[content]", this.newComment);
       await this.$axios.post(
-        `/events/${this.eventId}/comments`,
+        `/events/${this.$store.getters.eventData.id}/comments`,
         formData,
         token
       );
+      this.$router.go({ path: this.$router.currentRoute.path, force: true });
     },
   },
 };
