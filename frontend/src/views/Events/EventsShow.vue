@@ -40,13 +40,10 @@
         </template>
       </v-col>
       <template v-for="(comment, index) of event.parent_comments">
-        <!-- 子コンポーネントのcomputedでエラーが発生するため、dataを取得するまでv-if="ownerName"で待つ -->
-        <comment-comp
-          v-if="ownerName"
-          :eventId="Number(id)"
-          :bands="bands"
+        <!-- 子コンポーネントのcomputedでエラーが発生するため、dataを取得するまでv-if="bands"で待つ -->
+        <comment-for-event
+          v-if="bands"
           :comment="comment"
-          :comments="event.comments"
           :key="`comment${index}`"
         />
       </template>
@@ -61,26 +58,26 @@
 </template>
 
 <script>
-import CommentComp from "@/components/CommentComp";
+import CommentForEvent from "@/components/CommentForEvent";
 
 export default {
   components: {
-    CommentComp,
+    CommentForEvent,
   },
   props: ["id"],
   data() {
     return {
       event: {},
-      bands: [],
+      bands: null,
       ownerName: "",
       newComment: "",
     };
   },
   async created() {
-    const eventRes = await this.$axios.get(`/events/${this.id}`);
-    this.event = eventRes.data;
-    const bandsRes = await this.$axios.get("/bands");
-    this.bands = bandsRes.data.bands;
+    const eventRes = await this.$store.dispatch("getEventData", this.id);
+    this.event = eventRes;
+    const bandsRes = await this.$store.dispatch("getBandsData");
+    this.bands = bandsRes;
     const owner = this.bands.filter((band) => band.id === this.event.owner_id);
     this.ownerName = owner[0].name;
   },
@@ -101,6 +98,7 @@ export default {
       formData.append("comment[event_id]", this.id);
       formData.append("comment[content]", this.newComment);
       await this.$axios.post(`/events/${this.id}/comments`, formData, token);
+      this.$router.go({ path: this.$router.currentRoute.path, force: true });
     },
   },
 };

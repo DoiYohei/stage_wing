@@ -29,10 +29,10 @@ const actions = {
       commit("updateEventsData", response.data.events);
     });
   },
-  getEventData({ commit }, eventId) {
-    return axios.get("/events/" + eventId).then((response) => {
-      commit("updateEventData", response.data);
-    });
+  async getEventData({ commit }, eventId) {
+    const res = await axios.get("/events/" + eventId);
+    commit("updateEventData", res.data);
+    return res.data;
   },
   editEventData({ commit, dispatch }, editData) {
     axios
