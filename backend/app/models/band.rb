@@ -22,7 +22,8 @@ class Band < ActiveRecord::Base
   has_many :followers, through: :passive_friendships, source: :follower
   has_many :likes, dependent: :destroy
   has_many :liked_posts, through: :likes, source: :post
-
+  has_many :comments, dependent: :destroy
+  
   # Bandをフォローする
   def follow(other_band)
     active_friendships.create!(followed_id: other_band.id)
