@@ -15,6 +15,8 @@ import PostsIndex from "@/views/Posts/PostsIndex";
 import PostsNew from "@/views/Posts/PostsNew";
 import PostsEdit from "@/views/Posts/PostsEdit";
 import Friendships from "@/views/Friendships";
+import ChatsIndex from "@/views/Chats/ChatsIndex";
+import ChatsShow from "@/views/Chats/ChatsShow";
 
 Vue.use(Router);
 
@@ -103,6 +105,18 @@ export default new Router({
       path: "/bands/:id/friendships",
       name: "Friendships",
       component: Friendships,
+      props: true,
+    },
+    {
+      path: "/bands/:id/chats",
+      name: "ChatsIndex",
+      component: ChatsIndex,
+      props: true,
+    },
+    {
+      path: "/bands/:id/chats/:room_id",
+      name: "ChatsShow",
+      component: ChatsShow,
       props: true,
     },
   ],

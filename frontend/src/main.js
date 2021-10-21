@@ -8,6 +8,7 @@ import VueYoutube from "./plugins/vue-youtube";
 import VueCtkDateTimePicker from "vue-ctk-date-time-picker";
 import "vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css";
 import dayjs from "dayjs";
+import actioncable from "./plugins/actioncable-vue";
 
 Vue.config.productionTip = false;
 Vue.prototype.$axios = axios;
@@ -17,6 +18,7 @@ Vue.component("VueCtkDateTimePicker", VueCtkDateTimePicker);
 store.dispatch("autoLogin");
 
 new Vue({
+  actioncable,
   VueYoutube,
   store,
   router,

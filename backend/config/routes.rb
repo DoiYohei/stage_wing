@@ -22,5 +22,8 @@ Rails.application.routes.draw do
     resources :posts, only: %i(index create edit update destroy)
     resource :friendships, only: %i(create destroy)
     resource :likes, only: %i(create destroy)
+    resources :rooms, only: %i(index create) do
+      resources :messages, only: :index
+    end
   end
 end
