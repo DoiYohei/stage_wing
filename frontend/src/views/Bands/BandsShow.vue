@@ -19,6 +19,7 @@
     </template>
     <template v-if="isMyPage">
       <router-link :to="`/bands/${id}/friendships`">Friends</router-link>
+      <router-link :to="`/bands/${id}/chats`">Chat</router-link>
       <router-link :to="`/bands/${id}/edit`">編集する</router-link>
       <button @click="deleteAccount">退会する</button>
     </template>

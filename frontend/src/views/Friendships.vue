@@ -1,26 +1,15 @@
 <template>
   <v-container>
     <v-row>
-      <v-tabs
-        v-model="tab"
-        background-color="transparent"
-        color="basil"
-        grow
-      >
+      <v-tabs v-model="tab" background-color="transparent" color="basil" grow>
         <v-tab>Friends</v-tab>
         <v-tab>Friend申請中</v-tab>
         <v-tab>Friend申請されている</v-tab>
       </v-tabs>
       <v-tabs-items v-model="tab">
         <v-tab-item>
-          <v-card
-            color="basil"
-            float
-          >
-            <v-card-text
-              v-for="(friend, index) in friends"
-              :key="index"
-            >
+          <v-card color="basil" float>
+            <v-card-text v-for="(friend, index) in friends" :key="index">
               {{ friend.name }}
               <v-btn
                 color="primary"
@@ -34,14 +23,8 @@
           </v-card>
         </v-tab-item>
         <v-tab-item>
-          <v-card
-            color="basil"
-            float
-          >
-            <v-card-text
-              v-for="(inviting, index) in invitings"
-              :key="index"
-            >
+          <v-card color="basil" float>
+            <v-card-text v-for="(inviting, index) in invitings" :key="index">
               {{ inviting.name }}
               <v-btn
                 color="primary"
@@ -55,14 +38,8 @@
           </v-card>
         </v-tab-item>
         <v-tab-item>
-          <v-card
-            color="basil"
-            float
-          >
-            <v-card-text
-              v-for="(inviter, index) in inviters"
-              :key="index"
-            >
+          <v-card color="basil" float>
+            <v-card-text v-for="(inviter, index) in inviters" :key="index">
               {{ inviter.name }}
               <v-btn
                 color="primary"
@@ -85,9 +62,7 @@ export default {
   data() {
     return {
       tab: null,
-      items: [
-        "Friends", "Friend申請中", "Friend申請されている"
-      ],
+      items: ["Friends", "Friend申請中", "Friend申請されている"],
       friends: [],
       invitings: [],
       inviters: [],
