@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_04_093318) do
+ActiveRecord::Schema.define(version: 2021_09_25_021054) do
+
+  create_table "band_rooms", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "band_id", null: false
+    t.bigint "room_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["band_id"], name: "index_band_rooms_on_band_id"
+    t.index ["room_id", "band_id"], name: "index_band_rooms_on_room_id_and_band_id", unique: true
+  end
 
   create_table "bands", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "provider", default: "email", null: false
@@ -99,6 +108,16 @@ ActiveRecord::Schema.define(version: 2021_09_04_093318) do
     t.index ["performer_id"], name: "index_lineups_on_performer_id"
   end
 
+  create_table "messages", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "band_id", null: false
+    t.bigint "room_id", null: false
+    t.text "content", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["band_id"], name: "index_messages_on_band_id"
+    t.index ["room_id"], name: "index_messages_on_room_id"
+  end
+
   create_table "posts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "title"
     t.string "format", null: false
@@ -114,6 +133,13 @@ ActiveRecord::Schema.define(version: 2021_09_04_093318) do
     t.index ["band_id"], name: "index_posts_on_band_id"
   end
 
+  create_table "rooms", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  add_foreign_key "band_rooms", "bands"
+  add_foreign_key "band_rooms", "rooms"
   add_foreign_key "comments", "bands"
   add_foreign_key "comments", "comments", column: "parent_id"
   add_foreign_key "comments", "events"
@@ -122,5 +148,7 @@ ActiveRecord::Schema.define(version: 2021_09_04_093318) do
   add_foreign_key "likes", "bands"
   add_foreign_key "likes", "posts"
   add_foreign_key "lineups", "events"
+  add_foreign_key "messages", "bands"
+  add_foreign_key "messages", "rooms"
   add_foreign_key "posts", "bands"
 end

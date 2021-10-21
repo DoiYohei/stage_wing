@@ -23,6 +23,9 @@ class Band < ActiveRecord::Base
   has_many :likes, dependent: :destroy
   has_many :liked_posts, through: :likes, source: :post
   has_many :comments, dependent: :destroy
+  has_many :messages, dependent: :destroy
+  has_many :band_rooms, dependent: :destroy
+  has_many :rooms, through: :band_rooms
   
   # Bandをフォローする
   def follow(other_band)
@@ -70,5 +73,23 @@ class Band < ActiveRecord::Base
   # フォローされていたらtrueを返す
   def followed_by?(other_band)
     followers.include?(other_band)
+  end
+
+  # 相互フォロー(友達)関係にあるBandと共通のroom_idを取得
+  # そのBandの情報と合わせて新しい配列を作る
+  # roomが未作成の場合idにはnullが入る
+  def fetch_rooms
+    chat_rooms = []
+    my_room_ids = rooms.ids
+    friends.each do |f|
+      friend_room_ids = f.band_rooms.map(&:room_id)
+      chat_room_id = friend_room_ids & my_room_ids
+      chat_rooms.push({
+        id: chat_room_id[0],
+        friend_name: f.name,
+        friend_id: f.id,
+      })
+    end
+    chat_rooms
   end
 end
