@@ -1,5 +1,5 @@
 class Auth::RegistrationsController < DeviseTokenAuth::RegistrationsController
-  skip_before_action :authenticate_band!, only: :create
+  before_action :authenticate_band!, except: :create
 
   private
   

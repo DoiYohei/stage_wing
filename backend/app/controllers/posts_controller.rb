@@ -1,11 +1,11 @@
 class PostsController < ApplicationController
-  skip_before_action :authenticate_band!, only: :index
+  before_action :authenticate_band!, except: :index
   before_action :set_post, only: %i(edit update destroy)
   
   def index
     @band = Band.find(params[:band_id])
     @posts = @band.posts.newest
-    @liked_post_ids = current_band.likes.pluck(:post_id)
+    @liked_post_ids = current_member.likes.pluck(:post_id)
   end
   
   def create

@@ -1,4 +1,6 @@
 class RoomsController < ApplicationController
+  before_action :authenticate_band!
+  
   def index
     rooms = current_band.fetch_rooms
     render json: rooms

@@ -1,6 +1,6 @@
 class LineupsController < ApplicationController
-  skip_before_action :authenticate_band!, only: :index
-  before_action :set_lineup, only: [:update, :destroy]
+  before_action :authenticate_band!, except: :index
+  before_action :set_lineup, only: %i(update destroy)
 
   def index
     @performers = []
