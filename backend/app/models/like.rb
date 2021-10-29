@@ -4,5 +4,6 @@ class Like < ApplicationRecord
   validates_uniqueness_of :band_id, scope: :post_id
 
   belongs_to :band
+  belongs_to :audience
   belongs_to :post, counter_cache: true
 end
