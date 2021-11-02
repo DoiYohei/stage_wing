@@ -21,7 +21,7 @@
       <router-link :to="`/bands/${id}/friendships`">Friends</router-link>
       <router-link :to="`/bands/${id}/chats`">Chat</router-link>
       <router-link :to="`/bands/${id}/edit`">編集する</router-link>
-      <button @click="deleteAccount">退会する</button>
+      <button @click="deleteBand">退会する</button>
     </template>
     <div>LIVEスケジュール</div>
     <template v-if="band.performing_events">
@@ -83,9 +83,9 @@ export default {
     },
   },
   methods: {
-    async deleteAccount() {
+    async deleteBand() {
       const token = { headers: this.$store.getters.token };
-      this.$store.dispatch("deleteAccount", token);
+      this.$store.dispatch("deleteBand", token);
     },
     changeFriendship() {
       const token = { headers: this.$store.getters.token };

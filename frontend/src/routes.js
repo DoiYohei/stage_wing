@@ -17,6 +17,8 @@ import PostsEdit from "@/views/Posts/PostsEdit";
 import Friendships from "@/views/Friendships";
 import ChatsIndex from "@/views/Chats/ChatsIndex";
 import ChatsShow from "@/views/Chats/ChatsShow";
+import AudiencesShow from "@/views/Audiences/AudiencesShow";
+import AudiencesEdit from "@/views/Audiences/AudiencesEdit";
 
 Vue.use(Router);
 
@@ -117,6 +119,18 @@ export default new Router({
       path: "/bands/:id/chats/:room_id",
       name: "ChatsShow",
       component: ChatsShow,
+      props: true,
+    },
+    {
+      path: "/audiences/:userId",
+      name: "AudiencesShow",
+      component: AudiencesShow,
+      props: true,
+    },
+    {
+      path: "/audiences/:userId/edit",
+      name: "AudiencesEdit",
+      component: AudiencesEdit,
       props: true,
     },
   ],

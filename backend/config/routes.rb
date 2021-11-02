@@ -27,6 +27,7 @@ Rails.application.routes.draw do
         get :friendships
       end
     end
+    resources :audiences, only: :show
     resources :posts, only: %i(index create edit update destroy)
     resource :friendships, only: %i(create destroy)
     resource :likes, only: %i(create destroy)
