@@ -11,6 +11,9 @@
       <template v-else>
         <span class="logout" @click="logOut">Log Out</span>
       </template>
+      <template v-if="isAuthenticated">
+        <router-link :to="`/audiences/${userId}`">My Page</router-link>
+      </template>
     </header>
     <router-view></router-view>
   </v-app>
@@ -23,11 +26,15 @@ export default {
     isAuthenticated() {
       return this.$store.getters.authData !== null;
     },
+    userId() {
+      return this.$store.getters.currentUserId;
+    },
   },
   methods: {
     logOut() {
       const token = { headers: this.$store.getters.token };
-      this.$store.dispatch("logout", token);
+      const userType = this.$store.getters.userType;
+      this.$store.dispatch("logout", { token, userType });
       if (this.$route.path !== "/") {
         return this.$router.replace("/");
       }
