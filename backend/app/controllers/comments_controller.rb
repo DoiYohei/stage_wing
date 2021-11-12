@@ -1,6 +1,8 @@
 class CommentsController < ApplicationController
+  before_action :authenticate_member!
+
   def create
-    comment = current_band.comments.build(comment_params)
+    comment = current_member.comments.build(comment_params)
     if comment.save
       render json: :created
     else
@@ -9,7 +11,7 @@ class CommentsController < ApplicationController
   end
 
   def destroy
-    comment = current_band.comments.find(params[:id])
+    comment = current_member.comments.find(params[:id])
     comment.destroy!
     render json: :ok
   end

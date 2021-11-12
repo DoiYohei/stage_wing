@@ -1,6 +1,6 @@
 <template>
   <div>
-    <router-link to="/event/new" v-if="isAuthenticated"
+    <router-link to="/event/new" v-if="isAuthenticatedBand"
       >Eventを投稿する</router-link
     >
     <v-container>
@@ -74,8 +74,8 @@ export default {
     });
   },
   computed: {
-    isAuthenticated() {
-      return this.$store.getters.authData !== null;
+    isAuthenticatedBand() {
+      return this.$store.getters.userType === "band";
     },
     filteredEvents() {
       let events = [];

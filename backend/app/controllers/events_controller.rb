@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
-  skip_before_action :authenticate_band!, only: [:index, :show]
-  before_action :set_event, only: [:update, :destroy]
+  before_action :authenticate_band!, except: %i(index show)
+  before_action :set_event, only: %i(update destroy)
 
   def index
     @events = Event.all.order(:open_at)

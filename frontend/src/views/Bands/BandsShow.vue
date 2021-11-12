@@ -6,7 +6,7 @@
       <iframe :src="band.profile"></iframe>
     </div>
     <img :src="band.image" />
-    <template v-if="isAuthenticated && !isMyPage">
+    <template v-if="isAuthenticatedBand && !isMyPage">
       <p v-if="isInvited">Friend申請されています</p>
       <v-btn
         color="primary"
@@ -18,10 +18,11 @@
       </v-btn>
     </template>
     <template v-if="isMyPage">
+      <router-link to="/liked_posts">お気に入り</router-link>
       <router-link :to="`/bands/${id}/friendships`">Friends</router-link>
       <router-link :to="`/bands/${id}/chats`">Chat</router-link>
       <router-link :to="`/bands/${id}/edit`">編集する</router-link>
-      <button @click="deleteAccount">退会する</button>
+      <button @click="deleteBand">退会する</button>
     </template>
     <div>LIVEスケジュール</div>
     <template v-if="band.performing_events">
@@ -43,21 +44,15 @@ export default {
       friendStatus: null,
     };
   },
-  async created() {
-    let headers = null;
-    if (this.$store.getters.authData) {
-      headers = { headers: this.$store.getters.token };
-    }
-    const res = await this.$axios.get(`/bands/${this.id}`, headers);
-    this.band = res.data;
-    this.friendStatus = res.data.friend_status;
+  created() {
+    this.fetchData();
   },
   computed: {
-    isAuthenticated() {
-      return this.$store.getters.authData !== null;
+    isAuthenticatedBand() {
+      return this.$store.getters.userType === "band";
     },
     isMyPage() {
-      if (this.$store.getters.authData) {
+      if (this.isAuthenticatedBand) {
         return this.$store.getters.currentUserId === this.band.id;
       } else {
         return false;
@@ -82,10 +77,24 @@ export default {
       return "Friend申請する";
     },
   },
+  watch: {
+    $route() {
+      this.fetchData();
+    },
+  },
   methods: {
-    async deleteAccount() {
+    async fetchData() {
+      let headers = null;
+      if (this.$store.getters.authData) {
+        headers = { headers: this.$store.getters.token };
+      }
+      const res = await this.$axios.get(`/bands/${this.id}`, headers);
+      this.band = res.data;
+      this.friendStatus = res.data.friend_status;
+    },
+    async deleteBand() {
       const token = { headers: this.$store.getters.token };
-      this.$store.dispatch("deleteAccount", token);
+      this.$store.dispatch("deleteBand", token);
     },
     changeFriendship() {
       const token = { headers: this.$store.getters.token };

@@ -17,6 +17,10 @@ import PostsEdit from "@/views/Posts/PostsEdit";
 import Friendships from "@/views/Friendships";
 import ChatsIndex from "@/views/Chats/ChatsIndex";
 import ChatsShow from "@/views/Chats/ChatsShow";
+import AudiencesShow from "@/views/Audiences/AudiencesShow";
+import AudiencesEdit from "@/views/Audiences/AudiencesEdit";
+import AuthError from "@/views/Errors/AuthError";
+import LikesIndex from "@/views/Likes/LikesIndex";
 
 Vue.use(Router);
 
@@ -118,6 +122,28 @@ export default new Router({
       name: "ChatsShow",
       component: ChatsShow,
       props: true,
+    },
+    {
+      path: "/liked_posts",
+      name: "LikesIndex",
+      component: LikesIndex,
+    },
+    {
+      path: "/audiences/:userId",
+      name: "AudiencesShow",
+      component: AudiencesShow,
+      props: true,
+    },
+    {
+      path: "/audiences/:userId/edit",
+      name: "AudiencesEdit",
+      component: AudiencesEdit,
+      props: true,
+    },
+    {
+      path: "/errors/auth",
+      name: "AuthError",
+      component: AuthError,
     },
   ],
 });

@@ -1,4 +1,4 @@
 class ApplicationController < ActionController::API
         include DeviseTokenAuth::Concerns::SetUserByToken
-        before_action :authenticate_band!
+        devise_token_auth_group :member, contains: %i(band audience)
 end
