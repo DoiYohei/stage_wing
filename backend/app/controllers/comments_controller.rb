@@ -1,5 +1,5 @@
 class CommentsController < ApplicationController
-  before_action :autheticate_member!
+  before_action :authenticate_member!
 
   def create
     comment = current_member.comments.build(comment_params)

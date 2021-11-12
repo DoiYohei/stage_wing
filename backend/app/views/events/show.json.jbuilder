@@ -7,9 +7,9 @@ json.performers do
 end
 
 json.comments do
-  json.array! @comments, :id, :band_id, :content, :parent_id
+  json.array! @comments, :id, :band_id, :audience_id, :content, :parent_id
 end
 
 json.parent_comments do
-  json.array! @parent_comments,:id, :band_id, :content
+  json.array! @parent_comments,:id, :band_id, :audience_id, :content
 end

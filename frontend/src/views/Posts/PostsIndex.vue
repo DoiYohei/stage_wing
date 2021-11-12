@@ -7,15 +7,10 @@
       <v-col md="4" offset-md="4" v-for="(post, index) in posts" :key="index">
         <span>{{ post.created_at }}</span>
         <span>{{ post.title }}</span>
-        <v-btn
-          v-if="isLiked(post.id)"
-          icon
-          color="red"
-          @click="changeLike(post.id)"
-        >
+        <v-btn v-if="isLiked(post)" icon color="red" @click="changeLike(post)">
           <v-icon>mdi-heart</v-icon>
         </v-btn>
-        <v-btn v-else icon @click="changeLike(post.id)">
+        <v-btn v-else icon @click="changeLike(post)">
           <v-icon>mdi-heart-outline</v-icon>
         </v-btn>
         <span>{{ post.likes_count }}</span>
@@ -55,11 +50,14 @@ export default {
   data() {
     return {
       posts: [],
-      myLikes: [],
+      myLikes: null,
     };
   },
   async created() {
-    const token = this.$store.getters.token;
+    let token = null;
+    if (this.isAuthenticated) {
+      token = this.$store.getters.token;
+    }
     const bandId = { band_id: Number(this.id) };
     const res = await this.$axios.get("/posts", {
       params: bandId,
@@ -69,15 +67,19 @@ export default {
     this.myLikes = res.data.liked_post_ids;
   },
   computed: {
+    isAuthenticated() {
+      return this.$store.getters.authData;
+    },
     isMyPage() {
-      if (this.$store.getters.authData) {
+      if (this.$store.getters.userType === "band") {
         return this.$store.getters.currentUserId === Number(this.id);
+      } else {
+        return false;
       }
-      return false;
     },
     isLiked() {
-      return (postId) => {
-        return this.myLikes ? this.myLikes.includes(postId) : false;
+      return (post) => {
+        return this.myLikes ? this.myLikes.includes(post.id) : false;
       };
     },
   },
@@ -88,21 +90,29 @@ export default {
       const newPosts = this.posts.filter((post) => post.id !== postId);
       this.posts = newPosts;
     },
-    changeLike(postId) {
-      const token = { headers: this.$store.getters.token };
-      const formData = new FormData();
-      formData.append("post_id", postId);
-      if (this.isLiked(postId)) {
-        this.$axios.delete("/likes", {
-          headers: this.$store.getters.token,
-          data: formData,
-        });
-        const newMyLikes = this.myLikes.filter((myLike) => myLike !== postId);
-        this.myLikes = newMyLikes;
-        return;
+    changeLike(post) {
+      if (!this.isAuthenticated) {
+        return this.$router.push("/errors/auth");
+      } else {
+        const token = { headers: this.$store.getters.token };
+        const formData = new FormData();
+        formData.append("post_id", post.id);
+        if (this.isLiked(post)) {
+          this.$axios.delete("/likes", {
+            headers: this.$store.getters.token,
+            data: formData,
+          });
+          const newMyLikes = this.myLikes.filter(
+            (myLike) => myLike !== post.id
+          );
+          this.myLikes = newMyLikes;
+          post.likes_count -= 1;
+        } else {
+          this.$axios.post("/likes", formData, token);
+          this.myLikes.push(post.id);
+          post.likes_count += 1;
+        }
       }
-      this.$axios.post("/likes", formData, token);
-      this.myLikes.push(postId);
     },
   },
 };

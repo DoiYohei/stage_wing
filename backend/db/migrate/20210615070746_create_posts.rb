@@ -7,11 +7,10 @@ class CreatePosts < ActiveRecord::Migration[6.1]
       t.string :audio
       t.string :media_pass
       t.text :description
-      t.references :band, foreign_key: true
+      t.references :band, null: false, foreign_key: true
+      t.integer :likes_count, default: 0
 
       t.timestamps
     end
-
-    add_index :posts, %i(band_id created_at)
   end
 end
