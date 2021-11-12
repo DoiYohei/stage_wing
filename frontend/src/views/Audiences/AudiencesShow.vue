@@ -3,7 +3,7 @@
     <h1>My Page</h1>
     <v-container>
       <v-row>
-        <v-col><img :src="audience.image.url" /></v-col>
+        <v-col><img :src="audience.image" /></v-col>
         <v-col>
           <div>{{ audience.name }}</div>
         </v-col>
@@ -14,7 +14,7 @@
           <v-btn @click="deleteAudience">退会する</v-btn>
         </v-col>
         <v-col>
-          <router-link>お気に入り</router-link>
+          <router-link to="/liked_posts">お気に入り</router-link>
         </v-col>
         <v-col>
           <router-link>取り置きしているチケット</router-link>
@@ -26,7 +26,12 @@
 
 <script>
 export default {
-  props: ["userId"],
+  props: {
+    userId: {
+      type: String,
+      required: true,
+    },
+  },
   data() {
     return {
       audience: {},

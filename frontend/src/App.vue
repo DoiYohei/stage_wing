@@ -11,7 +11,10 @@
       <template v-else>
         <span class="logout" @click="logOut">Log Out</span>
       </template>
-      <template v-if="isAuthenticated">
+      <template v-if="isAuthenticatedBand">
+        <router-link :to="`/bands/${userId}`">My Page</router-link>
+      </template>
+      <template v-if="isAuthenticatedAudience">
         <router-link :to="`/audiences/${userId}`">My Page</router-link>
       </template>
     </header>
@@ -25,6 +28,12 @@ export default {
   computed: {
     isAuthenticated() {
       return this.$store.getters.authData !== null;
+    },
+    isAuthenticatedBand() {
+      return this.$store.getters.userType === "band";
+    },
+    isAuthenticatedAudience() {
+      return this.$store.getters.userType === "audience";
     },
     userId() {
       return this.$store.getters.currentUserId;

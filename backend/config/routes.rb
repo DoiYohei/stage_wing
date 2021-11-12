@@ -27,12 +27,15 @@ Rails.application.routes.draw do
         get :friendships
       end
     end
-    resources :audiences, only: :show
+    resources :audiences, only: %i(show index)
     resources :posts, only: %i(index create edit update destroy)
-    resource :friendships, only: %i(create destroy)
-    resource :likes, only: %i(create destroy)
     resources :rooms, only: %i(index create) do
       resources :messages, only: :index
     end
+    get "/likes", to: "likes#index"
+    post "/likes", to: "likes#create"
+    delete "/likes", to: "likes#destroy"
+    post "/friendships", to: "friendships#create"
+    delete "/friendships", to: "friendships#destroy"
   end
 end

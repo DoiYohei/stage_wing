@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_22_060055) do
+ActiveRecord::Schema.define(version: 2021_11_04_052751) do
 
   create_table "audiences", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "provider", default: "email", null: false
@@ -78,12 +78,14 @@ ActiveRecord::Schema.define(version: 2021_10_22_060055) do
   end
 
   create_table "comments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "band_id", null: false
+    t.bigint "band_id"
     t.bigint "event_id", null: false
     t.bigint "parent_id"
     t.text "content", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "audience_id"
+    t.index ["audience_id"], name: "index_comments_on_audience_id"
     t.index ["band_id"], name: "index_comments_on_band_id"
     t.index ["event_id"], name: "index_comments_on_event_id"
     t.index ["parent_id"], name: "index_comments_on_parent_id"
@@ -111,14 +113,15 @@ ActiveRecord::Schema.define(version: 2021_10_22_060055) do
     t.datetime "updated_at", precision: 6, null: false
     t.index ["followed_id"], name: "index_friendships_on_followed_id"
     t.index ["follower_id", "followed_id"], name: "index_friendships_on_follower_id_and_followed_id", unique: true
-    t.index ["follower_id"], name: "index_friendships_on_follower_id"
   end
 
   create_table "likes", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "band_id", null: false
+    t.bigint "band_id"
     t.bigint "post_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "audience_id"
+    t.index ["audience_id", "post_id"], name: "index_likes_on_audience_id_and_post_id", unique: true
     t.index ["band_id", "post_id"], name: "index_likes_on_band_id_and_post_id", unique: true
     t.index ["post_id"], name: "index_likes_on_post_id"
   end
@@ -149,11 +152,10 @@ ActiveRecord::Schema.define(version: 2021_10_22_060055) do
     t.string "audio"
     t.string "media_pass"
     t.text "description"
-    t.bigint "band_id"
+    t.bigint "band_id", null: false
+    t.integer "likes_count", default: 0
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.integer "likes_count", default: 0
-    t.index ["band_id", "created_at"], name: "index_posts_on_band_id_and_created_at"
     t.index ["band_id"], name: "index_posts_on_band_id"
   end
 
@@ -164,13 +166,16 @@ ActiveRecord::Schema.define(version: 2021_10_22_060055) do
 
   add_foreign_key "band_rooms", "bands"
   add_foreign_key "band_rooms", "rooms"
+  add_foreign_key "comments", "audiences"
   add_foreign_key "comments", "bands"
   add_foreign_key "comments", "comments", column: "parent_id"
   add_foreign_key "comments", "events"
   add_foreign_key "friendships", "bands", column: "followed_id"
   add_foreign_key "friendships", "bands", column: "follower_id"
+  add_foreign_key "likes", "audiences"
   add_foreign_key "likes", "bands"
   add_foreign_key "likes", "posts"
+  add_foreign_key "lineups", "bands", column: "performer_id"
   add_foreign_key "lineups", "events"
   add_foreign_key "messages", "bands"
   add_foreign_key "messages", "rooms"

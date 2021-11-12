@@ -1,59 +1,53 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col md="4" offset-md="4">
-        <template v-if="event.owner_id">
+    <template v-if="!isLoadingData">
+      <v-row>
+        <v-col md="4" offset-md="4">
           <div>{{ ownerName }}</div>
-        </template>
-        <p v-else>作成者は退会しました</p>
-        <template v-if="isEventOwner">
-          <router-link :to="`/events/${id}/edit`"
-            >イベント情報を編集する</router-link
-          >
-          <button @click="deleteEvent">削除する</button>
-        </template>
-        <div>{{ event.name }}</div>
-        <img :src="event.flyer" />
-        <div>
-          Open: {{ $dayjs(event.open_at).format("YYYY MMM DD - hh:mm") }}
-        </div>
-        <div>
-          Start: {{ $dayjs(event.start_at).format("YYYY MMM DD - hh:mm") }}
-        </div>
-        <div>{{ event.place }}</div>
-        <div>{{ event.content }}</div>
-        <p>Lineup:</p>
-        <template v-if="event.performers">
-          <div v-for="(performer, index) in event.performers" :key="index">
-            <router-link :to="`/bands/${performer.id}`">{{
-              performer.name
-            }}</router-link>
+          <template v-if="isEventOwner">
+            <router-link :to="`/events/${id}/edit`"
+              >イベント情報を編集する</router-link
+            >
+            <button @click="deleteEvent">削除する</button>
+          </template>
+          <div>{{ event.name }}</div>
+          <img :src="event.flyer" />
+          <div>
+            Open: {{ $dayjs(event.open_at).format("YYYY MMM DD - hh:mm") }}
           </div>
-        </template>
-        <template v-if="event.unregistered_performers">
-          <div>/ {{ event.unregistered_performers }}</div>
-        </template>
-        <template v-if="isEventOwner">
-          <router-link :to="`/events/${id}/lineup/edit`"
-            >Lineupを編集する</router-link
-          >
-        </template>
-      </v-col>
-      <template v-for="(comment, index) of event.parent_comments">
-        <!-- 子コンポーネントのcomputedでエラーが発生するため、dataを取得するまでv-if="bands"で待つ -->
-        <comment-for-event
-          v-if="bands"
-          :comment="comment"
-          :key="`comment${index}`"
-        />
-      </template>
-      <v-col md="4" offset-md="4">
-        <v-textarea v-model="newComment" label="コメント" outlined />
-        <v-col cols="12">
-          <v-btn elevation="4" @click="postComment">コメントする</v-btn>
+          <div>
+            Start: {{ $dayjs(event.start_at).format("YYYY MMM DD - hh:mm") }}
+          </div>
+          <div>{{ event.place }}</div>
+          <div>{{ event.content }}</div>
+          <p>Lineup:</p>
+          <template v-if="event.performers">
+            <div v-for="(performer, index) in event.performers" :key="index">
+              <router-link :to="`/bands/${performer.id}`">{{
+                performer.name
+              }}</router-link>
+            </div>
+          </template>
+          <template v-if="event.unregistered_performers">
+            <div>/ {{ event.unregistered_performers }}</div>
+          </template>
+          <template v-if="isEventOwner">
+            <router-link :to="`/events/${id}/lineup/edit`"
+              >Lineupを編集する</router-link
+            >
+          </template>
         </v-col>
-      </v-col>
-    </v-row>
+        <template v-for="(comment, index) of event.parent_comments">
+          <comment-for-event :comment="comment" :key="`comment${index}`" />
+        </template>
+        <v-col md="4" offset-md="4">
+          <v-textarea v-model="newComment" label="コメント" outlined />
+          <v-col cols="12">
+            <v-btn elevation="4" @click="postComment">コメントする</v-btn>
+          </v-col>
+        </v-col>
+      </v-row>
+    </template>
   </v-container>
 </template>
 
@@ -67,7 +61,7 @@ export default {
   props: ["id"],
   data() {
     return {
-      event: {},
+      event: null,
       bands: null,
       ownerName: "",
       newComment: "",
@@ -76,14 +70,25 @@ export default {
   async created() {
     const eventRes = await this.$store.dispatch("getEventData", this.id);
     this.event = eventRes;
+    await this.$store.dispatch("getAudiences");
     const bandsRes = await this.$store.dispatch("getBandsData");
     this.bands = bandsRes;
     const owner = this.bands.filter((band) => band.id === this.event.owner_id);
-    this.ownerName = owner[0].name;
+    if (this.event.owner_id) {
+      this.ownerName = owner[0].name;
+    } else {
+      this.ownerName = "作成者は退会しました";
+    }
   },
   computed: {
     isEventOwner() {
-      return this.$store.getters.currentUserId === this.event.owner_id;
+      return (
+        this.$store.getters.userType === "band" &&
+        this.$store.getters.currentUserId === this.event.owner_id
+      );
+    },
+    isLoadingData() {
+      return !this.ownerName;
     },
   },
   methods: {
@@ -93,12 +98,16 @@ export default {
       this.$router.replace("/");
     },
     async postComment() {
-      const token = { headers: this.$store.getters.token };
-      const formData = new FormData();
-      formData.append("comment[event_id]", this.id);
-      formData.append("comment[content]", this.newComment);
-      await this.$axios.post(`/events/${this.id}/comments`, formData, token);
-      this.$router.go({ path: this.$router.currentRoute.path, force: true });
+      if (!this.$store.getters.authData) {
+        return this.$router.push("/errors/auth");
+      } else {
+        const token = { headers: this.$store.getters.token };
+        const formData = new FormData();
+        formData.append("comment[event_id]", this.id);
+        formData.append("comment[content]", this.newComment);
+        await this.$axios.post(`/events/${this.id}/comments`, formData, token);
+        this.$router.go({ path: this.$router.currentRoute.path, force: true });
+      }
     },
   },
 };

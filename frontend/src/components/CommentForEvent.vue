@@ -48,13 +48,26 @@ export default {
   },
   computed: {
     commenterName() {
-      const commenter = this.$store.getters.bandsData.filter(
-        (band) => band.id === this.comment.band_id
-      );
-      return commenter[0].name;
+      if (this.comment.band_id) {
+        const commenter = this.$store.getters.bandsData.filter(
+          (band) => band.id === this.comment.band_id
+        );
+        return commenter[0].name;
+      } else {
+        const commenter = this.$store.getters.audiences.filter(
+          (audience) => audience.id === this.comment.audience_id
+        );
+        return commenter[0].name;
+      }
     },
     isCommentOwner() {
-      return this.$store.getters.currentUserId === this.comment.band_id;
+      if (this.$store.getters.userType === "band") {
+        return this.$store.getters.currentUserId === this.comment.band_id;
+      } else if (this.$store.getters.userType === "audience") {
+        return this.$store.getters.currentUserId === this.comment.audience_id;
+      } else {
+        return false;
+      }
     },
     repliesToComment() {
       return this.$store.getters.eventData.comments.filter(

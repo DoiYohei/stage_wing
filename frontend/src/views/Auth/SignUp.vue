@@ -44,7 +44,7 @@
           <div>一般の方はこちら</div>
         </v-col>
         <v-col md="2" offset-md="5">
-          <v-text-field v-model="audienceName" label="Name or Nickname" />
+          <v-text-field v-model="audienceName" label="Name" />
         </v-col>
         <v-col md="2" offset-md="5">
           <v-text-field v-model="audienceEmail" label="Email" />

@@ -4,7 +4,7 @@
     <v-container>
       <v-row>
         <v-col md="4" offset-md="4">
-          <v-textp-field v-model="post.title" label="タイトル" />
+          <v-text-field v-model="post.title" label="タイトル" />
         </v-col>
         <v-col md="4" offset-md="4">
           <v-textarea v-model="post.description" label="内容" outlined />
