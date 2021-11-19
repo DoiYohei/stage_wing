@@ -8,6 +8,7 @@ FactoryBot.define do
     ticket_price { 1200 }
     content { "フェス開催します。フェス開催します。フェス開催します。フェス開催します。フェス開催します。フェス開催します。" }
     unregistered_performers { "The Testles" }
+    reservation { true }
     association :owner
   end
 end
