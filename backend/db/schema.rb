@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_04_052751) do
+ActiveRecord::Schema.define(version: 2021_11_17_100054) do
 
   create_table "audiences", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "provider", default: "email", null: false
@@ -103,6 +103,7 @@ ActiveRecord::Schema.define(version: 2021_11_04_052751) do
     t.text "unregistered_performers"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "reservation", null: false
     t.index ["owner_id"], name: "index_events_on_owner_id"
   end
 
@@ -164,6 +165,17 @@ ActiveRecord::Schema.define(version: 2021_11_04_052751) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "tickets", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "audience_id", null: false
+    t.bigint "event_id", null: false
+    t.bigint "band_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["audience_id", "event_id", "band_id"], name: "index_tickets_on_audience_id_and_event_id_and_band_id", unique: true
+    t.index ["band_id"], name: "index_tickets_on_band_id"
+    t.index ["event_id"], name: "index_tickets_on_event_id"
+  end
+
   add_foreign_key "band_rooms", "bands"
   add_foreign_key "band_rooms", "rooms"
   add_foreign_key "comments", "audiences"
@@ -180,4 +192,7 @@ ActiveRecord::Schema.define(version: 2021_11_04_052751) do
   add_foreign_key "messages", "bands"
   add_foreign_key "messages", "rooms"
   add_foreign_key "posts", "bands"
+  add_foreign_key "tickets", "audiences"
+  add_foreign_key "tickets", "bands"
+  add_foreign_key "tickets", "events"
 end
