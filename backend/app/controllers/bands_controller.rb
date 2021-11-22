@@ -1,4 +1,6 @@
 class BandsController < ApplicationController
+  before_action :authenticate_band!, only: %i(friendships tickets)
+
   def index
     @bands = Band.all
   end
@@ -18,5 +20,9 @@ class BandsController < ApplicationController
     @friends = band.friends
     @inviting = band.inviting
     @inviters = band.inviters
+  end
+
+  def tickets
+    @tickets = current_band.tickets
   end
 end

@@ -62,6 +62,11 @@
             />
           </v-col>
         </v-col>
+        <v-col md="4" offset-md="4">
+          <v-sheet>
+            <v-switch v-model="reservation" inset :label="reservationMessage" />
+          </v-sheet>
+        </v-col>
         <v-col cols="12">
           <v-btn elevation="4" @click="postEvent">投稿する</v-btn>
         </v-col>
@@ -82,6 +87,7 @@ export default {
       content: "",
       performers: [],
       unregisteredPerformers: "",
+      reservation: false,
       url: "",
       registeredBands: [],
     };
@@ -90,6 +96,15 @@ export default {
     // 出演者の入力時に検索機能を使うため、本サービスに登録されているBand一覧を取得
     const res = await this.$axios.get("/bands");
     this.registeredBands = res.data.bands;
+  },
+  computed: {
+    reservationMessage() {
+      if (this.reservation) {
+        return "チケット取り置きを受けつける(Lineupに登録されたバンドがいる場合のみ)";
+      } else {
+        return "チケット取り置きを受けつけない";
+      }
+    },
   },
   methods: {
     fetchUrl(file) {
@@ -118,6 +133,7 @@ export default {
       eventFormData.append("event[open_at]", this.openAt);
       eventFormData.append("event[start_at]", this.startAt);
       eventFormData.append("event[content]", this.content);
+      eventFormData.append("event[reservation]", this.reservation);
       eventFormData.append(
         "event[unregistered_performers]",
         this.unregisteredPerformers

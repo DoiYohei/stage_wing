@@ -29,8 +29,8 @@ const actions = {
       commit("updateEventsData", response.data.events);
     });
   },
-  async getEventData({ commit }, eventId) {
-    const res = await axios.get("/events/" + eventId);
+  async getEventData({ commit }, payload) {
+    const res = await axios.get("/events/" + payload.eventId, payload.token);
     commit("updateEventData", res.data);
     return res.data;
   },
