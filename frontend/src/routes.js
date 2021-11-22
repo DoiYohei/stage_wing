@@ -11,6 +11,7 @@ import EventsNew from "@/views/Events/EventsNew";
 import BandsIndex from "@/views/Bands/BandsIndex";
 import BandsShow from "@/views/Bands/BandsShow";
 import BandsEdit from "@/views/Bands/BandsEdit";
+import BandsTickets from "@/views/Bands/BandsTickets";
 import PostsIndex from "@/views/Posts/PostsIndex";
 import PostsNew from "@/views/Posts/PostsNew";
 import PostsEdit from "@/views/Posts/PostsEdit";
@@ -19,8 +20,10 @@ import ChatsIndex from "@/views/Chats/ChatsIndex";
 import ChatsShow from "@/views/Chats/ChatsShow";
 import AudiencesShow from "@/views/Audiences/AudiencesShow";
 import AudiencesEdit from "@/views/Audiences/AudiencesEdit";
+import AudiencesTickets from "@/views/Audiences/AudiencesTickets";
 import AuthError from "@/views/Errors/AuthError";
 import LikesIndex from "@/views/Likes/LikesIndex";
+import TicketsNew from "@/views/Tickets/TicketsNew";
 
 Vue.use(Router);
 
@@ -66,6 +69,12 @@ export default new Router({
       props: true,
     },
     {
+      path: "/events/:id/tickets/new",
+      name: "TicketsNew",
+      component: TicketsNew,
+      props: true,
+    },
+    {
       path: "/event/new",
       name: "EventsNew",
       component: EventsNew,
@@ -85,6 +94,12 @@ export default new Router({
       path: "/bands/:id/edit",
       name: "BandsEdit",
       component: BandsEdit,
+      props: true,
+    },
+    {
+      path: "/bands/:id/tickets",
+      name: "BandsTickets",
+      component: BandsTickets,
       props: true,
     },
     {
@@ -138,6 +153,12 @@ export default new Router({
       path: "/audiences/:userId/edit",
       name: "AudiencesEdit",
       component: AudiencesEdit,
+      props: true,
+    },
+    {
+      path: "/audiences/:userId/tickets",
+      name: "AudiencesTickets",
+      component: AudiencesTickets,
       props: true,
     },
     {

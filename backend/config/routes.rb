@@ -21,13 +21,19 @@ Rails.application.routes.draw do
     resources :events do
       resources :lineups
       resources :comments, only: %i(create destroy)
+      resources :tickets, only: %i(new create destroy)
     end
     resources :bands, only: %i(show index) do
       member do
         get :friendships
+        get :tickets
       end
     end
-    resources :audiences, only: %i(show index)
+    resources :audiences, only: %i(show index) do
+      member do
+        get :tickets
+      end
+    end
     resources :posts, only: %i(index create edit update destroy)
     resources :rooms, only: %i(index create) do
       resources :messages, only: :index

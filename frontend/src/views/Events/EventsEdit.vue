@@ -28,6 +28,15 @@
         <v-col md="4" offset-md="4">
           <v-textarea v-model="event.content" label="詳細" outlined />
         </v-col>
+        <v-col md="4" offset-md="4">
+          <v-sheet>
+            <v-switch
+              v-model="event.reservation"
+              inset
+              :label="reservationMessage"
+            />
+          </v-sheet>
+        </v-col>
         <v-col cols="12">
           <v-btn elevation="4" @click="patchEvent">更新する</v-btn>
         </v-col>
@@ -44,6 +53,15 @@ export default {
       event: {},
     };
   },
+  computed: {
+    reservationMessage() {
+      if (this.event.reservation) {
+        return "チケット取り置きを受けつける";
+      } else {
+        return "チケット取り置きを受けつけない";
+      }
+    },
+  },
   methods: {
     setFlyer(e) {
       this.flyer = e.target.files[0];
@@ -55,9 +73,10 @@ export default {
       formData.append("event[name]", this.event.name);
       formData.append("event[flyer]", this.event.flyer);
       formData.append("event[place]", this.event.place);
-      formData.append("event[open_at]", this.event.openAt);
-      formData.append("event[start_at]", this.event.startAt);
+      formData.append("event[open_at]", this.event.open_at);
+      formData.append("event[start_at]", this.event.start_at);
       formData.append("event[content]", this.event.content);
+      formData.append("event[reservation]", this.event.reservation);
       await this.$axios.patch(`/events/${this.id}`, formData, token);
       this.$router.replace(`/events/${this.id}`);
     },

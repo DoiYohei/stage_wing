@@ -10,4 +10,5 @@ class Event < ApplicationRecord
   has_many :lineups, dependent: :destroy
   has_many :performers, class_name: "Band", through: :lineups
   has_many :comments, dependent: :destroy
+  has_many :tickets, dependent: :destroy
 end

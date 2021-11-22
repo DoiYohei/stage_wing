@@ -26,6 +26,7 @@ class Band < ActiveRecord::Base
   has_many :messages, dependent: :destroy
   has_many :band_rooms, dependent: :destroy
   has_many :rooms, through: :band_rooms
+  has_many :tickets, dependent: :destroy
   
   # Bandをフォローする
   def follow(other_band)

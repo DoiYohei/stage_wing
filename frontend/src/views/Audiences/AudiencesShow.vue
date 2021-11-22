@@ -17,7 +17,9 @@
           <router-link to="/liked_posts">お気に入り</router-link>
         </v-col>
         <v-col>
-          <router-link>取り置きしているチケット</router-link>
+          <router-link :to="`/audiences/${userId}/tickets`"
+            >取り置きしているチケット
+          </router-link>
         </v-col>
       </v-row>
     </v-container>

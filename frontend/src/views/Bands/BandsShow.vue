@@ -21,6 +21,7 @@
       <router-link to="/liked_posts">お気に入り</router-link>
       <router-link :to="`/bands/${id}/friendships`">Friends</router-link>
       <router-link :to="`/bands/${id}/chats`">Chat</router-link>
+      <router-link :to="`/bands/${id}/tickets`">Tickets</router-link>
       <router-link :to="`/bands/${id}/edit`">編集する</router-link>
       <button @click="deleteBand">退会する</button>
     </template>

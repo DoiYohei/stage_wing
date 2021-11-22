@@ -12,6 +12,10 @@ class EventsController < ApplicationController
     @performers = @event.performers
     @comments = @event.comments
     @parent_comments = @comments.select { |n| n.parent_id == nil }
+    if current_audience
+      tickets = current_audience.tickets
+      @ticket = tickets.find_by(event_id: @event.id)
+    end
   end
 
   def create
@@ -45,6 +49,6 @@ class EventsController < ApplicationController
   end
 
   def event_params
-    params.require(:event).permit(:name, :flyer, :place, :open_at, :start_at, :content, :unregistered_performers)
+    params.require(:event).permit(:name, :flyer, :place, :open_at, :start_at, :content, :unregistered_performers, :reservation)
   end
 end
