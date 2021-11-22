@@ -37,6 +37,21 @@
             >
           </template>
         </v-col>
+        <v-col md="4" offset-md="4">
+          <div>Price: {{ event.ticket_price }}</div>
+          <template v-if="isAudience">
+            <div v-if="event.ticket">
+              チケットを取り置きしています
+              <v-btn @click="deleteTicket">キャンセルする</v-btn>
+            </div>
+            <template v-else-if="event.reservation">
+              <router-link :to="`/events/${id}/tickets/new`"
+                >チケットを取り置きする
+              </router-link>
+            </template>
+            <div v-else>チケット取り置きはできません</div>
+          </template>
+        </v-col>
         <template v-for="(comment, index) of event.parent_comments">
           <comment-for-event :comment="comment" :key="`comment${index}`" />
         </template>
@@ -68,7 +83,14 @@ export default {
     };
   },
   async created() {
-    const eventRes = await this.$store.dispatch("getEventData", this.id);
+    let token = null;
+    if (this.$store.getters.userType === "audience") {
+      token = { headers: this.$store.getters.token };
+    }
+    const eventRes = await this.$store.dispatch("getEventData", {
+      eventId: this.id,
+      token,
+    });
     this.event = eventRes;
     await this.$store.dispatch("getAudiences");
     const bandsRes = await this.$store.dispatch("getBandsData");
@@ -90,6 +112,9 @@ export default {
     isLoadingData() {
       return !this.ownerName;
     },
+    isAudience() {
+      return this.$store.getters.userType === "audience";
+    },
   },
   methods: {
     async deleteEvent() {
@@ -108,6 +133,14 @@ export default {
         await this.$axios.post(`/events/${this.id}/comments`, formData, token);
         this.$router.go({ path: this.$router.currentRoute.path, force: true });
       }
+    },
+    async deleteTicket() {
+      const token = { headers: this.$store.getters.token };
+      await this.$axios.delete(
+        `/events/${this.id}/tickets/${this.event.ticket.id}`,
+        token
+      );
+      this.$router.go({ path: this.$router.currentRoute.path, force: true });
     },
   },
 };
