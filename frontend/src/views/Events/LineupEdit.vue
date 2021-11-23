@@ -58,7 +58,7 @@ export default {
     async patchLineup() {
       const eventId = this.id;
       const token = {
-        headers: this.$store.getters.authData,
+        headers: this.$store.getters.token,
       };
       const originalLineupLength = this.originalLineupIds.length;
       const newLineupLength = this.performers.length;
