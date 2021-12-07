@@ -53,6 +53,18 @@ export default {
 </script>
 
 <style>
+@charset "UTF-8";
+
+html {
+  font-size: 100%;
+}
+a {
+  text-decoration: none;
+}
+img {
+  max-width: 100%;
+}
+
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

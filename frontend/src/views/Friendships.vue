@@ -69,7 +69,8 @@ export default {
     };
   },
   async created() {
-    const res = await this.$axios.get(`/bands/${this.id}/friendships`);
+    const token = { headers: this.$store.getters.token };
+    const res = await this.$axios.get(`/bands/${this.id}/friendships`, token);
     this.friends = res.data.friends;
     this.invitings = res.data.inviting;
     this.inviters = res.data.inviters;

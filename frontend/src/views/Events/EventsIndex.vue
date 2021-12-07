@@ -35,12 +35,11 @@
           />
         </v-col>
         <v-col cols="12" v-for="(event, index) in filteredEvents" :key="index">
-          <hr />
           <router-link :to="`/events/${event.id}`">
+            <img :src="event.flyer.thumb.url" />
             <span>{{ $dayjs(event.open_at).format("YYYY MMM DD") }}</span>
             <span> {{ event.name }}</span>
           </router-link>
-          <hr />
         </v-col>
       </v-row>
     </v-container>

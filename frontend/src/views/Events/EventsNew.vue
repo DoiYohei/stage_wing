@@ -64,7 +64,11 @@
         </v-col>
         <v-col md="4" offset-md="4">
           <v-sheet>
-            <v-switch v-model="reservation" inset :label="reservationMessage" />
+            <v-switch
+              v-model="reservation"
+              inset
+              label="チケット取り置きを受けつける(Lineupに登録されたバンドがいる場合のみ)"
+            />
           </v-sheet>
         </v-col>
         <v-col cols="12">
@@ -96,15 +100,6 @@ export default {
     // 出演者の入力時に検索機能を使うため、本サービスに登録されているBand一覧を取得
     const res = await this.$axios.get("/bands");
     this.registeredBands = res.data.bands;
-  },
-  computed: {
-    reservationMessage() {
-      if (this.reservation) {
-        return "チケット取り置きを受けつける(Lineupに登録されたバンドがいる場合のみ)";
-      } else {
-        return "チケット取り置きを受けつけない";
-      }
-    },
   },
   methods: {
     fetchUrl(file) {

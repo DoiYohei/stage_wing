@@ -25,7 +25,7 @@
             <button @click="deletePost(post.id)">削除する</button>
           </div>
           <div v-if="post.format === 'photo'">
-            <img :src="post.photo.thumb.url" />
+            <img :src="post.photo.url" />
           </div>
           <div v-if="post.format === 'audio'">
             <audio controls :src="post.audio.url"></audio>

@@ -11,6 +11,8 @@ class Band < ActiveRecord::Base
   validates :website, :twitter, format: { with: /\A#{URI::regexp(%w(http https))}\z/ }, allow_nil: true
 
   mount_uploader :image, ImageUploader
+  IMAGE_SIZE = [600, 600]
+  THUMBNAIL_SIZE = [30, 30]
 
   has_many :created_events, class_name: "Event", foreign_key: "owner_id", dependent: :nullify
   has_many :posts, dependent: :destroy
