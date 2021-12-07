@@ -1,10 +1,10 @@
 <template>
   <v-container>
     <v-row>
-      <v-col md="4" offset-md="4" v-if="isMyPage">
+      <v-col md="8" offset-md="2" v-if="isMyPage">
         <router-link :to="`/bands/${id}/posts/new`">新規投稿作成</router-link>
       </v-col>
-      <v-col md="4" offset-md="4" v-for="(post, index) in posts" :key="index">
+      <v-col md="8" offset-md="2" v-for="(post, index) in posts" :key="index">
         <span>{{ post.created_at }}</span>
         <span>{{ post.title }}</span>
         <v-btn v-if="isLiked(post)" icon color="red" @click="changeLike(post)">
@@ -21,7 +21,7 @@
           <button @click="deletePost(post.id)">削除する</button>
         </div>
         <div v-if="post.format === 'photo'">
-          <img :src="post.photo.thumb.url" />
+          <img :src="post.photo.url" />
         </div>
         <div v-if="post.format === 'audio'">
           <audio controls :src="post.audio.url"></audio>

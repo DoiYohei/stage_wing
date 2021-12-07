@@ -4,6 +4,18 @@
     <v-container>
       <v-row>
         <v-col md="4" offset-md="4">
+          <v-file-input
+            v-model="flyer"
+            @change="fetchUrl"
+            @blur="fetchOriginal"
+            label="フライヤーを変更する"
+            chips
+          />
+        </v-col>
+        <v-col md="4">
+          <v-img v-if="flyerUrl" :src="flyerUrl" />
+        </v-col>
+        <v-col md="4" offset-md="4">
           <v-text-field v-model="event.name" label="イベント名" />
         </v-col>
         <v-col md="4" offset-md="4">
@@ -33,7 +45,7 @@
             <v-switch
               v-model="event.reservation"
               inset
-              :label="reservationMessage"
+              label="チケット取り置きを受けつける"
             />
           </v-sheet>
         </v-col>
@@ -51,39 +63,56 @@ export default {
   data() {
     return {
       event: {},
+      flyer: null,
+      flyerUrl: "",
     };
   },
-  computed: {
-    reservationMessage() {
-      if (this.event.reservation) {
-        return "チケット取り置きを受けつける";
-      } else {
-        return "チケット取り置きを受けつけない";
-      }
-    },
+  async created() {
+    const res = await this.$axios.get(`/events/${this.id}`);
+    this.event = res.data;
+    this.flyerUrl = res.data.flyer;
   },
   methods: {
-    setFlyer(e) {
-      this.flyer = e.target.files[0];
-      this.url = URL.createObjectURL(this.image);
+    fetchUrl(file) {
+      if (file !== undefined && file !== null) {
+        if (file.name.lastIndexOf(".") <= 0) {
+          return;
+        } else {
+          const fr = new FileReader();
+          fr.readAsDataURL(file);
+          fr.addEventListener("load", () => {
+            this.flyerUrl = fr.result;
+          });
+        }
+      } else {
+        this.flyerUrl = "";
+      }
+    },
+    fetchOriginal() {
+      if (!this.flyerUrl) {
+        this.flyerUrl = this.event.flyer;
+      }
     },
     async patchEvent() {
       const token = { headers: this.$store.getters.token };
       const formData = new FormData();
       formData.append("event[name]", this.event.name);
-      formData.append("event[flyer]", this.event.flyer);
       formData.append("event[place]", this.event.place);
       formData.append("event[open_at]", this.event.open_at);
       formData.append("event[start_at]", this.event.start_at);
       formData.append("event[content]", this.event.content);
       formData.append("event[reservation]", this.event.reservation);
+      if (this.flyer) formData.append("event[flyer]", this.flyer);
       await this.$axios.patch(`/events/${this.id}`, formData, token);
       this.$router.replace(`/events/${this.id}`);
     },
   },
-  async created() {
-    const res = await this.$axios.get(`/events/${this.id}`);
-    this.event = res.data;
+  watch: {
+    flyer() {
+      if (!this.flyerUrl) {
+        this.flyerUrl = this.event.flyer;
+      }
+    },
   },
 };
 </script>

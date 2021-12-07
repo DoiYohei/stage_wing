@@ -9,7 +9,7 @@ class BandsController < ApplicationController
     @band = Band.find(params[:id])
     lineups = Lineup.where(performer_id: params[:id])
     @events = lineups.map { |lineup| lineup.event }
-    @image = @band.image.thumb.url
+    @image = @band.image.url
     if current_band
       @friend_status = current_band.friend_status(@band)
     end

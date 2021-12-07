@@ -1,3 +1,3 @@
 json.bands do
-  json.array! @bands, :id, :name
+  json.array! @bands, :id, :name, :image
 end

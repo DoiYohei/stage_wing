@@ -6,6 +6,7 @@ class Post < ApplicationRecord
   
   mount_uploader :photo, ImageUploader
   mount_uploader :audio, AudioUploader
+  IMAGE_SIZE = [600, 600]
   
   scope :newest, -> { order(created_at: :desc) }
 

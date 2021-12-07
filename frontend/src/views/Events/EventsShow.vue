@@ -2,14 +2,17 @@
   <v-container>
     <template v-if="!isLoadingData">
       <v-row>
-        <v-col md="4" offset-md="4">
-          <div>{{ ownerName }}</div>
-          <template v-if="isEventOwner">
-            <router-link :to="`/events/${id}/edit`"
-              >イベント情報を編集する</router-link
-            >
-            <button @click="deleteEvent">削除する</button>
-          </template>
+        <v-col md="8" offset-md="2">
+          <v-col class="d-flex flex-row">
+            <img :src="ownerImage" class="owner-img" />
+            <div>{{ ownerName }}</div>
+            <template v-if="isEventOwner">
+              <router-link :to="`/events/${id}/edit`"
+                >イベント情報を編集する</router-link
+              >
+              <v-btn @click="deleteEvent">削除する</v-btn>
+            </template>
+          </v-col>
           <div>{{ event.name }}</div>
           <img :src="event.flyer" />
           <div>
@@ -53,7 +56,7 @@
           </template>
         </v-col>
         <template v-for="(comment, index) of event.parent_comments">
-          <comment-for-event :comment="comment" :key="`comment${index}`" />
+          <CommentForEvent :comment="comment" :key="`comment${index}`" />
         </template>
         <v-col md="4" offset-md="4">
           <v-textarea v-model="newComment" label="コメント" outlined />
@@ -79,6 +82,7 @@ export default {
       event: null,
       bands: null,
       ownerName: "",
+      ownerImage: "",
       newComment: "",
     };
   },
@@ -98,6 +102,7 @@ export default {
     const owner = this.bands.filter((band) => band.id === this.event.owner_id);
     if (this.event.owner_id) {
       this.ownerName = owner[0].name;
+      this.ownerImage = owner[0].image.thumb.url;
     } else {
       this.ownerName = "作成者は退会しました";
     }
@@ -145,3 +150,11 @@ export default {
   },
 };
 </script>
+
+<style>
+.owner-img {
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+}
+</style>

@@ -22,6 +22,7 @@ backend/tmp/pids/*
 backend/storage/*
 !/storage/.keep
 .byebug_history
+backend/public
 
 # Ignore master key for decrypting credentials and more.
 backend/config/master.key
