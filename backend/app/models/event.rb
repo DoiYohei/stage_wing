@@ -5,7 +5,6 @@ class Event < ApplicationRecord
   validates :open_at, :start_at, presence:true
 
   mount_uploader :flyer, ImageUploader
-  IMAGE_SIZE = [1000, 1000]
   THUMBNAIL_SIZE = [100, 100]
 
   belongs_to :owner, class_name: "Band"

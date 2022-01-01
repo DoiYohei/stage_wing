@@ -1,35 +1,43 @@
 <template>
-  <div>
-    <v-container>
-      <v-row>
-        <v-col cols="12">
-          <div>Lineup</div>
-          <v-col md="4" offset-md="4">
-            <v-autocomplete
-              v-model="performers"
-              :items="registeredBands"
-              item-text="name"
-              no-data-text="登録されていません"
-              multiple
-              return-object
-              clearable
-              outlined
-            />
-          </v-col>
-          <v-col md="4" offset-md="4">
-            <v-textarea
-              v-model="unregisteredPerformers"
-              label="登録されていないアーティスト"
-              outlined
-            />
-          </v-col>
-        </v-col>
-        <v-col cols="12">
-          <v-btn elevation="4" @click="patchLineup">変更する</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+  <v-container>
+    <v-row>
+      <v-col class="text-h5">Lineup編集</v-col>
+    </v-row>
+    <v-row justify="center">
+      <v-card>
+        <v-card-text class="pb-0">
+          <v-autocomplete
+            v-model="performers"
+            :items="registeredBands"
+            item-text="name"
+            no-data-text="登録されていません"
+            label="本サイトに登録されているアーティスト"
+            chips
+            clearable
+            deletable-chips
+            multiple
+            outlined
+            return-object
+          />
+          <v-combobox
+            v-model="unregisteredBands"
+            label="本サイトに登録されていないアーティスト"
+            hint="各アーティストごとにEnterキーを入力してください。"
+            chips
+            clearable
+            deletable-chips
+            multiple
+            outlined
+          />
+        </v-card-text>
+        <v-card-actions class="mt-5">
+          <v-btn width="100%" elevation="4" @click="patchLineup">
+            変更する
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -38,21 +46,19 @@ export default {
   data() {
     return {
       performers: [],
-      unregisteredPerformers: "",
+      unregisteredBands: [],
       originalLineupIds: [],
       registeredBands: [],
     };
   },
   async created() {
-    const lineupRes = await this.$axios.get(`/events/${this.id}/lineups`);
-    this.performers = lineupRes.data.performers;
-    this.originalLineupIds = lineupRes.data.lineup_ids;
-    const eventRes = await this.$axios.get(`/events/${this.id}`);
-    this.unregisteredPerformers = eventRes.data.unregistered_performers;
-
-    // 出演者の入力時に検索機能を使うため、本サービスに登録されているBand一覧を取得
-    const bandsRes = await this.$axios.get("/bands");
-    this.registeredBands = bandsRes.data.bands;
+    const res = await this.$axios.get(`/events/${this.id}/lineups`);
+    this.performers = res.data.performers;
+    this.originalLineupIds = res.data.lineup_ids;
+    if (res.data.unregistered_performers) {
+      this.unregisteredBands = res.data.unregistered_performers.split("*/");
+    }
+    this.registeredBands = res.data.bands;
   },
   methods: {
     async patchLineup() {
@@ -117,10 +123,11 @@ export default {
       }
 
       // 登録されていないBandsは、Eventsテーブルにpatchする
+      const unregisteredPerformers = this.unregisteredBands.join("*/");
       const eventFormData = new FormData();
       eventFormData.append(
         "event[unregistered_performers]",
-        this.unregisteredPerformers
+        unregisteredPerformers
       );
       await this.$axios.patch(`/events/${eventId}`, eventFormData, token);
 

@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-  get 'home/index'
   mount_devise_token_auth_for "Band", at: "auth", skip: [:registrations], controllers: {
     sessions: "auth/sessions",
     passwords: "bands/passwords",
@@ -19,7 +18,9 @@ Rails.application.routes.draw do
   }
   
   scope format: "json" do
+    root "home#index"
     resources :events do
+      get :edit, on: :member
       resources :lineups, except: :show
       resources :comments, only: %i(create destroy)
       resources :tickets, only: %i(new create destroy)
@@ -31,19 +32,17 @@ Rails.application.routes.draw do
       end
     end
     resources :audiences, only: %i(show index) do
-      member do
-        get :tickets
-      end
+      get :tickets, on: :member
     end
     resources :posts, only: %i(index create edit update destroy)
     resources :rooms, only: %i(index create) do
       resources :messages, only: :index
     end
-    root "home#index"
-    get "/likes", to: "likes#index"
-    post "/likes", to: "likes#create"
-    delete "/likes", to: "likes#destroy"
-    post "/friendships", to: "friendships#create"
-    delete "/friendships", to: "friendships#destroy"
+    resources :likes, only: %i(create index) do
+      delete :destroy, on: :collection
+    end
+    resources :friendships, only: :create do
+      delete :destroy, on: :collection
+    end
   end
 end

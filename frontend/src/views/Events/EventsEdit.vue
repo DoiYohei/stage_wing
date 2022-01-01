@@ -1,60 +1,78 @@
 <template>
-  <div>
-    <h1>イベント内容の編集</h1>
-    <v-container>
-      <v-row>
-        <v-col md="4" offset-md="4">
-          <v-file-input
-            v-model="flyer"
-            @change="fetchUrl"
-            @blur="fetchOriginal"
-            label="フライヤーを変更する"
-            chips
-          />
-        </v-col>
-        <v-col md="4">
-          <v-img v-if="flyerUrl" :src="flyerUrl" />
-        </v-col>
-        <v-col md="4" offset-md="4">
-          <v-text-field v-model="event.name" label="イベント名" />
-        </v-col>
-        <v-col md="4" offset-md="4">
-          <v-text-field v-model="event.place" label="場所" />
-        </v-col>
-        <v-col md="2" offset-md="4">
-          <vue-ctk-date-time-picker
-            v-model="event.open_at"
-            format="YYYY-MM-DD HH:mm"
-            label="Open"
-            id="open-at"
-          />
-        </v-col>
-        <v-col md="2">
-          <vue-ctk-date-time-picker
-            v-model="event.start_at"
-            format="YYYY-MM-DD HH:mm"
-            label="Start"
-            id="start-at"
-          />
-        </v-col>
-        <v-col md="4" offset-md="4">
-          <v-textarea v-model="event.content" label="詳細" outlined />
-        </v-col>
-        <v-col md="4" offset-md="4">
-          <v-sheet>
-            <v-switch
-              v-model="event.reservation"
-              inset
-              label="チケット取り置きを受けつける"
-            />
-          </v-sheet>
-        </v-col>
-        <v-col cols="12">
-          <v-btn elevation="4" @click="patchEvent">更新する</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+  <v-container>
+    <v-row>
+      <v-col class="text-h5">Event編集</v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-card>
+          <v-col class="d-flex justify-md-start flex-wrap">
+            <v-col md="7" sm="12">
+              <v-img v-if="flyerUrl" :src="flyerUrl" />
+            </v-col>
+            <v-col class="text-left pb-0">
+              <v-card-text>
+                <v-file-input
+                  v-model="newFlyer"
+                  @change="fetchUrl"
+                  @blur="fetchOriginal"
+                  label="フライヤーを変更する"
+                  chips
+                />
+              </v-card-text>
+              <v-card-title>
+                <v-text-field v-model="event.name" label="イベント名" />
+              </v-card-title>
+              <div class="d-flex flex-column flex-xl-row">
+                <v-card-text>
+                  <vue-ctk-date-time-picker
+                    v-model="event.open_at"
+                    format="YYYY-MM-DD HH:mm"
+                    label="Open"
+                    id="open-at"
+                  />
+                </v-card-text>
+                <v-card-text>
+                  <vue-ctk-date-time-picker
+                    v-model="event.start_at"
+                    format="YYYY-MM-DD HH:mm"
+                    label="Start"
+                    id="start-at"
+                  />
+                </v-card-text>
+              </div>
+              <v-card-text>
+                <v-text-field v-model="event.place" label="場所" />
+              </v-card-text>
+              <v-card-text>
+                <v-text-field
+                  v-model="event.ticket_price"
+                  label="チケット料金(半角数字)"
+                  prefix="¥"
+                  :rules="rules"
+                />
+              </v-card-text>
+              <v-card-text>
+                <v-switch
+                  v-model="event.reservation"
+                  inset
+                  label="チケット取り置きを受けつける(本サイトに登録されているバンドのみ可能)"
+                />
+              </v-card-text>
+              <v-card-text>
+                <v-textarea v-model="event.content" label="詳細" outlined />
+              </v-card-text>
+              <v-card-actions>
+                <v-btn width="100%" elevation="4" @click="patchEvent">
+                  更新する
+                </v-btn>
+              </v-card-actions>
+            </v-col>
+          </v-col>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -63,14 +81,21 @@ export default {
   data() {
     return {
       event: {},
-      flyer: null,
+      newFlyer: null,
       flyerUrl: "",
+      rules: [
+        (value) => {
+          const pattern = /^[0-9]*$/;
+          return pattern.test(value) || "半角数字で入力してください";
+        },
+      ],
     };
   },
   async created() {
-    const res = await this.$axios.get(`/events/${this.id}`);
+    const token = { headers: this.$store.getters.token };
+    const res = await this.$axios.get(`/events/${this.id}/edit`, token);
     this.event = res.data;
-    this.flyerUrl = res.data.flyer;
+    this.flyerUrl = res.data.flyer.url;
   },
   methods: {
     fetchUrl(file) {
@@ -90,7 +115,7 @@ export default {
     },
     fetchOriginal() {
       if (!this.flyerUrl) {
-        this.flyerUrl = this.event.flyer;
+        this.flyerUrl = this.event.flyer.url;
       }
     },
     async patchEvent() {
@@ -98,19 +123,20 @@ export default {
       const formData = new FormData();
       formData.append("event[name]", this.event.name);
       formData.append("event[place]", this.event.place);
+      formData.append("event[ticket_price]", this.event.ticket_price);
       formData.append("event[open_at]", this.event.open_at);
       formData.append("event[start_at]", this.event.start_at);
       formData.append("event[content]", this.event.content);
       formData.append("event[reservation]", this.event.reservation);
-      if (this.flyer) formData.append("event[flyer]", this.flyer);
+      if (this.newFlyer) formData.append("event[flyer]", this.newFlyer);
       await this.$axios.patch(`/events/${this.id}`, formData, token);
       this.$router.replace(`/events/${this.id}`);
     },
   },
   watch: {
-    flyer() {
+    newFlyer() {
       if (!this.flyerUrl) {
-        this.flyerUrl = this.event.flyer;
+        this.flyerUrl = this.event.flyer.url;
       }
     },
   },

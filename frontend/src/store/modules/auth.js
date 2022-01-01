@@ -71,7 +71,7 @@ const actions = {
     } else {
       // トークンの期限が切れていれば、localStorageからデータを消して抜ける。
       const now = new Date();
-      const expiryMs = authData["token"["expiry"]] * 1000;
+      const expiryMs = authData.token.expiry * 1000;
       const isExpired = now.getTime() >= expiryMs;
       if (isExpired) {
         localStorage.removeItem("authDataSW");

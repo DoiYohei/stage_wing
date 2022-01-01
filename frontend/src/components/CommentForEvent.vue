@@ -3,7 +3,7 @@
     <v-row>
       <v-col>
         <v-col>
-          @{{ commenterName }}
+          @{{ comment.commenter.name }}
           {{ comment.content }}
           <v-btn elevation="4" v-if="isCommentOwner" @click="deleteComment"
             >削除する
@@ -31,7 +31,7 @@
 import CommentForEvent from "@/components/CommentForEvent";
 
 export default {
-  name: "comment-for-event",
+  name: "CommentForEvent",
   components: {
     CommentForEvent,
   },
@@ -43,28 +43,17 @@ export default {
   },
   data() {
     return {
+      bands: null,
+      audiences: null,
       newComment: "",
     };
   },
   computed: {
-    commenterName() {
-      if (this.comment.band_id) {
-        const commenter = this.$store.getters.bandsData.filter(
-          (band) => band.id === this.comment.band_id
-        );
-        return commenter[0].name;
-      } else {
-        const commenter = this.$store.getters.audiences.filter(
-          (audience) => audience.id === this.comment.audience_id
-        );
-        return commenter[0].name;
-      }
-    },
     isCommentOwner() {
       if (this.$store.getters.userType === "band") {
-        return this.$store.getters.currentUserId === this.comment.band_id;
+        return this.$store.getters.currentUserId === this.comment.commenter.id;
       } else if (this.$store.getters.userType === "audience") {
-        return this.$store.getters.currentUserId === this.comment.audience_id;
+        return this.$store.getters.currentUserId === this.comment.commenter.id;
       } else {
         return false;
       }
