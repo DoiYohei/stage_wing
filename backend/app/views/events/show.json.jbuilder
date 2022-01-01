@@ -1,17 +1,48 @@
-json.extract! @event, :id, :owner_id, :name, :place, :open_at, :start_at, :ticket_price, :content, :unregistered_performers, :reservation
+json.extract! @event, :id, :name, :place, :open_at, :start_at, :ticket_price, :content, :unregistered_performers, :reservation
 
-json.flyer @flyer
-
-json.performers do
-  json.array! @performers, :id, :name
+if @event.owner
+  json.owner do
+    json.extract! @event.owner, :id, :name
+    json.image @event.owner.image.thumb.url
+  end
 end
 
-json.comments do
-  json.array! @comments, :id, :band_id, :audience_id, :content, :parent_id
+if @event.flyer
+  json.flyer @event.flyer.url
 end
 
-json.parent_comments do
-  json.array! @parent_comments,:id, :band_id, :audience_id, :content
+if @event.performers
+  json.performers do
+    json.array! @event.performers, :id, :name
+  end
 end
 
 json.ticket @ticket
+
+json.comments do
+  json.array! @comments do |comment|
+    json.extract! comment, :id, :content, :parent_id
+    json.commenter do
+      if comment.band
+        json.extract! comment.band, :id, :name
+      else
+        json.extract! comment.audience, :id, :name
+      end
+    end
+  end
+end
+
+json.parent_comments do
+  json.array! @parent_comments do |comment|
+    json.extract! comment, :id, :content
+    json.commenter do
+      if comment.band
+        json.extract! comment.band, :id, :name
+      else
+        json.extract! comment.audience, :id, :name
+      end
+    end
+  end
+end
+
+

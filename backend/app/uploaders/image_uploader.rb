@@ -38,12 +38,7 @@ class ImageUploader < CarrierWave::Uploader::Base
   #   # do something
   # end
 
-  process :dynamic_resize_image
-
-  def dynamic_resize_image
-    size = model.class::IMAGE_SIZE
-    resize_to_fit(size[0], size[1])
-  end
+  process resize_to_fit: [600, 600]
 
   # Create different versions of your uploaded files:
   version :thumb, if: :has_thumbnail_size? do
@@ -52,7 +47,7 @@ class ImageUploader < CarrierWave::Uploader::Base
 
   def dynamic_resize_thumbnail
     size = model.class::THUMBNAIL_SIZE
-    resize_to_fit(size[0], size[1])
+    resize_to_fill(size[0], size[1], "Center")
   end
 
   def has_thumbnail_size?(new_file)
