@@ -76,6 +76,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   props: ["id"],
   data() {
@@ -92,10 +94,12 @@ export default {
     };
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
-    const res = await this.$axios.get(`/events/${this.id}/edit`, token);
+    const res = await this.$axios.get(`/events/${this.id}/edit`, this.headers);
     this.event = res.data;
     this.flyerUrl = res.data.flyer.url;
+  },
+  computed: {
+    ...mapGetters(["headers"]),
   },
   methods: {
     fetchUrl(file) {
@@ -119,7 +123,6 @@ export default {
       }
     },
     async patchEvent() {
-      const token = { headers: this.$store.getters.token };
       const formData = new FormData();
       formData.append("event[name]", this.event.name);
       formData.append("event[place]", this.event.place);
@@ -129,7 +132,7 @@ export default {
       formData.append("event[content]", this.event.content);
       formData.append("event[reservation]", this.event.reservation);
       if (this.newFlyer) formData.append("event[flyer]", this.newFlyer);
-      await this.$axios.patch(`/events/${this.id}`, formData, token);
+      await this.$axios.patch(`/events/${this.id}`, formData, this.headers);
       this.$router.replace(`/events/${this.id}`);
     },
   },

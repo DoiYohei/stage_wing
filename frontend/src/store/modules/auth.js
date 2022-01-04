@@ -12,6 +12,11 @@ const getters = {
       return state.authData.token;
     } else return null;
   },
+  headers: (state) => {
+    if (state.authData) {
+      return { headers: state.authData.token };
+    } else return null;
+  },
   currentUserId: (state) => {
     if (state.authData) {
       return state.authData.id;

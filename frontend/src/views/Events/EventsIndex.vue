@@ -172,6 +172,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   data() {
     return {
@@ -204,8 +206,9 @@ export default {
     this.fetchPageLength();
   },
   computed: {
+    ...mapGetters(["userType"]),
     isAuthenticatedBand() {
-      return this.$store.getters.userType === "band";
+      return this.userType === "band";
     },
     filteredEvents() {
       let events = [];
