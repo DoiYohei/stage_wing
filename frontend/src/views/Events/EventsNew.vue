@@ -108,6 +108,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   data() {
     return {
@@ -136,6 +138,9 @@ export default {
     const res = await this.$axios.get("/bands");
     this.registeredBands = res.data.bands;
   },
+  computed: {
+    ...mapGetters(["headers"]),
+  },
   methods: {
     fetchUrl(file) {
       // 選択したflyer(画像ファイル)を表示するためにURLを取得
@@ -153,7 +158,6 @@ export default {
       }
     },
     async postEvent() {
-      const token = { headers: this.$store.getters.token };
       const unregisteredPerformers = this.unregisteredBands.join("*/");
 
       // 新規Eventを投稿
@@ -170,7 +174,11 @@ export default {
         "event[unregistered_performers]",
         unregisteredPerformers
       );
-      const eventRes = await this.$axios.post("/events", eventFormData, token);
+      const eventRes = await this.$axios.post(
+        "/events",
+        eventFormData,
+        this.headers
+      );
 
       // 投稿したEventのLineupを登録
       const eventId = eventRes.data.id;
@@ -182,7 +190,7 @@ export default {
           await this.$axios.post(
             `/events/${eventId}/lineups`,
             lineupFormData,
-            token
+            this.headers
           );
         }
       }

@@ -20,26 +20,30 @@ end
 json.ticket @ticket
 
 json.comments do
-  json.array! @comments do |comment|
-    json.extract! comment, :id, :content, :parent_id
+  json.array! @parent_comments do |comment|
+    json.extract! comment, :id, :content, :created_at
     json.commenter do
       if comment.band
-        json.extract! comment.band, :id, :name
+        json.extract! comment.band, :id, :name, :image
+        json.user_type "band"
       else
-        json.extract! comment.audience, :id, :name
+        json.extract! comment.audience, :id, :name, :image
+        json.user_type "audience"
       end
     end
-  end
-end
-
-json.parent_comments do
-  json.array! @parent_comments do |comment|
-    json.extract! comment, :id, :content
-    json.commenter do
-      if comment.band
-        json.extract! comment.band, :id, :name
-      else
-        json.extract! comment.audience, :id, :name
+    json.replies do
+      replies = @all_comments.select { |a| a.parent_id == comment.id }
+      json.array! replies do |reply|
+        json.extract! reply, :id, :content, :created_at
+        json.commenter do
+          if reply.band
+            json.extract! reply.band, :id, :name, :image
+            json.user_type "band"
+          else
+            json.extract! reply.audience, :id, :name, :image
+            json.user_type "audience"
+          end
+        end
       end
     end
   end

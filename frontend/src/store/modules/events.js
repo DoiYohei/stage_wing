@@ -30,7 +30,10 @@ const actions = {
     });
   },
   async getEventData({ commit }, payload) {
-    const res = await axios.get("/events/" + payload.eventId, payload.token);
+    const res = await axios.get(
+      "/events/" + payload.eventId,
+      payload.audienceToken
+    );
     commit("updateEventData", res.data);
     return res.data;
   },

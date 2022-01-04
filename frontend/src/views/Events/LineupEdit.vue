@@ -41,6 +41,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   props: ["id"],
   data() {
@@ -60,12 +62,11 @@ export default {
     }
     this.registeredBands = res.data.bands;
   },
+  computed: {
+    ...mapGetters(["headers"]),
+  },
   methods: {
     async patchLineup() {
-      const eventId = this.id;
-      const token = {
-        headers: this.$store.getters.token,
-      };
       const originalLineupLength = this.originalLineupIds.length;
       const newLineupLength = this.performers.length;
 
@@ -74,27 +75,27 @@ export default {
         for (let i = 0; i < originalLineupLength; i++) {
           let lineupId = this.originalLineupIds[i];
           let lineupFormData = new FormData();
-          lineupFormData.append("lineup[event_id]", eventId);
+          lineupFormData.append("lineup[event_id]", this.id);
           lineupFormData.append("lineup[performer_id]", this.performers[i].id);
           await this.$axios.patch(
-            `/events/${eventId}/lineups/${lineupId}`,
+            `/events/${this.id}/lineups/${lineupId}`,
             lineupFormData,
-            token
+            this.headers
           );
         }
         const numberOfNew = newLineupLength - originalLineupLength;
         if (numberOfNew > 0) {
           for (let j = originalLineupLength; j < newLineupLength; j++) {
             let lineupFormData = new FormData();
-            lineupFormData.append("lineup[event_id]", eventId);
+            lineupFormData.append("lineup[event_id]", this.id);
             lineupFormData.append(
               "lineup[performer_id]",
               this.performers[j].id
             );
             await this.$axios.post(
-              `/events/${eventId}/lineups`,
+              `/events/${this.id}/lineups`,
               lineupFormData,
-              token
+              this.headers
             );
           }
         }
@@ -105,19 +106,19 @@ export default {
         for (let i = 0; i < newLineupLength; i++) {
           let lineupId = this.originalLineupIds[i];
           let lineupFormData = new FormData();
-          lineupFormData.append("lineup[event_id]", eventId);
+          lineupFormData.append("lineup[event_id]", this.id);
           lineupFormData.append("lineup[performer_id]", this.performers[i].id);
           await this.$axios.patch(
-            `/events/${eventId}/lineups/${lineupId}`,
+            `/events/${this.id}/lineups/${lineupId}`,
             lineupFormData,
-            token
+            this.headers
           );
         }
         for (let j = newLineupLength; j < originalLineupLength; j++) {
           let lineupId = this.originalLineupIds[j];
           await this.$axios.delete(
-            `/events/${eventId}/lineups/${lineupId}`,
-            token
+            `/events/${this.id}/lineups/${lineupId}`,
+            this.headers
           );
         }
       }
@@ -129,10 +130,14 @@ export default {
         "event[unregistered_performers]",
         unregisteredPerformers
       );
-      await this.$axios.patch(`/events/${eventId}`, eventFormData, token);
+      await this.$axios.patch(
+        `/events/${this.id}`,
+        eventFormData,
+        this.headers
+      );
 
       // 更新したEventの詳細ページへ
-      this.$router.replace(`/events/${eventId}`);
+      this.$router.replace(`/events/${this.id}`);
     },
   },
 };
