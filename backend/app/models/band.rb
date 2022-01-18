@@ -17,7 +17,7 @@ class Band < ActiveRecord::Base
   has_many :created_events, class_name: "Event", foreign_key: "owner_id", dependent: :nullify
   has_many :posts, dependent: :destroy
   has_many :performings, class_name: "Lineup", foreign_key: "performer_id", dependent: :destroy
-  has_many :performing_events, class_name: "Event", through: :performings
+  has_many :performing_events, through: :performings, source: :event
   has_many :active_friendships, class_name: "Friendship", foreign_key: "follower_id", dependent: :destroy
   has_many :passive_friendships, class_name: "Friendship", foreign_key: "followed_id", dependent: :destroy
   has_many :following, through: :active_friendships, source: :followed

@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container fluid>
     <v-row>
       <v-col>
         <div>
@@ -9,7 +9,7 @@
         </div>
       </v-col>
     </v-row>
-    <v-row v-if="$vuetify.breakpoint.smAndDown">
+    <v-row v-if="$vuetify.breakpoint.mdAndDown">
       <v-card width="100%">
         <v-row align="center">
           <v-col cols="6">
@@ -76,14 +76,14 @@
     </v-row>
     <v-row>
       <v-col class="d-flex flex-wrap">
-        <v-col v-if="$vuetify.breakpoint.mdAndUp" lg="3" md="4">
+        <v-col v-if="$vuetify.breakpoint.lgAndUp" xl="2" lg="3" md="4">
           <v-card outlined>
             <v-card-text>
               <v-text-field
                 v-model="keywordInput"
                 placeholder="Event名で検索"
                 prepend-icon="mdi-magnify"
-                clearables
+                clearable
                 hide-details
               />
             </v-card-text>
@@ -126,7 +126,8 @@
             <v-col
               v-for="(event, index) in displayEvents"
               :key="index"
-              lg="4"
+              xl="3"
+              md="4"
               sm="6"
               cols="12"
             >
@@ -158,12 +159,12 @@
           <v-col>
             <v-pagination
               v-if="displayEvents.length"
-              @input="fetchDisplayEvents"
+              @input="moldDisplay"
               v-model="page"
               :length="pageLength"
               :total-visible="7"
             />
-            <div v-else class="mt-16">イベントがありません</div>
+            <div v-else class="mt-16">該当するイベントがありません</div>
           </v-col>
         </v-col>
       </v-col>
@@ -202,13 +203,22 @@ export default {
     this.pastEvents = res.data.events.filter((event) => {
       return now.getTime() >= new Date(event.open_at).getTime();
     });
-    this.fetchDisplayEvents();
-    this.fetchPageLength();
+    this.moldDisplay();
   },
   computed: {
     ...mapGetters(["userType"]),
     isAuthenticatedBand() {
       return this.userType === "band";
+    },
+    keyword() {
+      if (this.keywordInput) {
+        return this.keywordInput.toLowerCase().trim();
+      } else {
+        return "";
+      }
+    },
+    date() {
+      return this.dateInput ? this.dateInput : "";
     },
     filteredEvents() {
       let events = [];
@@ -217,17 +227,12 @@ export default {
       } else {
         events = this.futureEvents;
       }
-      const keyword = this.keywordInput.toLowerCase().trim();
-      if (!keyword && !this.dateInput) {
-        return events;
-      } else {
-        return events.filter((event) => {
-          return (
-            event.name.toLowerCase().includes(keyword) &&
-            event.open_at.includes(this.dateInput)
-          );
-        });
-      }
+      return events.filter((event) => {
+        return (
+          event.name.toLowerCase().includes(this.keyword) &&
+          event.open_at.includes(this.date)
+        );
+      });
     },
     pageSize() {
       return this.$vuetify.breakpoint.smAndDown ? 10 : 30;
@@ -245,24 +250,18 @@ export default {
         );
       }
     },
-    sliceAsDisplayEvents(events) {
-      this.displayEvents = events.slice(
+    moldDisplay() {
+      this.displayEvents = this.filteredEvents.slice(
         this.pageSize * (this.page - 1),
         this.pageSize * this.page
       );
       this.sortOrder();
-    },
-    fetchDisplayEvents() {
-      this.sliceAsDisplayEvents(this.filteredEvents);
-    },
-    fetchPageLength() {
       this.pageLength = Math.ceil(this.displayEvents.length / this.pageSize);
     },
   },
   watch: {
-    filteredEvents(newValue) {
-      this.sliceAsDisplayEvents(newValue);
-      this.fetchPageLength();
+    filteredEvents() {
+      this.moldDisplay();
     },
   },
 };
