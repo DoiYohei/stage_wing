@@ -14,7 +14,7 @@
                   <v-tab>Comments</v-tab>
                 </v-tabs>
               </v-card>
-              <v-tabs-items v-model="tabs">
+              <v-tabs-items v-model="tabs" class="my-5">
                 <v-tab-item>
                   <div class="d-flex">
                     <v-card-title>{{ event.name }}</v-card-title>
@@ -142,7 +142,7 @@
                 </v-tab-item>
                 <v-tab-item>
                   <v-col>
-                    <v-card outlined>
+                    <v-card flat>
                       <v-col
                         v-for="(comment, index) of event.comments"
                         :key="index"
@@ -153,24 +153,23 @@
                           :delete-comment="deleteComment"
                         />
                       </v-col>
-                      <v-divider
-                        v-if="event.comments && event.comments.length"
-                      />
                       <v-col>
-                        <v-card-text class="text-right">
-                          <v-textarea
-                            v-model="newComment"
-                            label="新規コメント"
-                            class="mb-3"
-                            row-height="6"
-                            auto-grow
-                            hide-details
-                            outlined
-                          />
-                          <v-btn elevation="4" @click="postComment()">
-                            コメントする
-                          </v-btn>
-                        </v-card-text>
+                        <v-card>
+                          <v-card-text class="text-right">
+                            <v-textarea
+                              v-model="newComment"
+                              label="新規コメント"
+                              class="mb-3"
+                              row-height="6"
+                              auto-grow
+                              hide-details
+                              outlined
+                            />
+                            <v-btn elevation="4" @click="postComment()">
+                              コメントする
+                            </v-btn>
+                          </v-card-text>
+                        </v-card>
                       </v-col>
                     </v-card>
                   </v-col>

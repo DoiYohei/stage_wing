@@ -25,7 +25,7 @@ Rails.application.routes.draw do
       resources :comments, only: %i(create destroy)
       resources :tickets, only: %i(new create destroy)
     end
-    resources :bands, only: %i(show index) do
+    resources :bands, only: %i(show index edit) do
       member do
         get :friendships
         get :tickets

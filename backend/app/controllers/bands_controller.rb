@@ -1,18 +1,20 @@
 class BandsController < ApplicationController
-  before_action :authenticate_band!, only: %i(friendships tickets)
+  before_action :authenticate_band!, only: %i(edit friendships tickets)
 
   def index
-    @bands = Band.all
+    @bands = Band.all.order(:name)
   end
 
   def show
     @band = Band.find(params[:id])
-    lineups = Lineup.where(performer_id: params[:id])
-    @events = lineups.map { |lineup| lineup.event }
-    @image = @band.image.url
+    @performing_events = @band.performing_events.order(:open_at)
     if current_band
       @friend_status = current_band.friend_status(@band)
     end
+  end
+
+  def edit
+    @band = Band.find(params[:id])
   end
 
   def friendships
