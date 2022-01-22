@@ -26,6 +26,7 @@ Rails.application.routes.draw do
       resources :tickets, only: %i(new create destroy)
     end
     resources :bands, only: %i(show index edit) do
+      resources :posts, only: %i(create update destroy)
       member do
         get :friendships
         get :tickets
@@ -34,7 +35,6 @@ Rails.application.routes.draw do
     resources :audiences, only: %i(show index) do
       get :tickets, on: :member
     end
-    resources :posts, only: %i(index create edit update destroy)
     resources :rooms, only: %i(index create) do
       resources :messages, only: :index
     end

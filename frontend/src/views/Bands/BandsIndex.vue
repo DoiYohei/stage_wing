@@ -34,14 +34,10 @@
             </v-col>
           </v-card>
           <v-col>
-            <v-pagination
-              v-if="displayBands.length"
-              @input="moldDisplay"
-              v-model="page"
-              :length="pageLength"
-              :total-visible="7"
-            />
-            <div v-else class="mt-16">該当するアーティストがいません</div>
+            <PaginationBlocks :mold-display="moldDisplay" />
+            <div v-if="!displayBands.length" class="mt-16">
+              該当するアーティストがいません
+            </div>
           </v-col>
         </v-col>
       </v-col>
@@ -50,13 +46,15 @@
 </template>
 
 <script>
+import PaginationBlocks from "@/components/PaginationBlocks";
 export default {
+  components: {
+    PaginationBlocks,
+  },
   data() {
     return {
       allBands: [],
       keywordInput: "",
-      page: 1,
-      pageLength: 0,
       displayBands: [],
     };
   },
@@ -76,21 +74,20 @@ export default {
         });
       }
     },
-    pageSize() {
+    rowsPerPage() {
       return this.$vuetify.breakpoint.smAndDown ? 10 : 30;
     },
   },
   methods: {
     moldDisplay() {
-      this.displayBands = this.filteredBands.slice(
-        this.pageSize * (this.page - 1),
-        this.pageSize * this.page
-      );
-      this.pageLength = Math.ceil(this.displayBands.length / this.pageSize);
+      this.$page.rowsPerPage = this.rowsPerPage;
+      this.$page.displayContents = this.filteredBands;
+      this.displayBands = this.$page.displayContents;
     },
   },
   watch: {
     filteredBands() {
+      this.$page.current = 1;
       this.moldDisplay();
     },
   },

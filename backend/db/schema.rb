@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_11_17_100054) do
+ActiveRecord::Schema.define(version: 2022_01_20_133218) do
 
   create_table "audiences", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "provider", default: "email", null: false
@@ -147,7 +147,6 @@ ActiveRecord::Schema.define(version: 2021_11_17_100054) do
   end
 
   create_table "posts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.string "title"
     t.string "format", null: false
     t.string "photo"
     t.string "audio"

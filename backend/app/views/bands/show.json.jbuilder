@@ -5,3 +5,12 @@ json.performing_events do
 end
 
 json.friend_status @friend_status
+
+json.posts do
+  json.array! @posts do |post|
+    json.extract! post, :id, :created_at, :format, :photo, :audio, :media_pass, :description, :likes_count
+    if @favorite_ids
+      json.favorite @favorite_ids.include?(post.id)
+    end
+  end
+end
