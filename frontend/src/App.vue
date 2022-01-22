@@ -77,4 +77,8 @@ img {
 .logout {
   cursor: pointer;
 }
+
+.reflect-return {
+  white-space: pre-wrap;
+}
 </style>

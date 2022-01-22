@@ -11,6 +11,10 @@ class BandsController < ApplicationController
     if current_band
       @friend_status = current_band.friend_status(@band)
     end
+    @posts = @band.posts.newest
+    if current_member
+      @favorite_ids = current_member.likes.pluck(:post_id)
+    end
   end
 
   def edit

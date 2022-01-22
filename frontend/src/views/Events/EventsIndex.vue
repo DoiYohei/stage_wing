@@ -1,14 +1,5 @@
 <template>
   <v-container fluid>
-    <v-row>
-      <v-col>
-        <div>
-          <router-link to="/event/new" v-if="isAuthenticatedBand"
-            >Eventを投稿する</router-link
-          >
-        </div>
-      </v-col>
-    </v-row>
     <v-row v-if="$vuetify.breakpoint.mdAndDown">
       <v-card width="100%">
         <v-row align="center">
@@ -157,25 +148,36 @@
             </v-col>
           </v-card>
           <v-col>
-            <v-pagination
-              v-if="displayEvents.length"
-              @input="moldDisplay"
-              v-model="page"
-              :length="pageLength"
-              :total-visible="7"
-            />
-            <div v-else class="mt-16">該当するイベントがありません</div>
+            <PaginationBlocks :mold-display="moldDisplay" />
+            <div v-if="!this.displayEvents.length" class="mt-16">
+              該当するイベントがありません
+            </div>
           </v-col>
         </v-col>
       </v-col>
     </v-row>
+    <v-btn
+      v-if="isAuthenticatedBand"
+      to="/event/new"
+      color="grey"
+      dark
+      fab
+      right
+      fixed
+    >
+      <v-icon dark>mdi-plus</v-icon>
+    </v-btn>
   </v-container>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import PaginationBlocks from "@/components/PaginationBlocks";
 
 export default {
+  components: {
+    PaginationBlocks,
+  },
   data() {
     return {
       futureEvents: [],
@@ -189,8 +191,6 @@ export default {
       ],
       selectPastEvents: false,
       show: false,
-      page: 1,
-      pageLength: 0,
       displayEvents: [],
     };
   },
@@ -234,33 +234,32 @@ export default {
         );
       });
     },
-    pageSize() {
-      return this.$vuetify.breakpoint.smAndDown ? 10 : 30;
+    rowsPerPage() {
+      return this.$vuetify.breakpoint.smAndDown ? 10 : 1;
     },
   },
   methods: {
     sortOrder() {
       if (this.select.key === 1) {
-        return this.displayEvents.sort(
+        this.filteredEvents.sort(
           (a, b) => new Date(a.open_at) - new Date(b.open_at)
         );
       } else {
-        return this.displayEvents.sort(
+        this.filteredEvents.sort(
           (a, b) => new Date(b.open_at) - new Date(a.open_at)
         );
       }
+      this.moldDisplay();
     },
     moldDisplay() {
-      this.displayEvents = this.filteredEvents.slice(
-        this.pageSize * (this.page - 1),
-        this.pageSize * this.page
-      );
-      this.sortOrder();
-      this.pageLength = Math.ceil(this.displayEvents.length / this.pageSize);
+      this.$page.rowsPerPage = this.rowsPerPage;
+      this.$page.displayContents = this.filteredEvents;
+      this.displayEvents = this.$page.displayContents;
     },
   },
   watch: {
     filteredEvents() {
+      this.$page.current = 1;
       this.moldDisplay();
     },
   },

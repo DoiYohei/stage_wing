@@ -6,15 +6,13 @@ import LogIn from "@/views/Auth/LogIn";
 import EventsIndex from "@/views/Events/EventsIndex";
 import EventsShow from "@/views/Events/EventsShow";
 import EventsEdit from "@/views/Events/EventsEdit";
-import LineupEdit from "@/views/Events/LineupEdit";
+import EventsLineupsEdit from "@/views/Events/EventsLineupsEdit";
 import EventsNew from "@/views/Events/EventsNew";
 import BandsIndex from "@/views/Bands/BandsIndex";
 import BandsShow from "@/views/Bands/BandsShow";
 import BandsEdit from "@/views/Bands/BandsEdit";
 import BandsTickets from "@/views/Bands/BandsTickets";
-import PostsIndex from "@/views/Posts/PostsIndex";
-import PostsNew from "@/views/Posts/PostsNew";
-import PostsEdit from "@/views/Posts/PostsEdit";
+import BandsPostsNew from "@/views/Bands/BandsPostsNew";
 import Friendships from "@/views/Friendships";
 import ChatsIndex from "@/views/Chats/ChatsIndex";
 import ChatsShow from "@/views/Chats/ChatsShow";
@@ -64,8 +62,8 @@ export default new Router({
     },
     {
       path: "/events/:id/lineup/edit",
-      name: "LineupEdit",
-      component: LineupEdit,
+      name: "EventsLineupsEdit",
+      component: EventsLineupsEdit,
       props: true,
     },
     {
@@ -103,21 +101,9 @@ export default new Router({
       props: true,
     },
     {
-      path: "/bands/:id/posts",
-      name: "PostsIndex",
-      component: PostsIndex,
-      props: true,
-    },
-    {
       path: "/bands/:id/posts/new",
-      name: "PostsNew",
-      component: PostsNew,
-      props: true,
-    },
-    {
-      path: "/bands/:id/posts/:postId/edit",
-      name: "PostsEdit",
-      component: PostsEdit,
+      name: "BandsPostsNew",
+      component: BandsPostsNew,
       props: true,
     },
     {
