@@ -50,6 +50,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   data() {
     return {
@@ -58,47 +60,38 @@ export default {
     };
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
-    const res = await this.$axios.get("/likes", token);
+    const res = await this.$axios.get("/likes", this.headers);
     this.posts = res.data;
     this.myLikes = res.data.map((post) => post.id);
   },
   computed: {
-    isAuthenticated() {
-      return this.$store.getters.authData;
-    },
+    ...mapGetters(["headers", "token", "isAuthenticatedBand", "userId"]),
     isMyPost() {
       return (bandId) => {
-        if (this.$store.getters.userType === "band") {
-          return this.$store.getters.currentUserId === bandId;
-        } else {
-          return false;
-        }
+        this.isAuthenticatedBand ? this.userId === bandId : false;
       };
     },
     isLiked() {
       return (post) => {
-        return this.myLikes ? this.myLikes.includes(post.id) : false;
+        this.myLikes ? this.myLikes.includes(post.id) : false;
       };
     },
   },
   methods: {
     async deletePost(postId) {
-      const token = { headers: this.$store.getters.token };
-      await this.$axios.delete(`/posts/${postId}`, token);
+      await this.$axios.delete(`/posts/${postId}`, this.headers);
       const newPosts = this.posts.filter((post) => post.id !== postId);
       this.posts = newPosts;
     },
     changeLike(post) {
-      if (!this.isAuthenticated) {
+      if (!this.token) {
         return this.$router.push("/errors/auth");
       } else {
-        const token = { headers: this.$store.getters.token };
         const formData = new FormData();
         formData.append("post_id", post.id);
         if (this.isLiked(post)) {
           this.$axios.delete("/likes", {
-            headers: this.$store.getters.token,
+            headers: this.token,
             data: formData,
           });
           const newMyLikes = this.myLikes.filter(
@@ -107,7 +100,7 @@ export default {
           this.myLikes = newMyLikes;
           post.likes_count -= 1;
         } else {
-          this.$axios.post("/likes", formData, token);
+          this.$axios.post("/likes", formData, this.headers);
           this.myLikes.push(post.id);
           post.likes_count += 1;
         }

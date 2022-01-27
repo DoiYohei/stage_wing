@@ -41,6 +41,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   props: {
     id: {
@@ -55,17 +57,25 @@ export default {
     };
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
-    const res = await this.$axios.get(`/events/${this.id}/tickets/new`, token);
+    const res = await this.$axios.get(
+      `/events/${this.id}/tickets/new`,
+      this.headers
+    );
     this.event = res.data;
+  },
+  computed: {
+    ...mapGetters(["headers"]),
   },
   methods: {
     async postTicket() {
-      const token = { headers: this.$store.getters.token };
       const formData = new FormData();
       formData.append("ticket[event_id]", this.id);
       formData.append("ticket[band_id]", this.selectedBand);
-      await this.$axios.post(`/events/${this.id}/tickets`, formData, token);
+      await this.$axios.post(
+        `/events/${this.id}/tickets`,
+        formData,
+        this.headers
+      );
       this.$router.replace(`/events/${this.id}`);
     },
   },

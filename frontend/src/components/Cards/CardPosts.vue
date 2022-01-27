@@ -32,7 +32,7 @@
             <v-list-item-group>
               <v-list-item @click="editable = true">編集する</v-list-item>
               <v-dialog v-model="dialog" width="45vw">
-                <template v-slot:activator="{ on, attrs }">
+                <template #activator="{ on, attrs }">
                   <v-list-item v-bind="attrs" v-on="on">削除する</v-list-item>
                 </template>
                 <CardDialog

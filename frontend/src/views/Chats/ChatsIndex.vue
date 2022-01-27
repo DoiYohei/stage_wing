@@ -22,6 +22,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   props: ["id"],
   data() {
@@ -30,17 +32,18 @@ export default {
     };
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
-    const res = await this.$axios.get("/rooms", token);
+    const res = await this.$axios.get("/rooms", this.headers);
     if (res.data[0]) this.rooms = res.data;
+  },
+  computed: {
+    ...mapGetters(["headers"]),
   },
   methods: {
     async startChat(roomId, friendId) {
       if (!roomId) {
-        const token = { headers: this.$store.getters.token };
         const formData = new FormData();
         formData.append("band_room[band_id]", friendId);
-        const res = await this.$axios.post("/rooms", formData, token);
+        const res = await this.$axios.post("/rooms", formData, this.headers);
         roomId = res.data;
       }
       this.$router.push(`/bands/${this.id}/chats/${roomId}`);

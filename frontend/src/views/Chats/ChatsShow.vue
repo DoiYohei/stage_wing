@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   props: ["room_id"],
   data() {
@@ -40,18 +42,20 @@ export default {
     },
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
-    const res = await this.$axios.get(`/rooms/${this.room_id}/messages`, token);
+    const res = await this.$axios.get(
+      `/rooms/${this.room_id}/messages`,
+      this.headers
+    );
     this.messages = res.data.messages;
     this.bands = res.data.bands;
-    const authData = this.$store.getters.token;
-    const params = `uid=${authData["uid"]}&access-token=${authData["access-token"]}&client=${authData["client"]}`;
+    const params = `uid=${this.token["uid"]}&access-token=${this.token["access-token"]}&client=${this.token["client"]}`;
     this.$cable.connection.connect(
       `ws://${process.env.VUE_APP_WS}/cable?${params}`
     );
     this.$cable.subscribe({ channel: "RoomChannel", room: this.room_id });
   },
   computed: {
+    ...mapGetters(["headers", "token"]),
     speaker() {
       return (bandId) => {
         const speaker = this.bands.find((band) => band.id === bandId);

@@ -1,4 +1,4 @@
-class Auth::RegistrationsController < DeviseTokenAuth::RegistrationsController
+class Auth::Bands::RegistrationsController < DeviseTokenAuth::RegistrationsController
   before_action :authenticate_band!, except: :create
 
   private

@@ -96,7 +96,7 @@ export default {
       formData.append("website", this.band.website);
       formData.append("twitter", this.band.twitter);
       if (this.image) formData.append("image", this.image);
-      await this.$axios.patch("/auth/account/edit", formData, this.headers);
+      await this.$axios.patch("/bands", formData, this.headers);
       this.$router.replace(`/bands/${this.id}`);
     },
   },

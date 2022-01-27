@@ -57,6 +57,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   props: ["id"],
   data() {
@@ -69,18 +71,22 @@ export default {
     };
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
-    const res = await this.$axios.get(`/bands/${this.id}/friendships`, token);
+    const res = await this.$axios.get(
+      `/bands/${this.id}/friendships`,
+      this.headers
+    );
     this.friends = res.data.friends;
     this.invitings = res.data.inviting;
     this.inviters = res.data.inviters;
   },
+  computed: {
+    ...mapGetters(["headers"]),
+  },
   methods: {
     deleteFriendship(following) {
-      const token = { headers: this.$store.getters.token };
       const formData = new FormData();
       formData.append("followed_id", following.id);
-      this.$axios.delete("/friendships", token, formData);
+      this.$axios.delete("/friendships", this.headers, formData);
       if (this.friends.some((friend) => friend.id === following.id)) {
         const newFriends = this.friends.filter(
           (friend) => friend.id !== following.id
@@ -94,10 +100,9 @@ export default {
       this.invitings = newInvitings;
     },
     postFriendship(following) {
-      const token = { headers: this.$store.getters.token };
       const formData = new FormData();
       formData.append("followed_id", following.id);
-      this.$axios.post("/friendships", formData, token);
+      this.$axios.post("/friendships", formData, this.headers);
       const newInviters = this.inviters.filter(
         (inviter) => inviter.id !== following.id
       );
