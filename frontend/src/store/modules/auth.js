@@ -17,16 +17,10 @@ const getters = {
   isAuthenticatedAudience: (state) => state.userType === "audiences",
 };
 const mutations = {
-  updateAuthData(state, payload) {
-    if (payload) {
-      state.token = payload.token;
-      state.userId = payload.userId;
-      state.userType = payload.userType;
-    } else {
-      state.token = null;
-      state.userId = null;
-      state.userType = null;
-    }
+  updateAuthData(state, authData) {
+    state.token = authData.token;
+    state.userId = authData.userId;
+    state.userType = authData.userType;
   },
 };
 const actions = {
@@ -87,10 +81,15 @@ const actions = {
     return dispatch("deleteToken");
   },
   deleteToken({ commit }) {
-    commit("updateAuthData", null);
+    const authData = {
+      token: null,
+      userId: null,
+      userType: null,
+    };
+    commit("updateAuthData", authData);
     localStorage.removeItem("authDataSW");
     if (router.history.current.path !== "/") {
-      router.replace("/");
+      router.push("/");
     }
   },
 };

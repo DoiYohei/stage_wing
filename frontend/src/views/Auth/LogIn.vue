@@ -1,78 +1,77 @@
 <template>
-  <div>
-    <h1>Log In</h1>
-    <v-container>
-      <v-row>
-        <v-col md="2" offset-md="5">
-          <div>Bandの方はこちら</div>
-        </v-col>
-        <v-col md="2" offset-md="5">
-          <v-text-field v-model="bandEmail" label="Email" />
-        </v-col>
-        <v-col md="2" offset-md="5">
-          <v-text-field
-            v-model="bandPassword"
-            :append-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="visible ? 'text' : 'password'"
-            label="Password"
-            hint="最低8文字です"
-            counter
-            @click:append="visible = !visible"
-          />
-        </v-col>
-        <v-col cols="12">
-          <v-btn elevation="4" @click="logInBand">Log In</v-btn>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col md="2" offset-md="5">
-          <div>一般の方はこちら</div>
-        </v-col>
-        <v-col md="2" offset-md="5">
-          <v-text-field v-model="audienceEmail" label="Email" />
-        </v-col>
-        <v-col md="2" offset-md="5">
-          <v-text-field
-            v-model="audiencePassword"
-            :append-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="visible ? 'text' : 'password'"
-            label="Password"
-            hint="最低8文字です"
-            counter
-            @click:append="visible = !visible"
-          />
-        </v-col>
-        <v-col cols="12">
-          <v-btn elevation="4" @click="logInAudience">Log In</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+  <v-container>
+    <v-row>
+      <v-col class="text-h5">Log In</v-col>
+    </v-row>
+    <v-row v-if="$vuetify.breakpoint.mdAndUp">
+      <v-col xl="4" offset-xl="2">
+        <v-card>
+          <v-col cols="10" offset="1">
+            <v-card-subtitle>アーティストの方</v-card-subtitle>
+            <FormLogin :post-forms="logInBand" />
+          </v-col>
+        </v-card>
+      </v-col>
+      <v-col xl="4">
+        <v-card>
+          <v-col cols="10" offset="1">
+            <v-card-subtitle>一般の方</v-card-subtitle>
+            <FormLogin :post-forms="logInAudience" />
+          </v-col>
+        </v-card>
+      </v-col>
+    </v-row>
+    <v-row v-if="$vuetify.breakpoint.smAndDown">
+      <v-col sm="10" offset-sm="1">
+        <v-card>
+          <v-card-text>
+            <v-tabs v-model="tabs" fixed-tabs>
+              <v-tab>アーティストの方</v-tab>
+              <v-tab>一般の方</v-tab>
+            </v-tabs>
+          </v-card-text>
+          <v-col cols="10" offset="1">
+            <v-tabs-items v-model="tabs">
+              <v-tab-item>
+                <FormLogin :post-forms="logInBand" />
+              </v-tab-item>
+              <v-tab-item>
+                <FormLogin :post-forms="logInAudience" />
+              </v-tab-item>
+            </v-tabs-items>
+          </v-col>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+import FormLogin from "@/components/Forms/FormLogin";
+
 export default {
+  components: {
+    FormLogin,
+  },
   data() {
     return {
-      bandEmail: "",
-      bandPassword: "",
-      audienceEmail: "",
-      audiencePassword: "",
-      visible: false,
+      tabs: 0,
+      formData: null,
     };
   },
   methods: {
-    logInBand() {
-      const formData = new FormData();
-      formData.append("email", this.bandEmail);
-      formData.append("password", this.bandPassword);
-      this.$store.dispatch("loginBand", formData);
+    logInBand(email, password) {
+      this.createFormData(email, password);
+      this.$store.dispatch("loginBand", this.formData);
     },
-    logInAudience() {
-      const formData = new FormData();
-      formData.append("email", this.audienceEmail);
-      formData.append("password", this.audiencePassword);
-      this.$store.dispatch("loginAudience", formData);
+    logInAudience(email, password) {
+      this.createFormData(email, password);
+      this.$store.dispatch("loginAudience", this.formData);
+    },
+    createFormData(email, password) {
+      this.formData = new FormData();
+      this.formData.append("email", email);
+      this.formData.append("password", password);
     },
   },
 };
