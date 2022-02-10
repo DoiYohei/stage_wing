@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row>
-      <v-col class="text-h5">Log In</v-col>
+      <v-col class="text-h5">Login</v-col>
     </v-row>
     <v-row v-if="$vuetify.breakpoint.mdAndUp">
       <v-col xl="4" offset-xl="2">

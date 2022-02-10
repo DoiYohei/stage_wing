@@ -1,48 +1,47 @@
 <template>
   <v-container>
     <v-row>
-      <v-col class="text-h5">Profile編集</v-col>
+      <v-col class="text-h5">Signup</v-col>
     </v-row>
     <CardBandForms
       v-model="band"
-      btn-text="更新する"
-      :deliveryForms="patchBand"
+      btn-text="Sign Up"
+      :deliveryForms="signUpBand"
     />
   </v-container>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import CardBandForms from "@/components/Cards/CardBandForms";
 
 export default {
   components: {
     CardBandForms,
   },
-  props: ["id"],
   data() {
     return {
-      band: {},
+      band: {
+        name: "",
+        email: "",
+        password: "",
+        profile: "",
+        website: "",
+        twitter: "",
+        image: null,
+      },
     };
   },
-  async created() {
-    const res = await this.$axios.get(`/bands/${this.id}/edit`, this.headers);
-    this.band = res.data;
-  },
-  computed: {
-    ...mapGetters(["headers"]),
-  },
   methods: {
-    async patchBand(image) {
+    signUpBand(image) {
       const formData = new FormData();
       formData.append("name", this.band.name);
       formData.append("email", this.band.email);
+      formData.append("password", this.band.password);
+      formData.append("image", image);
       formData.append("profile", this.band.profile);
       formData.append("website", this.band.website);
       formData.append("twitter", this.band.twitter);
-      if (image) formData.append("image", image);
-      await this.$axios.patch("/bands", formData, this.headers);
-      this.$router.replace(`/bands/${this.id}`);
+      this.$store.dispatch("signupBand", formData);
     },
   },
 };

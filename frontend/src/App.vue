@@ -5,7 +5,8 @@
       <router-link to="/events">Event</router-link>
       <router-link to="/bands">Band</router-link>
       <template v-if="!token">
-        <router-link to="/signup">Sign Up</router-link>
+        <router-link to="/signup/bands">Sign Up As Bands</router-link>
+        <router-link to="/signup/audiences">Sign Up As Audiences</router-link>
         <router-link to="/login">Log In</router-link>
       </template>
       <template v-else>
