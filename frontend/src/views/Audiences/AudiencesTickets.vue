@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   props: {
     userId: {
@@ -39,17 +41,21 @@ export default {
     };
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
     const res = await this.$axios.get(
       `/audiences/${this.userId}/tickets`,
-      token
+      this.headers
     );
     this.tickets = res.data;
   },
+  computed: {
+    ...mapGetters(["headers"]),
+  },
   methods: {
     deleteTicket(eventId, ticketId) {
-      const token = { headers: this.$store.getters.token };
-      this.$axios.delete(`/events/${eventId}/tickets/${ticketId}`, token);
+      this.$axios.delete(
+        `/events/${eventId}/tickets/${ticketId}`,
+        this.headers
+      );
     },
   },
 };

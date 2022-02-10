@@ -32,7 +32,7 @@
                                 Eventを編集する
                               </v-list-item>
                               <v-dialog v-model="dialog" width="45vw">
-                                <template v-slot:activator="{ on, attrs }">
+                                <template #activator="{ on, attrs }">
                                   <v-list-item v-bind="attrs" v-on="on">
                                     Eventを削除する
                                   </v-list-item>
@@ -81,7 +81,7 @@
                       </v-card-text>
                     </v-card>
                   </v-col>
-                  <v-col v-if="isAudience" xl="8" md="12" sm="8">
+                  <v-col v-if="isAuthenticatedAudience" xl="8" md="12" sm="8">
                     <v-card>
                       <v-row v-if="event.ticket" align="center" no-gutters>
                         <v-col lg="7">
@@ -91,7 +91,7 @@
                         </v-col>
                         <v-col>
                           <v-dialog v-model="dialog" width="45vw">
-                            <template v-slot:activator="{ on, attrs }">
+                            <template #activator="{ on, attrs }">
                               <v-card-actions>
                                 <v-btn v-bind="attrs" v-on="on" small>
                                   キャンセルする
@@ -204,7 +204,7 @@ export default {
     };
   },
   async created() {
-    const audienceToken = this.isAudience ? this.headers : null;
+    const audienceToken = this.isAuthenticatedAudience ? this.headers : null;
     const res = await this.$axios.get(`/events/${this.id}`, audienceToken);
     this.event = res.data;
     for (let performer of this.event.performers) {
@@ -221,18 +221,19 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["headers", "userType", "currentUserId", "authData"]),
+    ...mapGetters([
+      "headers",
+      "userId",
+      "token",
+      "isAuthenticatedBand",
+      "isAuthenticatedAudience",
+    ]),
     isEventOwner() {
       if (this.event.owner) {
-        return (
-          this.userType === "band" && this.currentUserId === this.event.owner.id
-        );
+        return this.isAuthenticatedBand && this.userId === this.event.owner.id;
       } else {
         return false;
       }
-    },
-    isAudience() {
-      return this.userType === "audience";
     },
   },
   methods: {
@@ -241,7 +242,7 @@ export default {
       this.$router.replace("/");
     },
     async postComment(newReply, parentId) {
-      if (!this.authData) {
+      if (!this.token) {
         return this.$router.push("/errors/auth");
       } else {
         const formData = new FormData();

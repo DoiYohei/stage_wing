@@ -25,10 +25,10 @@ json.comments do
     json.commenter do
       if comment.band
         json.extract! comment.band, :id, :name, :image
-        json.user_type "band"
+        json.user_type "bands"
       else
         json.extract! comment.audience, :id, :name, :image
-        json.user_type "audience"
+        json.user_type "audiences"
       end
     end
     json.replies do
@@ -38,10 +38,10 @@ json.comments do
         json.commenter do
           if reply.band
             json.extract! reply.band, :id, :name, :image
-            json.user_type "band"
+            json.user_type "bands"
           else
             json.extract! reply.audience, :id, :name, :image
-            json.user_type "audience"
+            json.user_type "audiences"
           end
         end
       end

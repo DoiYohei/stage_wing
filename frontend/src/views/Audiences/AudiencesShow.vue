@@ -11,7 +11,7 @@
           <router-link :to="`/audiences/${userId}/edit`">編集</router-link>
         </v-col>
         <v-col>
-          <v-btn @click="deleteAudience">退会する</v-btn>
+          <v-btn @click="deleteAccount">退会する</v-btn>
         </v-col>
         <v-col>
           <router-link to="/liked_posts">お気に入り</router-link>
@@ -27,6 +27,9 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import { mapActions } from "vuex";
+
 export default {
   props: {
     userId: {
@@ -40,15 +43,17 @@ export default {
     };
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
-    const res = await this.$axios.get(`/audiences/${this.userId}`, token);
+    const res = await this.$axios.get(
+      `/audiences/${this.userId}`,
+      this.headers
+    );
     this.audience = res.data;
   },
+  computed: {
+    ...mapGetters(["headers"]),
+  },
   methods: {
-    async deleteAudience() {
-      const token = { headers: this.$store.getters.token };
-      this.$store.dispatch("deleteAudience", token);
-    },
+    ...mapActions(["deleteAccount"]),
   },
 };
 </script>

@@ -8,7 +8,7 @@ class Band < ActiveRecord::Base
 
   validates :name, presence: true, length: { maximum: 50 }
   validates :profile, length: { maximum: 1000 }
-  validates :website, :twitter, format: { with: /\A#{URI::regexp(%w(http https))}\z/ }, allow_nil: true
+  validates :website, :twitter, format: { with: /\A#{URI::regexp(%w(http https))}\z/ }, allow_blank: true
 
   mount_uploader :image, ImageUploader
   IMAGE_SIZE = [600, 600]

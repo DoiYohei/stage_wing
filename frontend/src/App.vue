@@ -4,12 +4,13 @@
       <router-link to="/">Stage Wing</router-link>
       <router-link to="/events">Event</router-link>
       <router-link to="/bands">Band</router-link>
-      <template v-if="!isAuthenticated">
-        <router-link to="/signup">Sign Up</router-link>
+      <template v-if="!token">
+        <router-link to="/signup/bands">Sign Up As Bands</router-link>
+        <router-link to="/signup/audiences">Sign Up As Audiences</router-link>
         <router-link to="/login">Log In</router-link>
       </template>
       <template v-else>
-        <span class="logout" @click="logOut">Log Out</span>
+        <span class="logout" @click="logout">Log Out</span>
       </template>
       <template v-if="isAuthenticatedBand">
         <router-link :to="`/bands/${userId}`">My Page</router-link>
@@ -23,31 +24,21 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import { mapActions } from "vuex";
+
 export default {
   name: "App",
   computed: {
-    isAuthenticated() {
-      return this.$store.getters.authData !== null;
-    },
-    isAuthenticatedBand() {
-      return this.$store.getters.userType === "band";
-    },
-    isAuthenticatedAudience() {
-      return this.$store.getters.userType === "audience";
-    },
-    userId() {
-      return this.$store.getters.currentUserId;
-    },
+    ...mapGetters([
+      "token",
+      "isAuthenticatedBand",
+      "isAuthenticatedAudience",
+      "userId",
+    ]),
   },
   methods: {
-    logOut() {
-      const token = { headers: this.$store.getters.token };
-      const userType = this.$store.getters.userType;
-      this.$store.dispatch("logout", { token, userType });
-      if (this.$route.path !== "/") {
-        return this.$router.replace("/");
-      }
-    },
+    ...mapActions(["logout"]),
   },
 };
 </script>

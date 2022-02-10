@@ -206,10 +206,7 @@ export default {
     this.moldDisplay();
   },
   computed: {
-    ...mapGetters(["userType"]),
-    isAuthenticatedBand() {
-      return this.userType === "band";
-    },
+    ...mapGetters(["isAuthenticatedBand"]),
     keyword() {
       if (this.keywordInput) {
         return this.keywordInput.toLowerCase().trim();
@@ -235,7 +232,7 @@ export default {
       });
     },
     rowsPerPage() {
-      return this.$vuetify.breakpoint.smAndDown ? 10 : 1;
+      return this.$vuetify.breakpoint.smAndDown ? 10 : 30;
     },
   },
   methods: {

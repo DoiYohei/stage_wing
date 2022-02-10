@@ -5,11 +5,11 @@
     </v-avatar>
     <router-link
       :to="`/bands/${comment.commenter.id}`"
-      v-if="comment.commenter.user_type === 'band'"
+      v-if="comment.commenter.user_type === 'bands'"
     >
       {{ comment.commenter.name }}
     </router-link>
-    <span v-if="comment.commenter.user_type !== 'band'">
+    <span v-if="comment.commenter.user_type !== 'bands'">
       {{ comment.commenter.name }}
     </span>
     <span>
@@ -17,7 +17,7 @@
       {{ comment.content }}
     </span>
     <v-dialog v-model="dialog" width="45vw">
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-btn
           v-if="isCommentOwner(comment.commenter)"
           v-on="on"
@@ -61,19 +61,11 @@ export default {
     CardDialog,
   },
   computed: {
-    ...mapGetters(["userType", "currentUserId"]),
+    ...mapGetters(["userType", "userId"]),
     isCommentOwner() {
       return (commenter) => {
-        if (this.userType === "band" && commenter.user_type === "band") {
-          return this.currentUserId === commenter.id;
-        } else if (
-          this.userType === "audience" &&
-          commenter.user_type == "audience"
-        ) {
-          return this.currentUserId === commenter.id;
-        } else {
-          return false;
-        }
+        const isSameUserType = this.userType === commenter.user_type;
+        isSameUserType ? this.userId === commenter.id : false;
       };
     },
   },

@@ -53,14 +53,14 @@
                                   Profileを編集する
                                 </v-list-item>
                                 <v-dialog v-model="dialog" width="45vw">
-                                  <template v-slot:activator="{ on, attrs }">
+                                  <template #activator="{ on, attrs }">
                                     <v-list-item v-bind="attrs" v-on="on">
                                       退会する
                                     </v-list-item>
                                   </template>
                                   <CardDialog
                                     dialogText="退会しますか？"
-                                    :select-excution="deleteBand"
+                                    :select-excution="deleteAccount"
                                     :select-cancel="closeDialog"
                                   />
                                 </v-dialog>
@@ -130,7 +130,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import CardDialog from "@/components/Cards/CardDialog";
 import CardPosts from "@/components/Cards/CardPosts";
 import PaginationBlocks from "@/components/PaginationBlocks";
@@ -156,13 +156,10 @@ export default {
     this.moldDisplay();
   },
   computed: {
-    ...mapGetters(["userType", "currentUserId", "headers", "token"]),
-    isAuthenticatedBand() {
-      return this.userType === "band";
-    },
+    ...mapGetters(["isAuthenticatedBand", "userId", "headers", "token"]),
     isMyPage() {
       if (this.isAuthenticatedBand) {
-        return this.currentUserId === this.band.id;
+        return this.userId === this.band.id;
       } else {
         return false;
       }
@@ -193,6 +190,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions(["deleteAccount"]),
     async fetchBand() {
       const res = await this.$axios.get(`/bands/${this.id}`, this.headers);
       this.band = res.data;
@@ -202,10 +200,6 @@ export default {
       this.$page.rowsPerPage = 5;
       this.$page.displayContents = this.band.posts;
       this.displayPosts = this.$page.displayContents;
-    },
-    async deleteBand() {
-      this.$store.dispatch("deleteBand", this.headers);
-      this.$router.replace("/");
     },
     async deletePost(postId) {
       await this.$axios.delete(
@@ -225,7 +219,7 @@ export default {
       this.updatePage();
     },
     changeLike(post) {
-      if (!this.currentUserId) {
+      if (!this.token) {
         return this.$router.push("/errors/auth");
       } else {
         const formData = new FormData();

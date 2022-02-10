@@ -1,8 +1,9 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Home from "@/views/Home";
-import SignUp from "@/views/Auth/SignUp";
-import LogIn from "@/views/Auth/LogIn";
+import SignupBands from "@/views/Auth/SignupBands";
+import SignupAudiences from "@/views/Auth/SignupAudiences";
+import Login from "@/views/Auth/Login";
 import EventsIndex from "@/views/Events/EventsIndex";
 import EventsShow from "@/views/Events/EventsShow";
 import EventsEdit from "@/views/Events/EventsEdit";
@@ -34,14 +35,19 @@ export default new Router({
       component: Home,
     },
     {
-      path: "/signup",
-      name: "SignUp",
-      component: SignUp,
+      path: "/signup/bands",
+      name: "SignupBands",
+      component: SignupBands,
+    },
+    {
+      path: "/signup/audiences",
+      name: "SignupAudiences",
+      component: SignupAudiences,
     },
     {
       path: "/login",
-      name: "LogIn",
-      component: LogIn,
+      name: "Login",
+      component: Login,
     },
     {
       path: "/events",

@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   props: ["userId"],
   data() {
@@ -25,19 +27,23 @@ export default {
       audience: {},
     };
   },
+  computed: {
+    ...mapGetters(["headers"]),
+  },
   methods: {
     async patchAudience() {
-      const token = { headers: this.$store.getters.token };
       const formData = new FormData();
       formData.append("name", this.audience.name);
       formData.append("email", this.audience.email);
-      await this.$axios.patch("/audiences", formData, token);
+      await this.$axios.patch("/audiences", formData, this.headers);
       this.$router.replace(`/audiences/${this.userId}`);
     },
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
-    const res = await this.$axios.get(`/audiences/${this.userId}`, token);
+    const res = await this.$axios.get(
+      `/audiences/${this.userId}`,
+      this.headers
+    );
     this.audience = res.data;
   },
 };
