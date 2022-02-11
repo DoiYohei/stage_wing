@@ -17,7 +17,6 @@ import BandsPostsNew from "@/views/Bands/BandsPostsNew";
 import Friendships from "@/views/Friendships";
 import ChatsIndex from "@/views/Chats/ChatsIndex";
 import ChatsShow from "@/views/Chats/ChatsShow";
-import AudiencesShow from "@/views/Audiences/AudiencesShow";
 import AudiencesEdit from "@/views/Audiences/AudiencesEdit";
 import AudiencesTickets from "@/views/Audiences/AudiencesTickets";
 import AuthError from "@/views/Errors/AuthError";
@@ -134,12 +133,6 @@ export default new Router({
       path: "/liked_posts",
       name: "LikesIndex",
       component: LikesIndex,
-    },
-    {
-      path: "/audiences/:userId",
-      name: "AudiencesShow",
-      component: AudiencesShow,
-      props: true,
     },
     {
       path: "/audiences/:userId/edit",
