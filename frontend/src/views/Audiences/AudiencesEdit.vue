@@ -1,50 +1,49 @@
 <template>
-  <div>
-    <h1>アカウント情報編集</h1>
-    <v-container>
-      <v-row>
-        <v-col md="2" offset-md="5">
-          <v-text-field v-model="audience.name" label="Name" />
-        </v-col>
-        <v-col md="2" offset-md="5">
-          <v-text-field v-model="audience.email" label="Email" />
-        </v-col>
-        <v-col cols="12">
-          <v-btn elevation="4" @click="patchAudience">更新する</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+  <v-container>
+    <v-row>
+      <v-col class="text-h5">アカウント情報の編集</v-col>
+    </v-row>
+    <CardAudienceForms
+      v-model="audience"
+      btn-text="更新する"
+      :delivery-forms="patchAudience"
+    />
+  </v-container>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import CardAudienceForms from "@/components/Cards/CardAudienceForms";
 
 export default {
+  components: {
+    CardAudienceForms,
+  },
   props: ["userId"],
   data() {
     return {
       audience: {},
     };
   },
+  async created() {
+    const res = await this.$axios.get(
+      `/audiences/${this.userId}/edit`,
+      this.headers
+    );
+    this.audience = res.data;
+  },
   computed: {
     ...mapGetters(["headers"]),
   },
   methods: {
-    async patchAudience() {
+    async patchAudience(image) {
       const formData = new FormData();
       formData.append("name", this.audience.name);
       formData.append("email", this.audience.email);
+      if (image) formData.append("image", image);
       await this.$axios.patch("/audiences", formData, this.headers);
       this.$router.replace(`/audiences/${this.userId}`);
     },
-  },
-  async created() {
-    const res = await this.$axios.get(
-      `/audiences/${this.userId}`,
-      this.headers
-    );
-    this.audience = res.data;
   },
 };
 </script>

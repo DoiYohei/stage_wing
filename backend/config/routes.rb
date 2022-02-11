@@ -28,7 +28,7 @@ Rails.application.routes.draw do
         get :tickets
       end
     end
-    resources :audiences, only: %i(show index) do
+    resources :audiences, only: %i(index edit) do
       get :tickets, on: :member
     end
     resources :rooms, only: %i(index create) do

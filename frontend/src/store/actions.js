@@ -1,29 +1,7 @@
 import axios from "@/plugins/axios";
 import router from "@/routes";
 
-const state = {
-  token: null,
-  userId: null,
-  userType: null,
-};
-const getters = {
-  token: (state) => state.token,
-  userId: (state) => state.userId,
-  userType: (state) => state.userType,
-  headers: (state) => {
-    return { headers: state.token };
-  },
-  isAuthenticatedBand: (state) => state.userType === "bands",
-  isAuthenticatedAudience: (state) => state.userType === "audiences",
-};
-const mutations = {
-  updateAuthData(state, authData) {
-    state.token = authData.token;
-    state.userId = authData.userId;
-    state.userType = authData.userType;
-  },
-};
-const actions = {
+export default {
   async signupBand({ dispatch }, formData) {
     const res = await axios.post("/bands", formData);
     const userType = "bands";
@@ -47,6 +25,7 @@ const actions = {
   setAuthData({ commit }, payload) {
     const authData = {
       token: payload.res.headers,
+      avatar: payload.res.data.data.image.url,
       userId: payload.res.data.data.id,
       userType: payload.userType,
     };
@@ -83,6 +62,7 @@ const actions = {
   deleteToken({ commit }) {
     const authData = {
       token: null,
+      avatar: null,
       userId: null,
       userType: null,
     };
@@ -92,11 +72,4 @@ const actions = {
       router.push("/");
     }
   },
-};
-
-export default {
-  state,
-  getters,
-  mutations,
-  actions,
 };

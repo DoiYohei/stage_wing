@@ -1,52 +1,41 @@
 <template>
   <v-row>
-    <v-col>
+    <v-col xl="4" offset-xl="4" lg="6" offset-lg="3" sm="8" offset-sm="2">
       <v-card>
-        <v-col class="d-flex justify-md-start flex-wrap">
-          <v-col md="7" sm="12">
-            <v-card-text>
-              <v-img v-if="imageUrl" :src="imageUrl" />
-              <v-img v-if="!imageUrl" src="@/assets/img/no-image.jpg" />
-            </v-card-text>
-          </v-col>
-          <v-col class="text-left pb-0">
-            <v-card-text>
+        <v-col cols="10" offset="1">
+          <v-card-text>
+            <span class="d-flex">
+              <v-avatar size="50">
+                <v-img v-if="imageUrl" :src="imageUrl" />
+                <v-img v-if="!imageUrl" src="@/assets/img/no_avatar.jpeg" />
+              </v-avatar>
               <v-file-input
                 v-model="inputImage"
                 @change="fetchImageUrl"
                 @blur="fetchOriginal"
                 label="プロフィール画像"
                 chips
+                class="ml-8"
               />
-              <v-text-field v-model="band.name" label="Band Name" />
-              <v-text-field v-model="band.email" label="Email" />
-              <v-text-field
-                v-if="band.password !== undefined"
-                v-model="band.password"
-                :append-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="visible ? 'text' : 'password'"
-                label="Password"
-                hint="最低8文字です"
-                counter
-                @click:append="visible = !visible"
-              />
-              <v-text-field v-model="band.website" label="ホームページURL" />
-              <v-text-field v-model="band.twitter" label="Twitter URL" />
-            </v-card-text>
-            <v-card-text>
-              <v-textarea
-                v-model="band.profile"
-                label="Profile"
-                auto-grow
-                filled
-              />
-            </v-card-text>
-            <v-card-actions>
-              <v-btn width="100%" elevation="4" @click="submitForms">
-                {{ btnText }}
-              </v-btn>
-            </v-card-actions>
-          </v-col>
+            </span>
+            <v-text-field v-model="audience.name" label="Name" />
+            <v-text-field v-model="audience.email" label="Email" />
+            <v-text-field
+              v-if="audience.password !== undefined"
+              v-model="audience.password"
+              :append-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
+              :type="visible ? 'text' : 'password'"
+              label="Password"
+              hint="最低8文字です"
+              counter
+              @click:append="visible = !visible"
+            />
+          </v-card-text>
+          <v-card-text>
+            <v-btn elevation="4" @click="submitForms">
+              {{ btnText }}
+            </v-btn>
+          </v-card-text>
         </v-col>
       </v-card>
     </v-col>
@@ -77,7 +66,7 @@ export default {
     };
   },
   computed: {
-    band: {
+    audience: {
       get() {
         return this.value;
       },
