@@ -12,6 +12,8 @@ import EventsNew from "@/views/Events/EventsNew";
 import BandsIndex from "@/views/Bands/BandsIndex";
 import BandsShow from "@/views/Bands/BandsShow";
 import BandsEdit from "@/views/Bands/BandsEdit";
+import BandsPostsIndex from "@/views/Bands/BandsPostsIndex";
+import BandsEvents from "@/views/Bands/BandsEvents";
 import BandsTickets from "@/views/Bands/BandsTickets";
 import BandsPostsNew from "@/views/Bands/BandsPostsNew";
 import Friendships from "@/views/Friendships";
@@ -92,6 +94,18 @@ export default new Router({
       name: "BandsShow",
       component: BandsShow,
       props: true,
+      children: [
+        {
+          path: "posts",
+          component: BandsPostsIndex,
+          props: true,
+        },
+        {
+          path: "events",
+          component: BandsEvents,
+          props: true,
+        },
+      ],
     },
     {
       path: "/bands/:id/edit",

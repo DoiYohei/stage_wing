@@ -1,24 +1,17 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col class="text-h5">お気に入り</v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <CardPosts
-          v-for="(post, index) in displayPosts"
-          :key="index"
-          :post="post"
-          :delete-post="deletePost"
-          :patch-post="patchPost"
-          :change-like="changeLike"
-        />
-        <v-col>
-          <PaginationBlocks :mold-display="moldDisplay" />
-        </v-col>
-      </v-col>
-    </v-row>
-  </v-container>
+  <v-col>
+    <CardPosts
+      v-for="(post, index) in displayPosts"
+      :key="index"
+      :post="post"
+      :delete-post="deletePost"
+      :patch-post="patchPost"
+      :change-like="changeLike"
+    />
+    <v-col>
+      <PaginationBlocks :mold-display="moldDisplay" />
+    </v-col>
+  </v-col>
 </template>
 
 <script>
@@ -31,13 +24,14 @@ export default {
     CardPosts,
     PaginationBlocks,
   },
+  props: ["id"],
   data() {
     return {
       displayPosts: [],
     };
   },
   async created() {
-    const res = await this.$axios.get("/likes", this.headers);
+    const res = await this.$axios.get(`/bands/${this.id}/posts`, this.headers);
     this.posts = res.data;
     this.moldDisplay();
   },
