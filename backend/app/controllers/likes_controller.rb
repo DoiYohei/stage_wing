@@ -2,8 +2,7 @@ class LikesController < ApplicationController
   before_action :authenticate_member!
 
   def index
-    @liked_posts = current_member.liked_posts
-    render json: @liked_posts
+    @posts = current_member.liked_posts.newest
   end
 
   def create
