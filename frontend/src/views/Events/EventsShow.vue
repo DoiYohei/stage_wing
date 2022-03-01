@@ -81,41 +81,12 @@
                       </v-card-text>
                     </v-card>
                   </v-col>
-                  <v-col v-if="isAuthenticatedAudience" xl="8" md="12" sm="8">
-                    <v-card>
-                      <v-row v-if="event.ticket" align="center" no-gutters>
-                        <v-col lg="7">
-                          <v-card-text>
-                            チケットを取り置きしています。
-                          </v-card-text>
-                        </v-col>
-                        <v-col>
-                          <v-dialog v-model="dialog" width="45vw">
-                            <template #activator="{ on, attrs }">
-                              <v-card-actions>
-                                <v-btn v-bind="attrs" v-on="on" small>
-                                  キャンセルする
-                                </v-btn>
-                              </v-card-actions>
-                            </template>
-                            <CardDialog
-                              dialogText="このイベントのチケットをキャンセルしますか？"
-                              :select-excution="deleteTicket"
-                              :select-cancel="closeDialog"
-                            />
-                          </v-dialog>
-                        </v-col>
-                      </v-row>
-                      <v-card-text v-else-if="event.reservation">
-                        <router-link :to="`/events/${id}/tickets/new`"
-                          >チケットを取り置きする
-                        </router-link>
-                      </v-card-text>
-                      <v-card-text v-else>
-                        チケット取り置きはできません
-                      </v-card-text>
-                    </v-card>
-                  </v-col>
+                  <CardAudienceTickets
+                    v-if="isAuthenticatedAudience"
+                    :event="event"
+                    :post-ticket="postTicket"
+                    :delete-ticket="deleteTicket"
+                  />
                   <v-col class="d-flex justify-end">
                     <v-card flat class="d-flex align-center">
                       <v-card-subtitle class="px-2">
@@ -186,12 +157,14 @@
 <script>
 import { mapGetters } from "vuex";
 import CardComments from "@/components/Cards/CardComments";
+import CardAudienceTickets from "@/components/Cards/CardAudienceTickets";
 import CardDialog from "@/components/Cards/CardDialog";
 
 export default {
   components: {
     CardComments,
     CardDialog,
+    CardAudienceTickets,
   },
   props: ["id"],
   data() {
@@ -264,6 +237,17 @@ export default {
     async deleteComment(commentId) {
       await this.$axios.delete(
         `/events/${this.id}/comments/${commentId}`,
+        this.headers
+      );
+      this.updatePage();
+    },
+    async postTicket(band) {
+      const formData = new FormData();
+      formData.append("ticket[event_id]", this.id);
+      formData.append("ticket[band_id]", band);
+      await this.$axios.post(
+        `/events/${this.id}/tickets`,
+        formData,
         this.headers
       );
       this.updatePage();

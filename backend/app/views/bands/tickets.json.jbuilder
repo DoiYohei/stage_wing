@@ -1,6 +1,10 @@
-json.array! @tickets do |ticket|
-  json.event do
-    json.extract! ticket.event, :id, :name, :open_at
+json.array! @events do |event|
+  json.extract! event, :id, :name, :open_at
+  json.audiences do
+    json.array! @tickets do |ticket|
+      if event.id == ticket.event_id
+        json.extract! ticket.audience, :name
+      end
+    end
   end
-  json.audience ticket.audience.name
 end

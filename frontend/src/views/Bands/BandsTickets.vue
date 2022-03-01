@@ -1,23 +1,49 @@
 <template>
-  <div>
-    <h1>Tickets</h1>
-    <v-container>
-      <v-row>
-        <v-col
-          md="4"
-          offset-md="4"
-          v-for="(ticket, index) in tickets"
-          :key="index"
-        >
-          <span>
-            {{ $dayjs(ticket.event.open_at).format("YYYY MMM DD") }}
-            : {{ ticket.event.name }}
-          </span>
-          <span>/ {{ ticket.audience }}</span>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+  <v-container>
+    <v-row>
+      <v-col
+        v-for="(event, index) in events"
+        :key="index"
+        xl="3"
+        lg="4"
+        sm="6"
+        cols="12"
+      >
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              <v-card flat>
+                <v-card-subtitle class="text-left py-0">
+                  {{ $dayjs(event.open_at).format("YYYY MMM DD") }}
+                </v-card-subtitle>
+                <v-card-title class="py-0">
+                  <router-link :to="`/events/${event.id}`" class="pr-2">
+                    {{ event.name }}
+                  </router-link>
+                  ({{ event.audiences.length }})
+                </v-card-title>
+              </v-card>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-simple-table>
+                <tbody>
+                  <tr
+                    v-for="(audience, index) in event.audiences"
+                    :key="index"
+                    class="text-left"
+                  >
+                    <td>{{ index + 1 }}.</td>
+                    <td>{{ audience.name }}</td>
+                  </tr>
+                </tbody>
+              </v-simple-table>
+              <v-divider />
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
@@ -32,7 +58,7 @@ export default {
   },
   data() {
     return {
-      tickets: {},
+      events: [],
     };
   },
   async created() {
@@ -40,7 +66,7 @@ export default {
       `/bands/${this.id}/tickets`,
       this.headers
     );
-    this.tickets = res.data;
+    this.events = res.data;
   },
   computed: {
     ...mapGetters(["headers"]),

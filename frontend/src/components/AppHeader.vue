@@ -67,7 +67,7 @@ export default {
   },
   data() {
     return {
-      dialog: 0,
+      dialog: false,
     };
   },
   computed: {

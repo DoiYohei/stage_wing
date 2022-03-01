@@ -21,8 +21,7 @@ class EventsController < ApplicationController
     @all_comments = @event.comments
     @parent_comments = @all_comments.select { |n| n.parent_id == nil }
     if current_audience
-      tickets = current_audience.tickets
-      @ticket = tickets.find_by(event_id: @event.id)
+      @ticket = @event.tickets.find_by(audience_id: current_audience.id)
     end
   end
 
