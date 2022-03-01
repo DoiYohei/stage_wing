@@ -36,6 +36,7 @@ class BandsController < ApplicationController
   end
 
   def tickets
+    @events = current_band.performing_events
     @tickets = current_band.tickets
   end
 end

@@ -23,7 +23,6 @@ import AudiencesEdit from "@/views/Audiences/AudiencesEdit";
 import AudiencesTickets from "@/views/Audiences/AudiencesTickets";
 import AuthError from "@/views/Errors/AuthError";
 import LikesIndex from "@/views/Likes/LikesIndex";
-import TicketsNew from "@/views/Tickets/TicketsNew";
 
 Vue.use(Router);
 
@@ -71,12 +70,6 @@ export default new Router({
       path: "/events/:id/lineup/edit",
       name: "EventsLineupsEdit",
       component: EventsLineupsEdit,
-      props: true,
-    },
-    {
-      path: "/events/:id/tickets/new",
-      name: "TicketsNew",
-      component: TicketsNew,
       props: true,
     },
     {

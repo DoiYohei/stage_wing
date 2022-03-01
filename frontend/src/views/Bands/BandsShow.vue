@@ -38,7 +38,7 @@
                           </v-list-item>
                         </template>
                         <CardDialog
-                          dialogText="退会しますか？"
+                          dialog-text="退会しますか？"
                           :select-excution="deleteAccount"
                           :select-cancel="closeDialog"
                         />
