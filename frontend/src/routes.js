@@ -16,7 +16,7 @@ import BandsPostsIndex from "@/views/Bands/BandsPostsIndex";
 import BandsEvents from "@/views/Bands/BandsEvents";
 import BandsTickets from "@/views/Bands/BandsTickets";
 import BandsPostsNew from "@/views/Bands/BandsPostsNew";
-import Friendships from "@/views/Friendships";
+import BandsFriends from "@/views/Bands/BandsFriends";
 import ChatsIndex from "@/views/Chats/ChatsIndex";
 import ChatsShow from "@/views/Chats/ChatsShow";
 import AudiencesEdit from "@/views/Audiences/AudiencesEdit";
@@ -119,9 +119,9 @@ export default new Router({
       props: true,
     },
     {
-      path: "/bands/:id/friendships",
-      name: "Friendships",
-      component: Friendships,
+      path: "/bands/:id/friends",
+      name: "BandsFriends",
+      component: BandsFriends,
       props: true,
     },
     {
