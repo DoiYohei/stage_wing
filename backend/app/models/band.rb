@@ -31,13 +31,13 @@ class Band < ActiveRecord::Base
   has_many :tickets, dependent: :destroy
   
   # Bandをフォローする
-  def follow(other_band)
-    active_friendships.create!(followed_id: other_band.id)
+  def follow(followed_id)
+    active_friendships.create!(followed_id: followed_id)
   end
 
   # Bandをフォロー解除する
-  def unfollow(followed_id_params)
-    active_friendships.find_by(followed_id_params).destroy!
+  def unfollow(followed_id)
+    active_friendships.find_by(followed_id: followed_id).destroy!
   end
 
   # 相互フォロー(友達)の関係にあるBandを返す

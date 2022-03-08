@@ -19,7 +19,7 @@
                         新規Posts作成
                       </v-list-item>
                       <v-list-item to="/liked_posts">お気に入り</v-list-item>
-                      <v-list-item :to="`/bands/${id}/friendships`">
+                      <v-list-item :to="`/bands/${id}/friends`">
                         Friends
                       </v-list-item>
                       <v-list-item :to="`/bands/${id}/chats`">
@@ -48,19 +48,19 @@
                 </v-card-text>
               </v-menu>
             </v-card-actions>
-            <v-card-actions v-if="isAuthenticatedBand && !isMyPage">
-              <v-card-text v-if="isInvited">
-                Friend申請されています
-              </v-card-text>
-              <v-btn
-                color="primary"
-                elevation="2"
-                :outlined="isFollowing"
-                @click="changeFriendship"
-              >
-                {{ friendDisplay }}
-              </v-btn>
-            </v-card-actions>
+            <template v-if="isAuthenticatedBand && !isMyPage">
+              <v-card-actions v-if="isFriend">
+                <v-icon>mdi-email-outline</v-icon>
+              </v-card-actions>
+              <v-card-actions>
+                <v-card-subtitle v-if="isInvited">
+                  Friend申請されています
+                </v-card-subtitle>
+                <v-btn @click="changeFriendship">
+                  {{ friendDisplay }}
+                </v-btn>
+              </v-card-actions>
+            </template>
           </v-card>
           <v-card-actions>
             <v-tabs v-if="$vuetify.breakpoint.mdAndUp" v-model="tabs" grow>
@@ -126,7 +126,7 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["isAuthenticatedBand", "userId", "headers"]),
+    ...mapGetters(["isAuthenticatedBand", "userId", "headers", "token"]),
     isProfileTab() {
       return this.$route.path === `/bands/${this.id}`;
     },
@@ -150,10 +150,13 @@ export default {
       return this.friendStatus === "invited";
     },
     friendDisplay() {
-      if (this.isFriend) return "Friend";
-      if (this.isInviting) return "Pending";
-      if (this.isInvited) return "Accept";
-      return "Friend Request";
+      if (this.isFriend) {
+        return "Friend";
+      } else if (this.isInviting) {
+        return "Friend申請中";
+      } else if (this.isInvited) {
+        return "Friend承認する";
+      } else return "Friend申請";
     },
   },
   methods: {
@@ -167,22 +170,26 @@ export default {
       const formData = new FormData();
       formData.append("followed_id", this.id);
       if (this.isFollowing) {
-        this.$axios.delete("/friendships", this.headers, formData);
+        this.$axios.delete("/friendships", {
+          headers: this.token,
+          data: formData,
+        });
         if (this.friendStatus === "friend") {
           this.friendStatus = "invited";
           return;
-        }
-        if (this.friendStatus === "inviting") {
+        } else {
           this.friendStatus = "";
           return;
         }
+      } else {
+        this.$axios.post("/friendships", formData, this.headers);
+        if (this.friendStatus === "invited") {
+          this.friendStatus = "friend";
+          return;
+        } else {
+          this.friendStatus = "inviting";
+        }
       }
-      this.$axios.post("/friendships", formData, this.headers);
-      if (this.friendStatus === "invited") {
-        this.friendStatus = "friend";
-        return;
-      }
-      this.friendStatus = "inviting";
     },
     closeDialog() {
       this.dialog = false;
