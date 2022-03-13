@@ -50,7 +50,9 @@
             </v-card-actions>
             <template v-if="isAuthenticatedBand && !isMyPage">
               <v-card-actions v-if="isFriend">
-                <v-icon>mdi-email-outline</v-icon>
+                <v-btn @click="startChat()" icon>
+                  <v-icon>mdi-email-outline</v-icon>
+                </v-btn>
               </v-card-actions>
               <v-card-actions>
                 <v-card-subtitle v-if="isInvited">
@@ -165,6 +167,21 @@ export default {
       const res = await this.$axios.get(`/bands/${this.id}`, this.headers);
       this.band = res.data;
       this.friendStatus = res.data.friend_status;
+    },
+    async startChat() {
+      const res = await this.$axios.get("/rooms", this.headers);
+      const room = res.data.find((data) => data.friend_id === Number(this.id));
+      let roomId = room.id;
+      if (!roomId) {
+        const formData = new FormData();
+        formData.append("band_room[band_id]", this.id);
+        const res = await this.$axios.post("/rooms", formData, this.headers);
+        roomId = res.data;
+      }
+      this.$router.push({
+        path: `/bands/${this.userId}/chats/${roomId}`,
+        query: { partnerId: this.id },
+      });
     },
     changeFriendship() {
       const formData = new FormData();

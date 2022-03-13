@@ -20,6 +20,7 @@
                 :friendship="friendships[0]"
                 :change-friendship="deleteFriendship"
                 :revert-friendship="postFriendship"
+                :start-chat="startChat"
               />
             </v-tab-item>
             <v-tab-item>
@@ -36,6 +37,7 @@
                 :friendship="friendships[2]"
                 :change-friendship="postFriendship"
                 :revert-friendship="deleteFriendship"
+                :start-chat="startChat"
               />
             </v-tab-item>
           </v-tabs-items>
@@ -48,6 +50,7 @@
         :friendship="friendships[0]"
         :change-friendship="deleteFriendship"
         :revert-friendship="postFriendship"
+        :start-chat="startChat"
       />
       <ListFriendships
         :bands="invitings"
@@ -60,6 +63,7 @@
         :friendship="friendships[2]"
         :change-friendship="postFriendship"
         :revert-friendship="deleteFriendship"
+        :start-chat="startChat"
       />
     </v-row>
   </v-container>
@@ -120,6 +124,21 @@ export default {
     },
     postFriendship(formData) {
       this.$axios.post("/friendships", formData, this.headers);
+    },
+    async startChat(bandId) {
+      const res = await this.$axios.get("/rooms", this.headers);
+      const room = res.data.find((data) => data.friend_id === bandId);
+      let roomId = room.id;
+      if (!roomId) {
+        const formData = new FormData();
+        formData.append("band_room[band_id]", bandId);
+        const res = await this.$axios.post("/rooms", formData, this.headers);
+        roomId = res.data;
+      }
+      this.$router.push({
+        path: `/bands/${this.id}/chats/${roomId}`,
+        query: { partnerId: bandId },
+      });
     },
   },
 };

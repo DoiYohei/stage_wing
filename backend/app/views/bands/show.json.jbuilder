@@ -14,3 +14,5 @@ json.posts do
     end
   end
 end
+
+json.rooms @rooms

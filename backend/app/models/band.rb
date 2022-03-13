@@ -89,8 +89,9 @@ class Band < ActiveRecord::Base
       chat_room_id = friend_room_ids & my_room_ids
       chat_rooms.push({
         id: chat_room_id[0],
-        friend_name: f.name,
         friend_id: f.id,
+        friend_name: f.name,
+        friend_img: f.image.url,
       })
     end
     chat_rooms

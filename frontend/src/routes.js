@@ -131,7 +131,7 @@ export default new Router({
       props: true,
     },
     {
-      path: "/bands/:id/chats/:room_id",
+      path: "/bands/:bandId/chats/:roomId",
       name: "ChatsShow",
       component: ChatsShow,
       props: true,
