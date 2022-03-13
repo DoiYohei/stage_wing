@@ -22,7 +22,9 @@
             </router-link>
             <v-spacer />
             <v-list-item-icon v-if="isFriend(index)">
-              <v-icon>mdi-email-outline</v-icon>
+              <v-btn @click="goChat(band.id)" icon>
+                <v-icon>mdi-email-outline</v-icon>
+              </v-btn>
             </v-list-item-icon>
             <v-list-item-action class="ml-4">
               <v-btn @click="changeStatus(band.id, index)">
@@ -56,6 +58,10 @@ export default {
     revertFriendship: {
       type: Function,
       require: true,
+    },
+    startChat: {
+      type: Function,
+      default: null,
     },
   },
   data() {
@@ -108,6 +114,9 @@ export default {
         this.revertFriendship(formData);
       }
       this.$set(this.defaultStatus, index, !this.defaultStatus[index]);
+    },
+    goChat(bandId) {
+      this.startChat(bandId);
     },
   },
 };

@@ -9,6 +9,7 @@ class BandsController < ApplicationController
     @band = Band.find(params[:id])
     if current_band
       @friend_status = current_band.friend_status(@band)
+      @rooms = current_band.fetch_rooms
     end
   end
 

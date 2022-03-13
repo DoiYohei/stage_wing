@@ -1,21 +1,36 @@
 <template>
   <v-container>
     <v-row>
-      <template v-if="rooms">
-        <template v-for="(room, index) in rooms">
-          <v-col
-            md="4"
-            offset-md="4"
-            class="room"
-            :key="index"
-            @click="startChat(room.id, room.friend_id)"
-          >
-            {{ room.friend_name }}
-          </v-col>
-        </template>
-      </template>
-      <v-col v-else>
-        <p>Friendがいません</p>
+      <v-col>
+        <v-card flat>
+          <v-card-subtitle>
+            チャットをするユーザーを選んでください。
+            （チャットは「Friend」のユーザーとのみ可能です。）
+          </v-card-subtitle>
+          <v-card-actions v-if="rooms">
+            <v-spacer />
+            <v-list>
+              <v-list-item-group>
+                <v-list-item
+                  v-for="(room, index) in rooms"
+                  :key="index"
+                  @click="startChat(room.id, room.friend_id)"
+                >
+                  <v-list-item-avatar>
+                    <v-img :src="room.friend_img" />
+                  </v-list-item-avatar>
+                  <v-list-item-content>
+                    <v-list-item-title class="text-left">
+                      {{ room.friend_name }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+            <v-spacer />
+          </v-card-actions>
+          <v-card-text v-if="!rooms">Friendがいません。</v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
@@ -46,14 +61,11 @@ export default {
         const res = await this.$axios.post("/rooms", formData, this.headers);
         roomId = res.data;
       }
-      this.$router.push(`/bands/${this.id}/chats/${roomId}`);
+      this.$router.push({
+        path: `/bands/${this.id}/chats/${roomId}`,
+        query: { partnerId: friendId },
+      });
     },
   },
 };
 </script>
-
-<style>
-.room {
-  cursor: pointer;
-}
-</style>

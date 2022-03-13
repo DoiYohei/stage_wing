@@ -1,9 +1,11 @@
 json.messages do
-  json.array! @messages, :content, :created_at, :band_id
+  json.array! @messages do |message|
+    json.extract! message, :id, :content, :created_at, :band_id
+    json.band_name message.band.name
+    json.band_image message.band.image.url
+  end
 end
 
-json.bands do
-  json.array! @band_rooms do |b|
-    json.extract! b.band, :id, :name
-  end
+json.partner do
+  json.extract! @partner, :id, :name, :image
 end

@@ -1,5 +1,3 @@
-json.ignore_nil!
-
 json.friends do
   json.array! @friends, :id, :name, :image
 end
