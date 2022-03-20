@@ -1,16 +1,35 @@
 <template>
   <v-app>
-    <AppHeader />
-    <v-main><router-view /></v-main>
+    <TheAppHeader v-if="!isHome" v-model="drawer" />
+    <NavigationMenu v-model="drawer" />
+    <v-main :class="headerSpace"><router-view /></v-main>
+    <TheAppFooter v-if="!isHome" />
   </v-app>
 </template>
 
 <script>
-import AppHeader from "@/components/AppHeader";
+import TheAppHeader from "@/components/TheAppHeader";
+import NavigationMenu from "@/components/NavigationMenu";
+import TheAppFooter from "@/components/TheAppFooter";
 
 export default {
   components: {
-    AppHeader,
+    TheAppHeader,
+    NavigationMenu,
+    TheAppFooter,
+  },
+  data() {
+    return {
+      drawer: false,
+    };
+  },
+  computed: {
+    isHome() {
+      return this.$route.path === "/";
+    },
+    headerSpace() {
+      return this.isHome ? "" : "mt-16";
+    },
   },
 };
 </script>
@@ -32,9 +51,6 @@ img {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
 }
 
 .reflect-return {

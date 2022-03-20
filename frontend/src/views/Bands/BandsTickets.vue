@@ -50,12 +50,7 @@
 import { mapGetters } from "vuex";
 
 export default {
-  props: {
-    id: {
-      type: String,
-      require: true,
-    },
-  },
+  props: ["id"],
   data() {
     return {
       events: [],

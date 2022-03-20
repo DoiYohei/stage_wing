@@ -27,6 +27,7 @@ export default {
       token: payload.res.headers,
       avatar: payload.res.data.data.image.url,
       userId: payload.res.data.data.id,
+      userName: payload.res.data.data.name,
       userType: payload.userType,
     };
     commit("updateAuthData", authData);
@@ -64,11 +65,14 @@ export default {
       token: null,
       avatar: null,
       userId: null,
+      userName: null,
       userType: null,
     };
     commit("updateAuthData", authData);
     localStorage.removeItem("authDataSW");
-    if (router.history.current.path !== "/") {
+    if (router.currentRoute.path === "/") {
+      router.go({ path: router.currentRoute.path, force: true });
+    } else {
       router.push("/");
     }
   },
