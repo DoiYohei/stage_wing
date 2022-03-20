@@ -19,7 +19,7 @@ export default {
   components: {
     CardAudienceForms,
   },
-  props: ["userId"],
+  props: ["id"],
   data() {
     return {
       audience: {},
@@ -27,7 +27,7 @@ export default {
   },
   async created() {
     const res = await this.$axios.get(
-      `/audiences/${this.userId}/edit`,
+      `/audiences/${this.id}/edit`,
       this.headers
     );
     this.audience = res.data;
@@ -42,7 +42,7 @@ export default {
       formData.append("email", this.audience.email);
       if (image) formData.append("image", image);
       await this.$axios.patch("/audiences", formData, this.headers);
-      this.$router.replace(`/audiences/${this.userId}`);
+      this.$router.replace(`/audiences/${this.id}`);
     },
   },
 };

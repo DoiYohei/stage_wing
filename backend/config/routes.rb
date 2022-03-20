@@ -14,7 +14,6 @@ Rails.application.routes.draw do
   }
   
   scope format: "json" do
-    root "home#index"
     resources :events do
       get :edit, on: :member
       resources :lineups, except: :show

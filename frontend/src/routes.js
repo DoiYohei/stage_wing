@@ -142,13 +142,13 @@ export default new Router({
       component: LikesIndex,
     },
     {
-      path: "/audiences/:userId/edit",
+      path: "/audiences/:id/edit",
       name: "AudiencesEdit",
       component: AudiencesEdit,
       props: true,
     },
     {
-      path: "/audiences/:userId/tickets",
+      path: "/audiences/:id/tickets",
       name: "AudiencesTickets",
       component: AudiencesTickets,
       props: true,

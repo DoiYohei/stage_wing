@@ -11,6 +11,7 @@ export default new Vuex.Store({
     token: null,
     avatar: null,
     userId: null,
+    userName: null,
     userType: null,
   },
   getters,

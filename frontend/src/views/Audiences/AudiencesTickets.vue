@@ -44,12 +44,7 @@ export default {
   components: {
     CardDialog,
   },
-  props: {
-    userId: {
-      type: String,
-      require: true,
-    },
-  },
+  props: ["id"],
   data() {
     return {
       table_headers: [
@@ -78,7 +73,7 @@ export default {
   },
   async created() {
     const res = await this.$axios.get(
-      `/audiences/${this.userId}/tickets`,
+      `/audiences/${this.id}/tickets`,
       this.headers
     );
     for (let ticket of res.data) {
