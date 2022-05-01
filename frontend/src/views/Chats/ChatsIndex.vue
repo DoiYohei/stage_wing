@@ -1,28 +1,49 @@
 <template>
   <v-container>
     <v-row>
-      <template v-if="rooms">
-        <template v-for="(room, index) in rooms">
-          <v-col
-            md="4"
-            offset-md="4"
-            class="room"
-            :key="index"
-            @click="startChat(room.id, room.friend_id)"
-          >
-            {{ room.friend_name }}
-          </v-col>
-        </template>
-      </template>
-      <v-col v-else>
-        <p>Friendがいません</p>
+      <v-col>
+        <v-card color="#121212" flat class="text-center">
+          <v-card-subtitle>
+            チャットをするユーザーを選んでください。（
+            チャットは「Friend」のユーザーとのみ可能です。）
+          </v-card-subtitle>
+          <v-card-actions v-if="rooms">
+            <v-spacer />
+            <v-list color="#121212">
+              <v-list-item-group>
+                <v-list-item
+                  v-for="(room, index) in rooms"
+                  :key="index"
+                  @click="startChat(room.id, room.friend_id)"
+                >
+                  <ListItemAvatar :image="room.friend_img" />
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ room.friend_name }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+            <v-spacer />
+          </v-card-actions>
+          <v-card-text v-if="!rooms" class="white--text mt-6">
+            Friend がいません。
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import ListItemAvatar from "@/components/ListItemAvatar";
+
 export default {
+  components: {
+    ListItemAvatar,
+  },
   props: ["id"],
   data() {
     return {
@@ -30,27 +51,25 @@ export default {
     };
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
-    const res = await this.$axios.get("/rooms", token);
+    const res = await this.$axios.get("/rooms", this.headers);
     if (res.data[0]) this.rooms = res.data;
+  },
+  computed: {
+    ...mapGetters(["headers"]),
   },
   methods: {
     async startChat(roomId, friendId) {
       if (!roomId) {
-        const token = { headers: this.$store.getters.token };
         const formData = new FormData();
         formData.append("band_room[band_id]", friendId);
-        const res = await this.$axios.post("/rooms", formData, token);
+        const res = await this.$axios.post("/rooms", formData, this.headers);
         roomId = res.data;
       }
-      this.$router.push(`/bands/${this.id}/chats/${roomId}`);
+      this.$router.push({
+        path: `/bands/${this.id}/chats/${roomId}`,
+        query: { partnerId: friendId },
+      });
     },
   },
 };
 </script>
-
-<style>
-.room {
-  cursor: pointer;
-}
-</style>

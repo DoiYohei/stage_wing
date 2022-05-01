@@ -1,123 +1,185 @@
 <template>
-  <div>
-    <router-link :to="`/bands/${id}/posts`">Posts</router-link>
-    <div>{{ band.name }}</div>
-    <div v-if="band.profile">
-      <iframe :src="band.profile"></iframe>
-    </div>
-    <img :src="band.image" />
-    <template v-if="isAuthenticatedBand && !isMyPage">
-      <p v-if="isInvited">Friend申請されています</p>
-      <v-btn
-        color="primary"
-        elevation="2"
-        :outlined="isFollowing"
-        @click="changeFriendship"
-      >
-        {{ friendDisplay }}
-      </v-btn>
-    </template>
-    <template v-if="isMyPage">
-      <router-link to="/liked_posts">お気に入り</router-link>
-      <router-link :to="`/bands/${id}/friendships`">Friends</router-link>
-      <router-link :to="`/bands/${id}/chats`">Chat</router-link>
-      <router-link :to="`/bands/${id}/tickets`">Tickets</router-link>
-      <router-link :to="`/bands/${id}/edit`">編集する</router-link>
-      <button @click="deleteBand">退会する</button>
-    </template>
-    <div>LIVEスケジュール</div>
-    <template v-if="band.performing_events">
-      <div v-for="(event, index) in band.performing_events" :key="index">
-        <router-link :to="`/events/${event.id}`"
-          >{{ event.open_at }}: {{ event.name }}</router-link
-        >
-      </div>
-    </template>
-  </div>
+  <v-container>
+    <v-row>
+      <v-col>
+        <TheBandsHeader
+          v-model="tab"
+          :band="band"
+          :friend-status="friendStatus"
+          :is-my-page="isMyPage"
+          @start-chat="startChat"
+          @change-friendship="changeFriendship"
+        />
+        <v-tabs-items v-model="tab">
+          <v-tab-item>
+            <TheBandsBiography :band="band" :is-my-page="isMyPage" />
+          </v-tab-item>
+          <v-tab-item>
+            <TheBandsPosts
+              :posts="band.posts"
+              :is-my-page="isMyPage"
+              @delete-post="deletePost"
+              @patch-post="patchPost"
+              @change-like="changeLike"
+            />
+          </v-tab-item>
+          <v-tab-item>
+            <v-card color="#121212" flat>
+              <v-col>
+                <CardActionsEventPastSelect v-model="showPast" />
+                <v-card-text v-if="!displayEvents.length" class="px-3">
+                  出演予定のイベントはありません
+                </v-card-text>
+              </v-col>
+            </v-card>
+            <CardEvents :events="displayEvents" />
+          </v-tab-item>
+        </v-tabs-items>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import TheBandsHeader from "@/components/TheBands/TheBandsHeader";
+import TheBandsBiography from "@/components/TheBands/TheBandsBiography";
+import TheBandsPosts from "@/components/TheBands/TheBandsPosts";
+import CardActionsEventPastSelect from "@/components/CardActions/CardActionsEventPastSelect";
+import CardEvents from "@/components/Cards/CardEvents";
+
 export default {
+  components: {
+    TheBandsHeader,
+    TheBandsBiography,
+    TheBandsPosts,
+    CardActionsEventPastSelect,
+    CardEvents,
+  },
   props: ["id"],
   data() {
     return {
       band: {},
       friendStatus: null,
+      tab: 0,
+      showPast: false,
+      futureEvents: [],
+      pastEvents: [],
     };
   },
   created() {
-    this.fetchData();
+    this.fetchBand();
+  },
+  watch: {
+    $route(to, from) {
+      if (to.params.id !== from.params.id) {
+        this.fetchBand();
+      }
+    },
   },
   computed: {
-    isAuthenticatedBand() {
-      return this.$store.getters.userType === "band";
-    },
+    ...mapGetters(["isAuthenticatedBand", "userId", "headers", "token"]),
     isMyPage() {
       if (this.isAuthenticatedBand) {
-        return this.$store.getters.currentUserId === this.band.id;
+        return this.userId === this.band.id;
       } else {
         return false;
       }
     },
-    isFollowing() {
-      return this.friendStatus === "friend" || this.friendStatus == "inviting";
-    },
-    isFriend() {
-      return this.friendStatus === "friend";
-    },
-    isInviting() {
-      return this.friendStatus === "inviting";
-    },
-    isInvited() {
-      return this.friendStatus === "invited";
-    },
-    friendDisplay() {
-      if (this.isFriend) return "Friendです";
-      if (this.isInviting) return "Friend申請中";
-      if (this.isInvited) return "Friend承認する";
-      return "Friend申請する";
-    },
-  },
-  watch: {
-    $route() {
-      this.fetchData();
+    displayEvents() {
+      return this.showPast ? this.pastEvents : this.futureEvents;
     },
   },
   methods: {
-    async fetchData() {
-      let headers = null;
-      if (this.$store.getters.authData) {
-        headers = { headers: this.$store.getters.token };
-      }
-      const res = await this.$axios.get(`/bands/${this.id}`, headers);
+    async fetchBand() {
+      const res = await this.$axios.get(`/bands/${this.id}`, this.headers);
       this.band = res.data;
       this.friendStatus = res.data.friend_status;
+      const now = new Date();
+      this.futureEvents = res.data.events.filter((event) => {
+        return now.getTime() <= new Date(event.open_at).getTime();
+      });
+      this.pastEvents = res.data.events.filter((event) => {
+        return now.getTime() >= new Date(event.open_at).getTime();
+      });
     },
-    async deleteBand() {
-      const token = { headers: this.$store.getters.token };
-      this.$store.dispatch("deleteBand", token);
+    async startChat() {
+      const res = await this.$axios.get("/rooms", this.headers);
+      const room = res.data.find((data) => data.friend_id === Number(this.id));
+      let roomId = room.id;
+      if (!roomId) {
+        const formData = new FormData();
+        formData.append("band_room[band_id]", this.id);
+        const res = await this.$axios.post("/rooms", formData, this.headers);
+        roomId = res.data;
+      }
+      this.$router.push({
+        path: `/bands/${this.userId}/chats/${roomId}`,
+        query: { partnerId: this.id },
+      });
     },
-    changeFriendship() {
-      const token = { headers: this.$store.getters.token };
-      const formData = new FormData();
-      formData.append("followed_id", this.id);
-      if (this.isFollowing) {
-        this.$axios.delete("/friendships", token, formData);
+    changeFriendship(isFollowing, formData) {
+      if (isFollowing) {
+        this.$axios.delete("/friendships", {
+          headers: this.token,
+          data: formData,
+        });
         if (this.friendStatus === "friend") {
           this.friendStatus = "invited";
           return;
-        }
-        if (this.friendStatus === "inviting") {
+        } else {
           this.friendStatus = "";
           return;
         }
+      } else {
+        this.$axios.post("/friendships", formData, this.headers);
+        if (this.friendStatus === "invited") {
+          this.friendStatus = "friend";
+          return;
+        } else {
+          this.friendStatus = "inviting";
+        }
       }
-      this.$axios.post("/friendships", formData, token);
-      if (this.friendStatus === "invited") {
-        this.friendStatus = "friend";
-        return;
+    },
+    async deletePost(postId) {
+      await this.$axios.delete(
+        `/bands/${this.id}/posts/${postId}`,
+        this.headers
+      );
+      this.updatePage();
+    },
+    async patchPost(postId, postDescription) {
+      const formData = new FormData();
+      formData.append("post[description]", postDescription);
+      await this.$axios.patch(
+        `/bands/${this.id}/posts/${postId}`,
+        formData,
+        this.headers
+      );
+      this.updatePage();
+    },
+    changeLike(post) {
+      if (!this.token) {
+        return this.$router.push("/errors/auth");
+      } else {
+        const formData = new FormData();
+        formData.append("post_id", post.id);
+        if (post.favorite) {
+          this.$axios.delete("/likes", {
+            headers: this.token,
+            data: formData,
+          });
+          post.favorite = false;
+          post.likes_count -= 1;
+        } else {
+          this.$axios.post("/likes", formData, this.headers);
+          post.favorite = true;
+          post.likes_count += 1;
+        }
       }
-      this.friendStatus = "inviting";
+    },
+    updatePage() {
+      this.$router.go({ path: this.$router.currentRoute.path, force: true });
     },
   },
 };

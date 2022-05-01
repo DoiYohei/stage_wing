@@ -1,5 +1,5 @@
 {
-  "name": "stage-wing",
+  "name": "stage_wing",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -19,6 +19,7 @@
     "vue-router": "^3.5.2",
     "vue-youtube": "^1.4.0",
     "vuetify": "^2.4.0",
+    "vuetify-audio": "^0.3.3",
     "vuex": "^3.6.2"
   },
   "devDependencies": {

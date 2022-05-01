@@ -1,19 +1,20 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import auth from "./modules/auth";
-import bands from "./modules/bands";
-import audiences from "./modules/audiences";
-import events from "./modules/events";
-import lineup from "./modules/lineup";
+import getters from "./getters";
+import mutations from "./mutations";
+import actions from "./actions";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  modules: {
-    auth,
-    bands,
-    audiences,
-    events,
-    lineup,
+  state: {
+    token: null,
+    avatar: null,
+    userId: null,
+    userName: null,
+    userType: null,
   },
+  getters,
+  mutations,
+  actions,
 });

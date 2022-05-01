@@ -1,18 +1,25 @@
 class BandsController < ApplicationController
-  before_action :authenticate_band!, only: %i(friendships tickets)
+  before_action :authenticate_band!, only: %i(edit friendships tickets)
 
   def index
-    @bands = Band.all
+    @bands = Band.all.order(:name)
   end
 
   def show
     @band = Band.find(params[:id])
-    lineups = Lineup.where(performer_id: params[:id])
-    @events = lineups.map { |lineup| lineup.event }
-    @image = @band.image.thumb.url
+    @posts = @band.posts.newest
+    @events = @band.performing_events.order(:open_at)
     if current_band
       @friend_status = current_band.friend_status(@band)
+      @rooms = current_band.fetch_rooms
     end
+    if current_member
+      @favorite_ids = current_member.likes.pluck(:post_id)
+    end
+  end
+
+  def edit
+    @band = Band.find(params[:id])
   end
 
   def friendships
@@ -23,6 +30,7 @@ class BandsController < ApplicationController
   end
 
   def tickets
+    @events = current_band.performing_events.order(:open_at)
     @tickets = current_band.tickets
   end
 end

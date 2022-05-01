@@ -1,77 +1,84 @@
 <template>
-  <div>
-    <h1>Log In</h1>
-    <v-container>
-      <v-row>
-        <v-col md="2" offset-md="5">
-          <div>Bandの方はこちら</div>
-        </v-col>
-        <v-col md="2" offset-md="5">
-          <v-text-field v-model="bandEmail" label="Email" />
-        </v-col>
-        <v-col md="2" offset-md="5">
-          <v-text-field
-            v-model="bandPassword"
-            :append-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="visible ? 'text' : 'password'"
-            label="Password"
-            hint="最低8文字です"
-            counter
-            @click:append="visible = !visible"
-          />
-        </v-col>
-        <v-col cols="12">
-          <v-btn elevation="4" @click="logInBand">Log In</v-btn>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col md="2" offset-md="5">
-          <div>一般の方はこちら</div>
-        </v-col>
-        <v-col md="2" offset-md="5">
-          <v-text-field v-model="audienceEmail" label="Email" />
-        </v-col>
-        <v-col md="2" offset-md="5">
-          <v-text-field
-            v-model="audiencePassword"
-            :append-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
-            :type="visible ? 'text' : 'password'"
-            label="Password"
-            hint="最低8文字です"
-            counter
-            @click:append="visible = !visible"
-          />
-        </v-col>
-        <v-col cols="12">
-          <v-btn elevation="4" @click="logInAudience">Log In</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+  <v-container>
+    <v-row>
+      <v-col>
+        <v-card color="#121212" flat>
+          <v-card-title class="pb-0">
+            <v-spacer />
+            LOGIN
+            <v-spacer />
+          </v-card-title>
+        </v-card>
+      </v-col>
+    </v-row>
+    <v-row v-if="$vuetify.breakpoint.mdAndUp">
+      <v-col xl="4" offset-xl="2">
+        <FormLogin v-model="band" @submit-forms="logInBand">
+          <template>アーティストの方</template>
+        </FormLogin>
+      </v-col>
+      <v-col xl="4">
+        <FormLogin v-model="audience" @submit-forms="logInAudience">
+          <template>一般の方</template>
+        </FormLogin>
+      </v-col>
+    </v-row>
+    <v-row v-if="$vuetify.breakpoint.smAndDown">
+      <v-col sm="8" offset-sm="2">
+        <v-card>
+          <v-card-text>
+            <v-tabs v-model="tabs" fixed-tabs>
+              <v-tab>アーティストの方</v-tab>
+              <v-tab>一般の方</v-tab>
+            </v-tabs>
+            <v-tabs-items v-model="tabs">
+              <v-tab-item>
+                <FormLogin v-model="band" @submit-forms="logInBand" />
+              </v-tab-item>
+              <v-tab-item>
+                <FormLogin v-model="audience" @submit-forms="logInAudience" />
+              </v-tab-item>
+            </v-tabs-items>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+import FormLogin from "@/components/Forms/FormLogin";
+
 export default {
+  components: {
+    FormLogin,
+  },
   data() {
     return {
-      bandEmail: "",
-      bandPassword: "",
-      audienceEmail: "",
-      audiencePassword: "",
-      visible: false,
+      tabs: 0,
+      band: {
+        email: "",
+        password: "",
+        visible: false,
+      },
+      audience: {
+        email: "",
+        password: "",
+        visible: false,
+      },
     };
   },
   methods: {
     logInBand() {
       const formData = new FormData();
-      formData.append("email", this.bandEmail);
-      formData.append("password", this.bandPassword);
+      formData.append("email", this.band.email);
+      formData.append("password", this.band.password);
       this.$store.dispatch("loginBand", formData);
     },
     logInAudience() {
       const formData = new FormData();
-      formData.append("email", this.audienceEmail);
-      formData.append("password", this.audiencePassword);
+      formData.append("email", this.audience.email);
+      formData.append("password", this.audience.password);
       this.$store.dispatch("loginAudience", formData);
     },
   },

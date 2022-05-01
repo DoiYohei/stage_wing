@@ -1,89 +1,45 @@
 <template>
-  <div>
-    <h1>イベント内容の編集</h1>
-    <v-container>
-      <v-row>
-        <v-col md="4" offset-md="4">
-          <v-text-field v-model="event.name" label="イベント名" />
-        </v-col>
-        <v-col md="4" offset-md="4">
-          <v-text-field v-model="event.place" label="場所" />
-        </v-col>
-        <v-col md="2" offset-md="4">
-          <vue-ctk-date-time-picker
-            v-model="event.open_at"
-            format="YYYY-MM-DD HH:mm"
-            label="Open"
-            id="open-at"
-          />
-        </v-col>
-        <v-col md="2">
-          <vue-ctk-date-time-picker
-            v-model="event.start_at"
-            format="YYYY-MM-DD HH:mm"
-            label="Start"
-            id="start-at"
-          />
-        </v-col>
-        <v-col md="4" offset-md="4">
-          <v-textarea v-model="event.content" label="詳細" outlined />
-        </v-col>
-        <v-col md="4" offset-md="4">
-          <v-sheet>
-            <v-switch
-              v-model="event.reservation"
-              inset
-              :label="reservationMessage"
-            />
-          </v-sheet>
-        </v-col>
-        <v-col cols="12">
-          <v-btn elevation="4" @click="patchEvent">更新する</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+  <FormEvent v-model="event" @submit-forms="patchEvent">
+    <template #page-title>Event 編集</template>
+    <template #btn-text>更新する</template>
+  </FormEvent>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import FormEvent from "@/components/Forms/FormEvent";
+
 export default {
+  components: {
+    FormEvent,
+  },
   props: ["id"],
   data() {
     return {
       event: {},
     };
   },
+  async created() {
+    const res = await this.$axios.get(`/events/${this.id}/edit`, this.headers);
+    this.event = res.data;
+  },
   computed: {
-    reservationMessage() {
-      if (this.event.reservation) {
-        return "チケット取り置きを受けつける";
-      } else {
-        return "チケット取り置きを受けつけない";
-      }
-    },
+    ...mapGetters(["headers"]),
   },
   methods: {
-    setFlyer(e) {
-      this.flyer = e.target.files[0];
-      this.url = URL.createObjectURL(this.image);
-    },
-    async patchEvent() {
-      const token = { headers: this.$store.getters.token };
+    async patchEvent(flyer) {
       const formData = new FormData();
       formData.append("event[name]", this.event.name);
-      formData.append("event[flyer]", this.event.flyer);
       formData.append("event[place]", this.event.place);
+      formData.append("event[ticket_price]", this.event.ticket_price);
       formData.append("event[open_at]", this.event.open_at);
       formData.append("event[start_at]", this.event.start_at);
       formData.append("event[content]", this.event.content);
       formData.append("event[reservation]", this.event.reservation);
-      await this.$axios.patch(`/events/${this.id}`, formData, token);
+      if (flyer) formData.append("event[flyer]", flyer);
+      await this.$axios.patch(`/events/${this.id}`, formData, this.headers);
       this.$router.replace(`/events/${this.id}`);
     },
-  },
-  async created() {
-    const res = await this.$axios.get(`/events/${this.id}`);
-    this.event = res.data;
   },
 };
 </script>

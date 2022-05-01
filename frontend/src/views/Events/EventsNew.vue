@@ -1,156 +1,91 @@
 <template>
-  <div>
-    <h1>新規イベント投稿</h1>
-    <v-container>
-      <v-row>
-        <v-col md="4" offset-md="4">
-          <v-text-field v-model="name" label="イベント名" />
-        </v-col>
-        <v-col md="2" offset-md="4">
-          <v-file-input
-            v-model="flyer"
-            @change="fetchUrl"
-            label="フライヤー"
-            placeholder="ファイルを選択してください"
-            chips
-          />
-        </v-col>
-        <v-col md="2">
-          <v-img v-if="url" :src="url" />
-        </v-col>
-        <v-col md="4" offset-md="4">
-          <v-text-field v-model="place" label="場所" />
-        </v-col>
-        <v-col md="2" offset-md="4">
-          <vue-ctk-date-time-picker
-            v-model="openAt"
-            format="YYYY-MM-DD HH:mm"
-            label="Open"
-            id="open-at"
-          />
-        </v-col>
-        <v-col md="2">
-          <vue-ctk-date-time-picker
-            v-model="startAt"
-            format="YYYY-MM-DD HH:mm"
-            label="Start"
-            id="start-at"
-          />
-        </v-col>
-        <v-col md="4" offset-md="4">
-          <v-textarea v-model="content" label="詳細" outlined />
-        </v-col>
-        <v-col cols="12">
-          <div>Lineup</div>
-          <v-col md="4" offset-md="4">
-            <v-autocomplete
-              v-model="performers"
-              :items="registeredBands"
-              item-text="name"
-              no-data-text="登録されていません"
-              multiple
-              return-object
-              clearable
-              outlined
-            />
-          </v-col>
-          <v-col md="4" offset-md="4">
-            <v-textarea
-              v-model="unregisteredPerformers"
-              label="登録されていないアーティスト"
-              outlined
-            />
-          </v-col>
-        </v-col>
-        <v-col md="4" offset-md="4">
-          <v-sheet>
-            <v-switch v-model="reservation" inset :label="reservationMessage" />
-          </v-sheet>
-        </v-col>
-        <v-col cols="12">
-          <v-btn elevation="4" @click="postEvent">投稿する</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </div>
+  <FormEvent v-model="event" @submit-forms="postEvent">
+    <template #page-title>新規 Event 作成</template>
+    <template #lineup>
+      <v-col>
+        <v-card color="grey darken-4">
+          <v-card-subtitle class="text-left text-subtitle-1">
+            Lineup
+          </v-card-subtitle>
+          <FormLineup v-model="lineup" />
+        </v-card>
+      </v-col>
+    </template>
+    <template #btn-text>投稿する</template>
+  </FormEvent>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import FormEvent from "@/components/Forms/FormEvent";
+import FormLineup from "@/components/Forms/FormLineup";
+
 export default {
+  components: {
+    FormEvent,
+    FormLineup,
+  },
   data() {
     return {
-      name: "",
-      flyer: [],
-      place: "",
-      openAt: "",
-      startAt: "",
-      content: "",
-      performers: [],
-      unregisteredPerformers: "",
-      reservation: false,
-      url: "",
-      registeredBands: [],
+      event: {
+        name: "",
+        place: "",
+        ticketPrice: "",
+        openAt: "",
+        startAt: "",
+        content: "",
+        reservation: false,
+      },
+      lineup: {
+        performers: [],
+        unregisteredBands: [],
+        registeredBands: [],
+      },
     };
   },
   async created() {
     // 出演者の入力時に検索機能を使うため、本サービスに登録されているBand一覧を取得
     const res = await this.$axios.get("/bands");
-    this.registeredBands = res.data.bands;
+    this.lineup.registeredBands = res.data.bands;
   },
   computed: {
-    reservationMessage() {
-      if (this.reservation) {
-        return "チケット取り置きを受けつける(Lineupに登録されたバンドがいる場合のみ)";
-      } else {
-        return "チケット取り置きを受けつけない";
-      }
-    },
+    ...mapGetters(["headers"]),
   },
   methods: {
-    fetchUrl(file) {
-      // 選択した画像ファイルを表示するための、URLを取得
-      if (file !== undefined && file !== null) {
-        if (file.name.lastIndexOf(".") <= 0) {
-          return;
-        }
-        const fr = new FileReader();
-        fr.readAsDataURL(file);
-        fr.addEventListener("load", () => {
-          this.url = fr.result;
-        });
-      } else {
-        this.url = "";
-      }
-    },
-    async postEvent() {
-      const token = { headers: this.$store.getters.token };
+    async postEvent(flyer) {
+      const unregisteredPerformers = this.lineup.unregisteredBands.join("*/");
 
       // 新規Eventを投稿
       const eventFormData = new FormData();
-      eventFormData.append("event[name]", this.name);
-      eventFormData.append("event[flyer]", this.flyer);
-      eventFormData.append("event[place]", this.place);
-      eventFormData.append("event[open_at]", this.openAt);
-      eventFormData.append("event[start_at]", this.startAt);
-      eventFormData.append("event[content]", this.content);
-      eventFormData.append("event[reservation]", this.reservation);
+      eventFormData.append("event[name]", this.event.name);
+      eventFormData.append("event[place]", this.event.place);
+      eventFormData.append("event[ticket_price]", this.event.ticketPrice);
+      eventFormData.append("event[open_at]", this.event.openAt);
+      eventFormData.append("event[start_at]", this.event.startAt);
+      eventFormData.append("event[content]", this.event.content);
+      eventFormData.append("event[reservation]", this.event.reservation);
       eventFormData.append(
         "event[unregistered_performers]",
-        this.unregisteredPerformers
+        unregisteredPerformers
       );
-      const eventRes = await this.$axios.post("/events", eventFormData, token);
+      if (flyer) eventFormData.append("event[flyer]", flyer);
+      const eventRes = await this.$axios.post(
+        "/events",
+        eventFormData,
+        this.headers
+      );
 
-      // 投稿したEventの出演者を登録
+      // 投稿したEventのLineupを登録
       const eventId = eventRes.data.id;
-      if (this.performers) {
-        for (let performer of this.performers) {
+      if (this.lineup.performers) {
+        for (let performer of this.lineup.performers) {
           let lineupFormData = new FormData();
           lineupFormData.append("lineup[event_id]", eventId);
           lineupFormData.append("lineup[performer_id]", performer.id);
           await this.$axios.post(
             `/events/${eventId}/lineups`,
             lineupFormData,
-            token
+            this.headers
           );
         }
       }

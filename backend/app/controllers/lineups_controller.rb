@@ -3,13 +3,9 @@ class LineupsController < ApplicationController
   before_action :set_lineup, only: %i(update destroy)
 
   def index
-    @performers = []
-    @lineup_ids = []
-    @lineups = Lineup.where(event_id: params[:event_id])
-    @lineups.each do |lineup|
-      @performers.push(lineup.performer)
-      @lineup_ids.push(lineup.id)
-    end
+    @bands = Band.all
+    @event = Event.find(params[:event_id])
+    @lineups = @event.lineups
   end
 
   def create

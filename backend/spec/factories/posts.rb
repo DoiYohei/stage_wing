@@ -1,7 +1,6 @@
 FactoryBot.define do
   factory :post do
     # 画像ファイル投稿
-    title { "投稿テスト" }
     format { "photo" }
     photo { Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec/fixtures/post-photo.jpeg')) }
     audio { nil }

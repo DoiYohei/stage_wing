@@ -1,145 +1,154 @@
 <template>
   <v-container>
-    <template v-if="!isLoadingData">
-      <v-row>
-        <v-col md="4" offset-md="4">
-          <div>{{ ownerName }}</div>
-          <template v-if="isEventOwner">
-            <router-link :to="`/events/${id}/edit`"
-              >イベント情報を編集する</router-link
-            >
-            <button @click="deleteEvent">削除する</button>
-          </template>
-          <div>{{ event.name }}</div>
-          <img :src="event.flyer" />
-          <div>
-            Open: {{ $dayjs(event.open_at).format("YYYY MMM DD - hh:mm") }}
-          </div>
-          <div>
-            Start: {{ $dayjs(event.start_at).format("YYYY MMM DD - hh:mm") }}
-          </div>
-          <div>{{ event.place }}</div>
-          <div>{{ event.content }}</div>
-          <p>Lineup:</p>
-          <template v-if="event.performers">
-            <div v-for="(performer, index) in event.performers" :key="index">
-              <router-link :to="`/bands/${performer.id}`">{{
-                performer.name
-              }}</router-link>
-            </div>
-          </template>
-          <template v-if="event.unregistered_performers">
-            <div>/ {{ event.unregistered_performers }}</div>
-          </template>
-          <template v-if="isEventOwner">
-            <router-link :to="`/events/${id}/lineup/edit`"
-              >Lineupを編集する</router-link
-            >
-          </template>
-        </v-col>
-        <v-col md="4" offset-md="4">
-          <div>Price: {{ event.ticket_price }}</div>
-          <template v-if="isAudience">
-            <div v-if="event.ticket">
-              チケットを取り置きしています
-              <v-btn @click="deleteTicket">キャンセルする</v-btn>
-            </div>
-            <template v-else-if="event.reservation">
-              <router-link :to="`/events/${id}/tickets/new`"
-                >チケットを取り置きする
-              </router-link>
-            </template>
-            <div v-else>チケット取り置きはできません</div>
-          </template>
-        </v-col>
-        <template v-for="(comment, index) of event.parent_comments">
-          <comment-for-event :comment="comment" :key="`comment${index}`" />
-        </template>
-        <v-col md="4" offset-md="4">
-          <v-textarea v-model="newComment" label="コメント" outlined />
-          <v-col cols="12">
-            <v-btn elevation="4" @click="postComment">コメントする</v-btn>
+    <v-row>
+      <v-col>
+        <v-card class="d-flex flex-wrap">
+          <v-col md="7" cols="12" class="pa-0">
+            <v-img :src="eventFlyer" aspect-ratio="1.25" />
           </v-col>
-        </v-col>
-      </v-row>
-    </template>
+          <v-col md="5" class="text-left pb-0">
+            <v-card flat>
+              <v-tabs v-model="tab" fixed-tabs>
+                <v-tab>Detail</v-tab>
+                <v-tab>Comment</v-tab>
+              </v-tabs>
+            </v-card>
+            <v-tabs-items v-model="tab" class="my-5">
+              <v-tab-item>
+                <TheEventsDetail
+                  :event="event"
+                  :lineups="lineups"
+                  @delete-event="deleteEvent"
+                  @post-ticket="postTicket"
+                  @delete-ticket="deleteTicket"
+                />
+              </v-tab-item>
+              <v-tab-item>
+                <v-card flat>
+                  <FormComment
+                    v-model="newComment"
+                    label="新規コメント"
+                    @submit-form="postComment"
+                    class="pb-0"
+                  >
+                    送信
+                  </FormComment>
+                  <v-divider v-if="event.comments && event.comments.length" />
+                  <TheEventsComment
+                    v-for="(comment, index) of event.comments"
+                    :key="index"
+                    :comment="comment"
+                    @post-comment="postComment"
+                    @delete-comment="deleteComment"
+                    class="pt-2 pb-0 pl-5"
+                  />
+                </v-card>
+              </v-tab-item>
+            </v-tabs-items>
+          </v-col>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
 <script>
-import CommentForEvent from "@/components/CommentForEvent";
+import { mapGetters } from "vuex";
+import TheEventsDetail from "@/components/TheEvents/TheEventsDetail";
+import FormComment from "@/components/Forms/FormComment";
+import TheEventsComment from "@/components/TheEvents/TheEventsComment";
 
 export default {
   components: {
-    CommentForEvent,
+    TheEventsDetail,
+    FormComment,
+    TheEventsComment,
   },
   props: ["id"],
   data() {
     return {
-      event: null,
-      bands: null,
-      ownerName: "",
+      event: {},
+      lineups: [],
+      tab: 0,
       newComment: "",
     };
   },
   async created() {
-    let token = null;
-    if (this.$store.getters.userType === "audience") {
-      token = { headers: this.$store.getters.token };
+    const audienceToken = this.isAuthenticatedAudience ? this.headers : null;
+    const res = await this.$axios.get(`/events/${this.id}`, audienceToken);
+    this.event = res.data;
+    for (let performer of this.event.performers) {
+      this.lineups.push({
+        text: performer.name,
+        to: `/bands/${performer.id}`,
+      });
     }
-    const eventRes = await this.$store.dispatch("getEventData", {
-      eventId: this.id,
-      token,
-    });
-    this.event = eventRes;
-    await this.$store.dispatch("getAudiences");
-    const bandsRes = await this.$store.dispatch("getBandsData");
-    this.bands = bandsRes;
-    const owner = this.bands.filter((band) => band.id === this.event.owner_id);
-    if (this.event.owner_id) {
-      this.ownerName = owner[0].name;
-    } else {
-      this.ownerName = "作成者は退会しました";
+    if (this.event.unregistered_performers) {
+      const unregisters = this.event.unregistered_performers.split("*/");
+      for (let unregister of unregisters) {
+        this.lineups.push({ text: unregister });
+      }
     }
   },
   computed: {
-    isEventOwner() {
-      return (
-        this.$store.getters.userType === "band" &&
-        this.$store.getters.currentUserId === this.event.owner_id
-      );
-    },
-    isLoadingData() {
-      return !this.ownerName;
-    },
-    isAudience() {
-      return this.$store.getters.userType === "audience";
+    ...mapGetters(["headers", "token", "isAuthenticatedAudience"]),
+    eventFlyer() {
+      return this.event.flyer
+        ? this.event.flyer
+        : require("@/assets/img/no-flyer.jpg");
     },
   },
   methods: {
     async deleteEvent() {
-      const token = { headers: this.$store.getters.token };
-      await this.$axios.delete(`/events/${this.id}`, token);
+      await this.$axios.delete(`/events/${this.id}`, this.headers);
       this.$router.replace("/");
     },
-    async postComment() {
-      if (!this.$store.getters.authData) {
+    async postComment(newReply, parentId) {
+      if (!this.token) {
         return this.$router.push("/errors/auth");
       } else {
-        const token = { headers: this.$store.getters.token };
         const formData = new FormData();
+        if (newReply) {
+          formData.append("comment[content]", newReply);
+          formData.append("comment[parent_id", parentId);
+        } else {
+          formData.append("comment[content]", this.newComment);
+        }
         formData.append("comment[event_id]", this.id);
-        formData.append("comment[content]", this.newComment);
-        await this.$axios.post(`/events/${this.id}/comments`, formData, token);
-        this.$router.go({ path: this.$router.currentRoute.path, force: true });
+        await this.$axios.post(
+          `/events/${this.id}/comments`,
+          formData,
+          this.headers
+        );
+        this.updatePage();
       }
     },
+    async deleteComment(commentId) {
+      await this.$axios.delete(
+        `/events/${this.id}/comments/${commentId}`,
+        this.headers
+      );
+      this.updatePage();
+    },
+    async postTicket(bandId) {
+      const formData = new FormData();
+      formData.append("ticket[event_id]", this.id);
+      formData.append("ticket[band_id]", bandId);
+      await this.$axios.post(
+        `/events/${this.id}/tickets`,
+        formData,
+        this.headers
+      );
+      this.updatePage();
+    },
     async deleteTicket() {
-      const token = { headers: this.$store.getters.token };
       await this.$axios.delete(
         `/events/${this.id}/tickets/${this.event.ticket.id}`,
-        token
+        this.headers
       );
+      this.updatePage();
+    },
+    updatePage() {
       this.$router.go({ path: this.$router.currentRoute.path, force: true });
     },
   },

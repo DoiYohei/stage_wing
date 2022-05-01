@@ -1,31 +1,110 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col>
-        <template v-for="(message, index) in messages">
-          <div :key="index">
-            <div>{{ speaker(message.band_id) }}</div>
-            <div>
-              {{ $dayjs(message.created_at).format("YYYY MMM DD - hh:mm") }} :
-              {{ message.content }}
-            </div>
-          </div>
-        </template>
-        <v-textarea v-model="inputMessage" />
-        <v-btn @click="sendMessage">送信</v-btn>
+    <v-row class="text-center">
+      <v-col cols="12">
+        <v-card class="mx-auto my-12" max-width="800">
+          <v-card-actions>
+            <CardAvatar
+              v-if="partner.image"
+              :avatar="partner"
+              size="50"
+              class="font-weight-bold text-h6"
+            />
+          </v-card-actions>
+          <v-divider />
+          <v-card-text class="white--text">
+            <v-row>
+              <v-col cols="12">
+                <v-container
+                  ref="scrollTarget"
+                  style="height: 450px"
+                  class="overflow-y-auto"
+                >
+                  <template v-for="(message, index) in messages">
+                    <v-row
+                      v-if="isFirstContentInDate(message.id)"
+                      :key="message.created_at"
+                      dense
+                    >
+                      <v-col>
+                        <v-divider v-if="index !== 0" />
+                        <div class="mt-4 font-weight-bold">
+                          {{ $dayjs(message.created_at).format("YYYY MMM DD") }}
+                        </div>
+                      </v-col>
+                    </v-row>
+                    <v-row :key="index" dense>
+                      <v-col v-if="message.band_id !== userId">
+                        <div class="balloon_l">
+                          <div class="face_icon">
+                            <v-avatar size="40">
+                              <v-img :src="bandImage(message.band_image)" />
+                            </v-avatar>
+                          </div>
+                          <p class="says">
+                            {{ message.content }}
+                          </p>
+                          <p class="time">
+                            {{ $dayjs(message.created_at).format("hh:mm") }}
+                          </p>
+                        </div>
+                      </v-col>
+                      <v-col v-if="message.band_id === userId">
+                        <div class="balloon_r">
+                          <p class="time">
+                            {{ $dayjs(message.created_at).format("hh:mm") }}
+                          </p>
+                          <div class="face_icon">
+                            <v-avatar size="40">
+                              <v-img :src="bandImage(message.band_image)" />
+                            </v-avatar>
+                          </div>
+                          <p class="says black--text">
+                            {{ message.content }}
+                          </p>
+                        </div>
+                      </v-col>
+                    </v-row>
+                  </template>
+                </v-container>
+              </v-col>
+            </v-row>
+          </v-card-text>
+          <v-divider />
+          <v-card-text>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  autofocus
+                  label="メッセージ"
+                  v-model="inputMessage"
+                  clearable
+                  @keyup.enter="sendMessage"
+                />
+                <v-btn color="grey darken-2" @click="sendMessage">送信</v-btn>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import CardAvatar from "@/components/Cards/CardAvatar";
+
 export default {
-  props: ["room_id"],
+  components: {
+    CardAvatar,
+  },
+  props: ["roomId"],
   data() {
     return {
       inputMessage: "",
       messages: [],
-      bands: [],
+      partner: {},
     };
   },
   channels: {
@@ -40,22 +119,43 @@ export default {
     },
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
-    const res = await this.$axios.get(`/rooms/${this.room_id}/messages`, token);
+    const res = await this.$axios.get(`/rooms/${this.roomId}/messages`, {
+      headers: this.token,
+      params: { band_id: this.$route.query.partnerId },
+    });
     this.messages = res.data.messages;
-    this.bands = res.data.bands;
-    const authData = this.$store.getters.token;
-    const params = `uid=${authData["uid"]}&access-token=${authData["access-token"]}&client=${authData["client"]}`;
+    this.partner = res.data.partner;
+    const params = `uid=${this.token["uid"]}&access-token=${this.token["access-token"]}&client=${this.token["client"]}`;
     this.$cable.connection.connect(
       `ws://${process.env.VUE_APP_WS}/cable?${params}`
     );
-    this.$cable.subscribe({ channel: "RoomChannel", room: this.room_id });
+    this.$cable.subscribe({ channel: "RoomChannel", room: this.roomId });
+    this.scrollToEnd();
+  },
+  updated() {
+    this.scrollToEnd();
   },
   computed: {
-    speaker() {
-      return (bandId) => {
-        const speaker = this.bands.find((band) => band.id === bandId);
-        return speaker.name;
+    ...mapGetters(["userId", "token"]),
+    isFirstContentInDate() {
+      return (messageId) => {
+        const firstMessagesInDate = Array.from(
+          new Map(
+            this.messages
+              .slice()
+              .reverse()
+              .map((message) => [
+                this.$dayjs(message.created_at).format("YYYY MMM DD"),
+                message,
+              ])
+          ).values()
+        );
+        return firstMessagesInDate.some((f) => f.id === messageId);
+      };
+    },
+    bandImage() {
+      return (image) => {
+        return image ? image : require("@/assets/img/no-band-img.jpg");
       };
     },
   },
@@ -63,11 +163,17 @@ export default {
     sendMessage() {
       this.$cable.perform({
         channel: "RoomChannel",
-        room: this.room_id,
+        room: this.roomId,
         action: "speak",
         data: { message: this.inputMessage },
       });
       this.inputMessage = "";
+    },
+    scrollToEnd() {
+      this.$nextTick(() => {
+        const container = this.$refs.scrollTarget;
+        container.scrollTop = container.scrollHeight;
+      });
     },
   },
   beforeRouteLeave(to, from, next) {
@@ -76,3 +182,70 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.balloon_l,
+.balloon_r {
+  margin: 10px 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.balloon_r {
+  justify-content: flex-end;
+}
+.face_icon img {
+  width: 80px;
+  height: auto;
+}
+.balloon_r .face_icon {
+  margin-left: 25px;
+}
+.balloon_l .face_icon {
+  margin-right: 25px;
+}
+.balloon_r .face_icon {
+  order: 2 !important;
+}
+.time {
+  margin: 0 5px;
+}
+.says {
+  max-width: 300px;
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  padding: 10px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  margin: 0 !important;
+  line-height: 1.5;
+  /*   align-items: center; */
+}
+.says p {
+  margin: 8px 0 0 !important;
+}
+.says p:first-child {
+  margin-top: 0 !important;
+}
+.says:after {
+  content: "";
+  position: absolute;
+  border: 10px solid transparent;
+  margin-top: -3px;
+}
+.balloon_l .says {
+  background: #505050;
+}
+.balloon_l .says:after {
+  left: -26px;
+  border-right: 22px solid #505050;
+}
+.balloon_r .says {
+  background: #f1f1f1;
+}
+.balloon_r .says:after {
+  right: -26px;
+  border-left: 22px solid #f1f1f1;
+}
+</style>

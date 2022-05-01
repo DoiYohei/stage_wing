@@ -1,29 +1,26 @@
 import Vue from "vue";
 import Router from "vue-router";
 import Home from "@/views/Home";
-import SignUp from "@/views/Auth/SignUp";
-import LogIn from "@/views/Auth/LogIn";
+import SignupBands from "@/views/Auth/SignupBands";
+import SignupAudiences from "@/views/Auth/SignupAudiences";
+import Login from "@/views/Auth/Login";
 import EventsIndex from "@/views/Events/EventsIndex";
 import EventsShow from "@/views/Events/EventsShow";
 import EventsEdit from "@/views/Events/EventsEdit";
-import LineupEdit from "@/views/Events/LineupEdit";
+import EventsLineupsEdit from "@/views/Events/EventsLineupsEdit";
 import EventsNew from "@/views/Events/EventsNew";
 import BandsIndex from "@/views/Bands/BandsIndex";
 import BandsShow from "@/views/Bands/BandsShow";
 import BandsEdit from "@/views/Bands/BandsEdit";
 import BandsTickets from "@/views/Bands/BandsTickets";
-import PostsIndex from "@/views/Posts/PostsIndex";
-import PostsNew from "@/views/Posts/PostsNew";
-import PostsEdit from "@/views/Posts/PostsEdit";
-import Friendships from "@/views/Friendships";
+import BandsPostsNew from "@/views/Bands/BandsPostsNew";
+import BandsFriends from "@/views/Bands/BandsFriends";
 import ChatsIndex from "@/views/Chats/ChatsIndex";
 import ChatsShow from "@/views/Chats/ChatsShow";
-import AudiencesShow from "@/views/Audiences/AudiencesShow";
 import AudiencesEdit from "@/views/Audiences/AudiencesEdit";
 import AudiencesTickets from "@/views/Audiences/AudiencesTickets";
 import AuthError from "@/views/Errors/AuthError";
 import LikesIndex from "@/views/Likes/LikesIndex";
-import TicketsNew from "@/views/Tickets/TicketsNew";
 
 Vue.use(Router);
 
@@ -36,14 +33,24 @@ export default new Router({
       component: Home,
     },
     {
-      path: "/signup",
-      name: "SignUp",
-      component: SignUp,
+      path: "/signup/bands",
+      name: "SignupBands",
+      component: SignupBands,
+    },
+    {
+      path: "/signup/audiences",
+      name: "SignupAudiences",
+      component: SignupAudiences,
     },
     {
       path: "/login",
-      name: "LogIn",
-      component: LogIn,
+      name: "Login",
+      component: Login,
+    },
+    {
+      path: "/events/new",
+      name: "EventsNew",
+      component: EventsNew,
     },
     {
       path: "/events",
@@ -64,20 +71,9 @@ export default new Router({
     },
     {
       path: "/events/:id/lineup/edit",
-      name: "LineupEdit",
-      component: LineupEdit,
+      name: "EventsLineupsEdit",
+      component: EventsLineupsEdit,
       props: true,
-    },
-    {
-      path: "/events/:id/tickets/new",
-      name: "TicketsNew",
-      component: TicketsNew,
-      props: true,
-    },
-    {
-      path: "/event/new",
-      name: "EventsNew",
-      component: EventsNew,
     },
     {
       path: "/bands",
@@ -103,27 +99,15 @@ export default new Router({
       props: true,
     },
     {
-      path: "/bands/:id/posts",
-      name: "PostsIndex",
-      component: PostsIndex,
-      props: true,
-    },
-    {
       path: "/bands/:id/posts/new",
-      name: "PostsNew",
-      component: PostsNew,
+      name: "BandsPostsNew",
+      component: BandsPostsNew,
       props: true,
     },
     {
-      path: "/bands/:id/posts/:postId/edit",
-      name: "PostsEdit",
-      component: PostsEdit,
-      props: true,
-    },
-    {
-      path: "/bands/:id/friendships",
-      name: "Friendships",
-      component: Friendships,
+      path: "/bands/:id/friends",
+      name: "BandsFriends",
+      component: BandsFriends,
       props: true,
     },
     {
@@ -133,7 +117,7 @@ export default new Router({
       props: true,
     },
     {
-      path: "/bands/:id/chats/:room_id",
+      path: "/bands/:bandId/chats/:roomId",
       name: "ChatsShow",
       component: ChatsShow,
       props: true,
@@ -144,19 +128,13 @@ export default new Router({
       component: LikesIndex,
     },
     {
-      path: "/audiences/:userId",
-      name: "AudiencesShow",
-      component: AudiencesShow,
-      props: true,
-    },
-    {
-      path: "/audiences/:userId/edit",
+      path: "/audiences/:id/edit",
       name: "AudiencesEdit",
       component: AudiencesEdit,
       props: true,
     },
     {
-      path: "/audiences/:userId/tickets",
+      path: "/audiences/:id/tickets",
       name: "AudiencesTickets",
       component: AudiencesTickets,
       props: true,

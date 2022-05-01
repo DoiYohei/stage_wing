@@ -1,117 +1,107 @@
 <template>
-  <div>
-    <h1>お気に入り</h1>
-    <v-container>
-      <v-row>
-        <v-col md="4" offset-md="4" v-for="(post, index) in posts" :key="index">
-          <span>{{ post.created_at }}</span>
-          <span>{{ post.title }}</span>
-          <v-btn
-            v-if="isLiked(post)"
-            icon
-            color="red"
-            @click="changeLike(post)"
-          >
-            <v-icon>mdi-heart</v-icon>
-          </v-btn>
-          <v-btn v-else icon @click="changeLike(post)">
-            <v-icon>mdi-heart-outline</v-icon>
-          </v-btn>
-          <span>{{ post.likes_count }}</span>
-          <div v-if="isMyPost(post.band_id)">
-            <router-link :to="`/bands/${post.band_id}/posts/${post.id}/edit`"
-              >編集する</router-link
-            >
-            <button @click="deletePost(post.id)">削除する</button>
-          </div>
-          <div v-if="post.format === 'photo'">
-            <img :src="post.photo.thumb.url" />
-          </div>
-          <div v-if="post.format === 'audio'">
-            <audio controls :src="post.audio.url"></audio>
-          </div>
-          <div v-if="post.format === 'soundcloud'">
-            <iframe
-              width="50%"
-              height="166"
-              scrolling="no"
-              frameborder="no"
-              :src="`https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${post.media_pass}`"
-            ></iframe>
-          </div>
-          <div v-if="post.format === 'youtube'">
-            <youtube :video-id="post.media_pass"></youtube>
-          </div>
-          <div>{{ post.description }}</div>
+  <v-container>
+    <v-row>
+      <v-col cols="12" class="pb-0">
+        <v-card flat color="#121212">
+          <v-card-title class="pb-0">
+            <v-spacer />
+            お気に入り
+            <v-spacer />
+          </v-card-title>
+        </v-card>
+      </v-col>
+      <v-col>
+        <CardPost
+          v-for="(post, index) in displayPosts"
+          :key="index"
+          :post="post"
+          @delete-post="deletePost"
+          @patch-post="patchPost"
+          @change-like="changeLike"
+        />
+        <v-col>
+          <PaginationBlocks @change-page="moldDisplay" />
         </v-col>
-      </v-row>
-    </v-container>
-  </div>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import CardPost from "@/components/Cards/CardPost";
+import PaginationBlocks from "@/components/PaginationBlocks";
+
 export default {
+  components: {
+    CardPost,
+    PaginationBlocks,
+  },
   data() {
     return {
-      posts: [],
-      myLikes: null,
+      displayPosts: [],
     };
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
-    const res = await this.$axios.get("/likes", token);
+    const res = await this.$axios.get("/likes", this.headers);
     this.posts = res.data;
-    this.myLikes = res.data.map((post) => post.id);
+    this.moldDisplay();
   },
   computed: {
-    isAuthenticated() {
-      return this.$store.getters.authData;
-    },
-    isMyPost() {
-      return (bandId) => {
-        if (this.$store.getters.userType === "band") {
-          return this.$store.getters.currentUserId === bandId;
-        } else {
-          return false;
-        }
-      };
-    },
-    isLiked() {
-      return (post) => {
-        return this.myLikes ? this.myLikes.includes(post.id) : false;
-      };
+    ...mapGetters(["isAuthenticatedBand", "userId", "headers", "token"]),
+    isMyPage() {
+      if (this.isAuthenticatedBand) {
+        return this.userId === this.id;
+      } else {
+        return false;
+      }
     },
   },
   methods: {
+    moldDisplay() {
+      this.$page.rowsPerPage = 5;
+      this.$page.displayContents = this.posts;
+      this.displayPosts = this.$page.displayContents;
+    },
     async deletePost(postId) {
-      const token = { headers: this.$store.getters.token };
-      await this.$axios.delete(`/posts/${postId}`, token);
-      const newPosts = this.posts.filter((post) => post.id !== postId);
-      this.posts = newPosts;
+      await this.$axios.delete(
+        `/bands/${this.id}/posts/${postId}`,
+        this.headers
+      );
+      this.updatePage();
+    },
+    async patchPost(postId, postDescription) {
+      const formData = new FormData();
+      formData.append("post[description]", postDescription);
+      await this.$axios.patch(
+        `/bands/${this.id}/posts/${postId}`,
+        formData,
+        this.headers
+      );
+      this.updatePage();
     },
     changeLike(post) {
-      if (!this.isAuthenticated) {
+      if (!this.token) {
         return this.$router.push("/errors/auth");
       } else {
-        const token = { headers: this.$store.getters.token };
         const formData = new FormData();
         formData.append("post_id", post.id);
-        if (this.isLiked(post)) {
+        if (post.favorite) {
           this.$axios.delete("/likes", {
-            headers: this.$store.getters.token,
+            headers: this.token,
             data: formData,
           });
-          const newMyLikes = this.myLikes.filter(
-            (myLike) => myLike !== post.id
-          );
-          this.myLikes = newMyLikes;
+          post.favorite = false;
           post.likes_count -= 1;
         } else {
-          this.$axios.post("/likes", formData, token);
-          this.myLikes.push(post.id);
+          this.$axios.post("/likes", formData, this.headers);
+          post.favorite = true;
           post.likes_count += 1;
         }
       }
+    },
+    updatePage() {
+      this.$router.go({ path: this.$router.currentRoute.path, force: true });
     },
   },
 };

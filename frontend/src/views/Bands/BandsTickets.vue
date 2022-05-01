@@ -1,42 +1,105 @@
 <template>
-  <div>
-    <h1>Tickets</h1>
-    <v-container>
-      <v-row>
-        <v-col
-          md="4"
-          offset-md="4"
-          v-for="(ticket, index) in tickets"
-          :key="index"
-        >
-          <span>
-            {{ $dayjs(ticket.event.open_at).format("YYYY MMM DD") }}
-            : {{ ticket.event.name }}
-          </span>
-          <span>/ {{ ticket.audience }}</span>
+  <v-container>
+    <v-row>
+      <v-card color="#121212" flat>
+        <v-col>
+          <CardActionsEventPastSelect v-model="showPast" />
+          <v-card-text v-if="!displayEvents.length" class="px-3">
+            出演予定のイベントはありません
+          </v-card-text>
         </v-col>
-      </v-row>
-    </v-container>
-  </div>
+      </v-card>
+    </v-row>
+    <v-row>
+      <v-col
+        v-for="(event, index) in displayEvents"
+        :key="index"
+        xl="3"
+        lg="4"
+        sm="6"
+        cols="12"
+      >
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              <v-card flat>
+                <v-card-subtitle class="text-left py-0">
+                  {{ $dayjs(event.open_at).format("YYYY MMM DD") }}
+                </v-card-subtitle>
+                <v-card-title class="py-0">
+                  <router-link :to="`/events/${event.id}`" class="pr-2">
+                    {{ event.name }}
+                  </router-link>
+                  ({{ event.audiences.length }})
+                </v-card-title>
+              </v-card>
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-simple-table>
+                <tbody>
+                  <tr
+                    v-for="(audience, index) in event.audiences"
+                    :key="index"
+                    class="text-left"
+                  >
+                    <td>{{ index + 1 }}.</td>
+                    <td>
+                      <v-avatar size="24" class="mr-2">
+                        <v-img :src="audienceImage(audience.image.url)" />
+                      </v-avatar>
+                      {{ audience.name }}
+                    </td>
+                  </tr>
+                </tbody>
+              </v-simple-table>
+              <v-divider />
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+import CardActionsEventPastSelect from "@/components/CardActions/CardActionsEventPastSelect";
+
 export default {
-  props: {
-    id: {
-      type: String,
-      require: true,
-    },
+  components: {
+    CardActionsEventPastSelect,
   },
+  props: ["id"],
   data() {
     return {
-      tickets: {},
+      futureEvents: [],
+      pastEvents: [],
+      showPast: false,
     };
   },
   async created() {
-    const token = { headers: this.$store.getters.token };
-    const res = await this.$axios.get(`/bands/${this.id}/tickets`, token);
-    this.tickets = res.data;
+    const res = await this.$axios.get(
+      `/bands/${this.id}/tickets`,
+      this.headers
+    );
+    const now = new Date();
+    this.futureEvents = res.data.filter((event) => {
+      return now.getTime() <= new Date(event.open_at).getTime();
+    });
+    this.pastEvents = res.data.filter((event) => {
+      return now.getTime() >= new Date(event.open_at).getTime();
+    });
+  },
+  computed: {
+    ...mapGetters(["headers"]),
+    displayEvents() {
+      return this.showPast ? this.pastEvents : this.futureEvents;
+    },
+    audienceImage() {
+      return (image) => {
+        return image ? image : require("@/assets/img/no-audience-img.jpeg");
+      };
+    },
   },
 };
 </script>

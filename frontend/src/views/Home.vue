@@ -1,34 +1,120 @@
 <template>
-  <div>
-    <h1>Latest Events</h1>
-    <v-carousel cycle light hide-delimiter-background :show-arrows="false">
-      <v-carousel-item
-        v-for="(event, index) in events"
-        :key="index"
-        :src="event.flyer"
-        :to="`/events/${event.id}`"
-      >
-        <v-row>
-          <v-col md="4" offset-md="4">
-            <div>{{ event.name }}</div>
-            <div>{{ $dayjs(event.open_at).format("YYYY MMM DD") }}</div>
-          </v-col>
-        </v-row>
-      </v-carousel-item>
-    </v-carousel>
-  </div>
+  <v-container fluid class="pa-0 fill-height">
+    <v-row class="fill-height">
+      <v-col cols="9" class="pa-0 fill-height">
+        <v-img src="@/assets/img/home.jpg" class="fill-height" />
+      </v-col>
+      <v-col>
+        <v-card flat>
+          <v-list color="#121212">
+            <v-list-item-group>
+              <v-list-item
+                v-for="(item, index) in cardItems"
+                :key="index"
+                :to="item.path"
+              >
+                <v-list-item-content>
+                  <v-card-title
+                    v-text="item.text"
+                    :class="textStyle"
+                    class="reflect-return"
+                  />
+                </v-list-item-content>
+              </v-list-item>
+              <template v-if="token">
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-card-title @click="drawer = !drawer" :class="textStyle">
+                      MY MENU
+                    </v-card-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-dialog v-model="dialog" width="45vw">
+                      <template #activator="{ on, attrs }">
+                        <v-card-title
+                          v-bind="attrs"
+                          v-on="on"
+                          :class="textStyle"
+                        >
+                          LOG OUT
+                        </v-card-title>
+                      </template>
+                      <CardDialog
+                        dialog-text="ログアウトしますか？"
+                        @select-excution="logout"
+                        @close-dialog="closeDialog"
+                      />
+                    </v-dialog>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+            </v-list-item-group>
+          </v-list>
+        </v-card>
+        <NavigationMenu v-model="drawer" />
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
+import CardDialog from "@/components/Cards/CardDialog";
+import NavigationMenu from "@/components/NavigationMenu";
+
 export default {
+  components: {
+    CardDialog,
+    NavigationMenu,
+  },
   data() {
     return {
-      events: {},
+      cardItems: [
+        {
+          text: "EVENT",
+          path: "/events",
+        },
+        {
+          text: "BAND",
+          path: "/bands",
+        },
+      ],
+      authItems: [
+        {
+          text: "SIGN UP\n(BAND)",
+          path: "/signup/bands",
+        },
+        {
+          text: "SIGN UP\n(AUDIENCE)",
+          path: "/signup/audiences",
+        },
+        {
+          text: "LOG IN",
+          path: "/login",
+        },
+      ],
+      textStyle: "text-h2 font-weight-black",
+      drawer: false,
+      dialog: false,
     };
   },
-  async created() {
-    const res = await this.$axios.get("/");
-    this.events = res.data;
+  created() {
+    if (!this.token) {
+      for (let authItem of this.authItems) {
+        this.cardItems.push(authItem);
+      }
+    }
+  },
+  computed: {
+    ...mapGetters(["isAuthenticatedBand", "isAuthenticatedAudience", "token"]),
+  },
+  methods: {
+    ...mapActions(["logout"]),
+    closeDialog() {
+      this.dialog = false;
+    },
   },
 };
 </script>

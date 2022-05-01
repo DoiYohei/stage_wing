@@ -8,14 +8,14 @@ class Band < ActiveRecord::Base
 
   validates :name, presence: true, length: { maximum: 50 }
   validates :profile, length: { maximum: 1000 }
-  validates :website, :twitter, format: { with: /\A#{URI::regexp(%w(http https))}\z/ }, allow_nil: true
+  validates :website, :twitter, format: { with: /\A#{URI::regexp(%w(http https))}\z/ }, allow_blank: true
 
   mount_uploader :image, ImageUploader
-
+  
   has_many :created_events, class_name: "Event", foreign_key: "owner_id", dependent: :nullify
   has_many :posts, dependent: :destroy
   has_many :performings, class_name: "Lineup", foreign_key: "performer_id", dependent: :destroy
-  has_many :performing_events, class_name: "Event", through: :performings
+  has_many :performing_events, through: :performings, source: :event
   has_many :active_friendships, class_name: "Friendship", foreign_key: "follower_id", dependent: :destroy
   has_many :passive_friendships, class_name: "Friendship", foreign_key: "followed_id", dependent: :destroy
   has_many :following, through: :active_friendships, source: :followed
@@ -29,13 +29,13 @@ class Band < ActiveRecord::Base
   has_many :tickets, dependent: :destroy
   
   # Bandをフォローする
-  def follow(other_band)
-    active_friendships.create!(followed_id: other_band.id)
+  def follow(followed_id)
+    active_friendships.create!(followed_id: followed_id)
   end
 
   # Bandをフォロー解除する
-  def unfollow(followed_id_params)
-    active_friendships.find_by(followed_id_params).destroy!
+  def unfollow(followed_id)
+    active_friendships.find_by(followed_id: followed_id).destroy!
   end
 
   # 相互フォロー(友達)の関係にあるBandを返す
@@ -87,8 +87,9 @@ class Band < ActiveRecord::Base
       chat_room_id = friend_room_ids & my_room_ids
       chat_rooms.push({
         id: chat_room_id[0],
-        friend_name: f.name,
         friend_id: f.id,
+        friend_name: f.name,
+        friend_img: f.image.url,
       })
     end
     chat_rooms

@@ -1,10 +1,5 @@
 class TicketsController < ApplicationController
   before_action :authenticate_audience!
-  
-  def new
-    @event = Event.find(params[:event_id])
-    @lineups = Lineup.where(event_id: params[:event_id])
-  end
 
   def create
     ticket = current_audience.tickets.build(ticket_params)
