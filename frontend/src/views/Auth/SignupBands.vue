@@ -1,22 +1,16 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col class="text-h5">Signup</v-col>
-    </v-row>
-    <CardBandForms
-      v-model="band"
-      btn-text="Sign Up"
-      :deliveryForms="signUpBand"
-    />
-  </v-container>
+  <FormBand v-model="band" @submit-forms="signUpBand">
+    <template #page-title>SIGNUP (BAND)</template>
+    <template #btn-text>Sign Up</template>
+  </FormBand>
 </template>
 
 <script>
-import CardBandForms from "@/components/Cards/CardBandForms";
+import FormBand from "@/components/Forms/FormBand";
 
 export default {
   components: {
-    CardBandForms,
+    FormBand,
   },
   data() {
     return {

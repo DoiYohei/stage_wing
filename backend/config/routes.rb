@@ -23,8 +23,6 @@ Rails.application.routes.draw do
     resources :bands, only: %i(show index edit) do
       resources :posts, only: %i(create update destroy)
       member do
-        get :posts
-        get :events
         get :friendships
         get :tickets
       end

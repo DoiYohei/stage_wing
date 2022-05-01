@@ -1,66 +1,61 @@
 <template>
   <v-container>
     <v-row>
-      <v-col class="text-h5">Lineup編集</v-col>
+      <v-col>
+        <v-card color="#121212" flat>
+          <v-card-title class="pb-0">
+            <v-spacer />
+            Lineup 編集
+            <v-spacer />
+          </v-card-title>
+        </v-card>
+      </v-col>
     </v-row>
-    <v-row justify="center">
-      <v-card>
-        <v-card-text class="pb-0">
-          <v-autocomplete
-            v-model="performers"
-            :items="registeredBands"
-            item-text="name"
-            no-data-text="登録されていません"
-            label="本サイトに登録されているアーティスト"
-            chips
-            clearable
-            deletable-chips
-            multiple
-            outlined
-            return-object
-          />
-          <v-combobox
-            v-model="unregisteredBands"
-            label="本サイトに登録されていないアーティスト"
-            hint="各アーティストごとにEnterキーを入力してください。"
-            chips
-            clearable
-            deletable-chips
-            multiple
-            outlined
-          />
-        </v-card-text>
-        <v-card-actions class="mt-5">
-          <v-btn width="100%" elevation="4" @click="patchLineup">
-            変更する
-          </v-btn>
-        </v-card-actions>
-      </v-card>
+    <v-row>
+      <v-col xl="6" offset-xl="3" lg="8" offset-lg="2" sm="10" offset-sm="1">
+        <v-card>
+          <v-col>
+            <FormLineup v-model="lineup" />
+            <ButtonSubmitForms @submit-forms="patchLineup">
+              更新する
+            </ButtonSubmitForms>
+          </v-col>
+        </v-card>
+      </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import FormLineup from "@/components/Forms/FormLineup";
+import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
 
 export default {
+  components: {
+    FormLineup,
+    ButtonSubmitForms,
+  },
   props: ["id"],
   data() {
     return {
-      performers: [],
-      unregisteredBands: [],
+      lineup: {
+        performers: [],
+        unregisteredBands: [],
+        registeredBands: [],
+      },
       originalLineupIds: [],
-      registeredBands: [],
     };
   },
   async created() {
     const res = await this.$axios.get(`/events/${this.id}/lineups`);
-    this.performers = res.data.performers;
+    this.lineup.performers = res.data.performers;
     this.originalLineupIds = res.data.lineup_ids;
     if (res.data.unregistered_performers) {
-      this.unregisteredBands = res.data.unregistered_performers.split("*/");
+      this.lineup.unregisteredBands =
+        res.data.unregistered_performers.split("*/");
     }
-    this.registeredBands = res.data.bands;
+    this.lineup.registeredBands = res.data.bands;
   },
   computed: {
     ...mapGetters(["headers"]),
@@ -68,7 +63,7 @@ export default {
   methods: {
     async patchLineup() {
       const originalLineupLength = this.originalLineupIds.length;
-      const newLineupLength = this.performers.length;
+      const newLineupLength = this.lineup.performers.length;
 
       // 更新する総Lineup数が元の総Lineup数より多い場合、元の数分をpatch、多い分をpostする
       if (originalLineupLength <= newLineupLength) {
@@ -76,7 +71,10 @@ export default {
           let lineupId = this.originalLineupIds[i];
           let lineupFormData = new FormData();
           lineupFormData.append("lineup[event_id]", this.id);
-          lineupFormData.append("lineup[performer_id]", this.performers[i].id);
+          lineupFormData.append(
+            "lineup[performer_id]",
+            this.lineup.performers[i].id
+          );
           await this.$axios.patch(
             `/events/${this.id}/lineups/${lineupId}`,
             lineupFormData,
@@ -90,7 +88,7 @@ export default {
             lineupFormData.append("lineup[event_id]", this.id);
             lineupFormData.append(
               "lineup[performer_id]",
-              this.performers[j].id
+              this.lineup.performers[j].id
             );
             await this.$axios.post(
               `/events/${this.id}/lineups`,
@@ -107,7 +105,10 @@ export default {
           let lineupId = this.originalLineupIds[i];
           let lineupFormData = new FormData();
           lineupFormData.append("lineup[event_id]", this.id);
-          lineupFormData.append("lineup[performer_id]", this.performers[i].id);
+          lineupFormData.append(
+            "lineup[performer_id]",
+            this.lineup.performers[i].id
+          );
           await this.$axios.patch(
             `/events/${this.id}/lineups/${lineupId}`,
             lineupFormData,
@@ -124,7 +125,7 @@ export default {
       }
 
       // 登録されていないBandsは、Eventsテーブルにpatchする
-      const unregisteredPerformers = this.unregisteredBands.join("*/");
+      const unregisteredPerformers = this.lineup.unregisteredBands.join("*/");
       const eventFormData = new FormData();
       eventFormData.append(
         "event[unregistered_performers]",

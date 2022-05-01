@@ -12,8 +12,6 @@ import EventsNew from "@/views/Events/EventsNew";
 import BandsIndex from "@/views/Bands/BandsIndex";
 import BandsShow from "@/views/Bands/BandsShow";
 import BandsEdit from "@/views/Bands/BandsEdit";
-import BandsPostsIndex from "@/views/Bands/BandsPostsIndex";
-import BandsEvents from "@/views/Bands/BandsEvents";
 import BandsTickets from "@/views/Bands/BandsTickets";
 import BandsPostsNew from "@/views/Bands/BandsPostsNew";
 import BandsFriends from "@/views/Bands/BandsFriends";
@@ -50,6 +48,11 @@ export default new Router({
       component: Login,
     },
     {
+      path: "/events/new",
+      name: "EventsNew",
+      component: EventsNew,
+    },
+    {
       path: "/events",
       name: "EventsIndex",
       component: EventsIndex,
@@ -73,11 +76,6 @@ export default new Router({
       props: true,
     },
     {
-      path: "/event/new",
-      name: "EventsNew",
-      component: EventsNew,
-    },
-    {
       path: "/bands",
       name: "BandsIndex",
       component: BandsIndex,
@@ -87,18 +85,6 @@ export default new Router({
       name: "BandsShow",
       component: BandsShow,
       props: true,
-      children: [
-        {
-          path: "posts",
-          component: BandsPostsIndex,
-          props: true,
-        },
-        {
-          path: "events",
-          component: BandsEvents,
-          props: true,
-        },
-      ],
     },
     {
       path: "/bands/:id/edit",

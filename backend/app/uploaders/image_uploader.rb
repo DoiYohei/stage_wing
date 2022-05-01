@@ -38,21 +38,7 @@ class ImageUploader < CarrierWave::Uploader::Base
   #   # do something
   # end
 
-  process resize_to_fit: [600, 600]
-
-  # Create different versions of your uploaded files:
-  version :thumb, if: :has_thumbnail_size? do
-    process :dynamic_resize_thumbnail
-  end
-
-  def dynamic_resize_thumbnail
-    size = model.class::THUMBNAIL_SIZE
-    resize_to_fill(size[0], size[1], "Center")
-  end
-
-  def has_thumbnail_size?(new_file)
-    model.class::const_defined? :THUMBNAIL_SIZE
-  end
+  process resize_to_fit: [600, 400]
 
   # Add an allowlist of extensions which are allowed to be uploaded.
   # For images you might use something like this:

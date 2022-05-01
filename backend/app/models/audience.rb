@@ -9,9 +9,7 @@ class Audience < ActiveRecord::Base
   validates :name, presence: true, length: { maximum: 20 }
 
   mount_uploader :image, ImageUploader
-  IMAGE_SIZE = [600, 600]
-  THUMBNAIL_SIZE = [30, 30]
-
+  
   has_many :likes, dependent: :destroy
   has_many :liked_posts, through: :likes, source: :post
   has_many :comments, dependent: :destroy

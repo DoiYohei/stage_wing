@@ -1,45 +1,45 @@
 <template>
   <v-container>
     <v-row>
-      <v-col class="text-h5">Login</v-col>
+      <v-col>
+        <v-card color="#121212" flat>
+          <v-card-title class="pb-0">
+            <v-spacer />
+            LOGIN
+            <v-spacer />
+          </v-card-title>
+        </v-card>
+      </v-col>
     </v-row>
     <v-row v-if="$vuetify.breakpoint.mdAndUp">
       <v-col xl="4" offset-xl="2">
-        <v-card>
-          <v-col cols="10" offset="1">
-            <v-card-subtitle>アーティストの方</v-card-subtitle>
-            <FormLogin :post-forms="logInBand" />
-          </v-col>
-        </v-card>
+        <FormLogin v-model="band" @submit-forms="logInBand">
+          <template>アーティストの方</template>
+        </FormLogin>
       </v-col>
       <v-col xl="4">
-        <v-card>
-          <v-col cols="10" offset="1">
-            <v-card-subtitle>一般の方</v-card-subtitle>
-            <FormLogin :post-forms="logInAudience" />
-          </v-col>
-        </v-card>
+        <FormLogin v-model="audience" @submit-forms="logInAudience">
+          <template>一般の方</template>
+        </FormLogin>
       </v-col>
     </v-row>
     <v-row v-if="$vuetify.breakpoint.smAndDown">
-      <v-col sm="10" offset-sm="1">
+      <v-col sm="8" offset-sm="2">
         <v-card>
           <v-card-text>
             <v-tabs v-model="tabs" fixed-tabs>
               <v-tab>アーティストの方</v-tab>
               <v-tab>一般の方</v-tab>
             </v-tabs>
-          </v-card-text>
-          <v-col cols="10" offset="1">
             <v-tabs-items v-model="tabs">
               <v-tab-item>
-                <FormLogin :post-forms="logInBand" />
+                <FormLogin v-model="band" @submit-forms="logInBand" />
               </v-tab-item>
               <v-tab-item>
-                <FormLogin :post-forms="logInAudience" />
+                <FormLogin v-model="audience" @submit-forms="logInAudience" />
               </v-tab-item>
             </v-tabs-items>
-          </v-col>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -56,22 +56,30 @@ export default {
   data() {
     return {
       tabs: 0,
-      formData: null,
+      band: {
+        email: "",
+        password: "",
+        visible: false,
+      },
+      audience: {
+        email: "",
+        password: "",
+        visible: false,
+      },
     };
   },
   methods: {
-    logInBand(email, password) {
-      this.createFormData(email, password);
-      this.$store.dispatch("loginBand", this.formData);
+    logInBand() {
+      const formData = new FormData();
+      formData.append("email", this.band.email);
+      formData.append("password", this.band.password);
+      this.$store.dispatch("loginBand", formData);
     },
-    logInAudience(email, password) {
-      this.createFormData(email, password);
-      this.$store.dispatch("loginAudience", this.formData);
-    },
-    createFormData(email, password) {
-      this.formData = new FormData();
-      this.formData.append("email", email);
-      this.formData.append("password", password);
+    logInAudience() {
+      const formData = new FormData();
+      formData.append("email", this.audience.email);
+      formData.append("password", this.audience.password);
+      this.$store.dispatch("loginAudience", formData);
     },
   },
 };

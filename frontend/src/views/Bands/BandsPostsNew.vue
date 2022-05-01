@@ -1,7 +1,15 @@
 <template>
   <v-container>
     <v-row>
-      <v-col class="text-h5">新規Post作成</v-col>
+      <v-col>
+        <v-card color="#121212" flat>
+          <v-card-title class="pb-0">
+            <v-spacer />
+            新規 Post 作成
+            <v-spacer />
+          </v-card-title>
+        </v-card>
+      </v-col>
     </v-row>
     <v-row>
       <v-col
@@ -14,14 +22,15 @@
         cols="10"
         offset="1"
       >
-        <v-card>
+        <v-card outlined>
           <v-col>
             <v-card-text>
               <v-select
                 v-model="format"
                 :items="choises"
-                label="投稿の種類を選択してください"
-                solo
+                placeholder="投稿の種類を選択してください"
+                :hide-details="!format || format === 'news'"
+                outlined
               />
               <template v-if="isFile">
                 <v-file-input
@@ -31,25 +40,46 @@
                   chips
                 />
                 <v-img v-if="showPhoto" :src="url" />
-                <vuetify-audio v-if="showAudio" :file="url" />
+                <vuetify-audio v-if="showAudio" :file="url" class="black" />
               </template>
               <v-text-field
                 v-if="isMediaPass"
-                v-model="mediaPass"
-                label="トラックID"
+                v-model="embedCode"
+                :hint="hintText"
+                placeholder='例) <iframe width="500" height="500" 〜'
+                clearable
+                dense
+                outlined
+                persistent-hint
+                single-line
               />
+              <iframe
+                v-if="showSoundcloud"
+                :src="`https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${mediaPass}`"
+                width="100%"
+                height="166"
+                scrolling="no"
+                frameborder="no"
+              />
+              <v-card>
+                <youtube
+                  v-if="showYoutube"
+                  :video-id="mediaPass"
+                  fitParent
+                  resize
+                />
+              </v-card>
             </v-card-text>
             <v-card-text>
               <v-textarea
                 v-model="description"
-                label="内容"
+                label="キャプション"
                 auto-grow
-                hide-details
                 outlined
               />
-            </v-card-text>
-            <v-card-text>
-              <v-btn width="100%" @click="createPost">投稿する</v-btn>
+              <v-btn @click="createPost" block outlined color="grey lighten-1">
+                投稿する
+              </v-btn>
             </v-card-text>
           </v-col>
         </v-card>
@@ -69,14 +99,15 @@ export default {
       choises: [
         { text: "画像", value: "photo" },
         { text: "音源", value: "audio" },
-        { text: "SoundCloud 埋め込み", value: "soundcloud" },
-        { text: "YouTube 埋め込み", value: "youtube" },
-        { text: "お知らせ", value: "news" },
+        { text: "SoundCloud", value: "soundcloud" },
+        { text: "YouTube", value: "youtube" },
+        { text: "News", value: "news" },
       ],
       file: [],
+      url: "",
+      embedCode: "",
       mediaPass: "",
       description: "",
-      url: "",
     };
   },
   computed: {
@@ -92,6 +123,41 @@ export default {
     },
     showAudio() {
       return this.url && this.format === "audio";
+    },
+    showSoundcloud() {
+      return this.mediaPass && this.format === "soundcloud";
+    },
+    showYoutube() {
+      return this.mediaPass && this.format === "youtube";
+    },
+    hintText() {
+      if (this.format === "soundcloud") {
+        return "投稿したい曲の「share」をクリック、「Embed」を選択して表示された「Code」欄 ( <iframe width= 〜 ) をコピーして貼り付けてください。";
+      } else if (this.format === "youtube") {
+        return "投稿したい動画の「共有」をクリック、「埋め込み」を選択して表示されたコード ( <iframe width= 〜 ></iframe> ) をコピーして貼り付けてください。";
+      } else {
+        return "";
+      }
+    },
+  },
+  watch: {
+    format() {
+      this.file = [];
+      this.url = "";
+      this.embedCode = "";
+    },
+    embedCode(value) {
+      if (this.format === "soundcloud" && value) {
+        const start = this.embedCode.indexOf("/tracks/");
+        const end = this.embedCode.indexOf("&color=");
+        this.mediaPass = this.embedCode.slice(start + 8, end);
+      }
+      if (this.format === "youtube" && value) {
+        const start = this.embedCode.indexOf("/embed/");
+        const end = this.embedCode.indexOf('" title=');
+        this.mediaPass = this.embedCode.slice(start + 7, end);
+      }
+      if (!value) this.mediaPass = "";
     },
   },
   methods: {

@@ -1,23 +1,17 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col class="text-h5">Profile編集</v-col>
-    </v-row>
-    <CardBandForms
-      v-model="band"
-      btn-text="更新する"
-      :deliveryForms="patchBand"
-    />
-  </v-container>
+  <FormBand v-model="band" @submit-forms="patchBand">
+    <template #page-title>Profile 編集</template>
+    <template #btn-text>更新する</template>
+  </FormBand>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import CardBandForms from "@/components/Cards/CardBandForms";
+import FormBand from "@/components/Forms/FormBand";
 
 export default {
   components: {
-    CardBandForms,
+    FormBand,
   },
   props: ["id"],
   data() {
@@ -41,7 +35,9 @@ export default {
       formData.append("website", this.band.website);
       formData.append("twitter", this.band.twitter);
       if (image) formData.append("image", image);
-      await this.$axios.patch("/bands", formData, this.headers);
+      const res = await this.$axios.patch("/bands", formData, this.headers);
+      const userType = "bands";
+      this.$store.dispatch("setAuthData", { res, userType });
       this.$router.replace(`/bands/${this.id}`);
     },
   },

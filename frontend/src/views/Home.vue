@@ -5,31 +5,54 @@
         <v-img src="@/assets/img/home.jpg" class="fill-height" />
       </v-col>
       <v-col>
-        <CardHome :card-items="cardItems">
-          <template v-if="token">
-            <v-list-item>
-              <v-list-item-content>
-                <v-card-title @click="drawer = !drawer">My Menu</v-card-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-content>
-                <v-dialog v-model="dialog" width="45vw">
-                  <template #activator="{ on, attrs }">
-                    <v-card-title v-bind="attrs" v-on="on">
-                      Log Out
-                    </v-card-title>
-                  </template>
-                  <CardDialog
-                    dialog-text="ログアウトしますか？"
-                    :select-excution="logout"
-                    :select-cancel="closeDialog"
+        <v-card flat>
+          <v-list color="#121212">
+            <v-list-item-group>
+              <v-list-item
+                v-for="(item, index) in cardItems"
+                :key="index"
+                :to="item.path"
+              >
+                <v-list-item-content>
+                  <v-card-title
+                    v-text="item.text"
+                    :class="textStyle"
+                    class="reflect-return"
                   />
-                </v-dialog>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-        </CardHome>
+                </v-list-item-content>
+              </v-list-item>
+              <template v-if="token">
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-card-title @click="drawer = !drawer" :class="textStyle">
+                      MY MENU
+                    </v-card-title>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-list-item>
+                  <v-list-item-content>
+                    <v-dialog v-model="dialog" width="45vw">
+                      <template #activator="{ on, attrs }">
+                        <v-card-title
+                          v-bind="attrs"
+                          v-on="on"
+                          :class="textStyle"
+                        >
+                          LOG OUT
+                        </v-card-title>
+                      </template>
+                      <CardDialog
+                        dialog-text="ログアウトしますか？"
+                        @select-excution="logout"
+                        @close-dialog="closeDialog"
+                      />
+                    </v-dialog>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+            </v-list-item-group>
+          </v-list>
+        </v-card>
         <NavigationMenu v-model="drawer" />
       </v-col>
     </v-row>
@@ -38,13 +61,11 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
-import CardHome from "@/components/Cards/CardHome";
 import CardDialog from "@/components/Cards/CardDialog";
 import NavigationMenu from "@/components/NavigationMenu";
 
 export default {
   components: {
-    CardHome,
     CardDialog,
     NavigationMenu,
   },
@@ -52,28 +73,29 @@ export default {
     return {
       cardItems: [
         {
-          text: "Events",
+          text: "EVENT",
           path: "/events",
         },
         {
-          text: "Bands",
+          text: "BAND",
           path: "/bands",
         },
       ],
       authItems: [
         {
-          text: "Sign Up (Artist)",
+          text: "SIGN UP\n(BAND)",
           path: "/signup/bands",
         },
         {
-          text: "Sign Up (Audience)",
+          text: "SIGN UP\n(AUDIENCE)",
           path: "/signup/audiences",
         },
         {
-          text: "Log In",
+          text: "LOG IN",
           path: "/login",
         },
       ],
+      textStyle: "text-h2 font-weight-black",
       drawer: false,
       dialog: false,
     };

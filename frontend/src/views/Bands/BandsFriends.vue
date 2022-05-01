@@ -2,68 +2,58 @@
   <v-container :fluid="$vuetify.breakpoint.lg">
     <v-row v-if="$vuetify.breakpoint.mdAndDown">
       <v-col>
-        <v-card>
-          <v-col>
-            <v-tabs v-model="tabs" background-color="grey lighten-4" fixed-tabs>
-              <template v-for="(friendship, index) in friendships">
-                <v-divider :key="index" v-if="index !== 0" vertical />
-                <v-tab :key="friendship.header">
-                  {{ friendship.header }}
-                </v-tab>
-              </template>
-            </v-tabs>
-          </v-col>
-          <v-tabs-items v-model="tabs">
-            <v-tab-item>
-              <ListFriendships
-                :bands="friends"
-                :friendship="friendships[0]"
-                :change-friendship="deleteFriendship"
-                :revert-friendship="postFriendship"
-                :start-chat="startChat"
-              />
-            </v-tab-item>
-            <v-tab-item>
-              <ListFriendships
-                :bands="invitings"
-                :friendship="friendships[1]"
-                :change-friendship="deleteFriendship"
-                :revert-friendship="postFriendship"
-              />
-            </v-tab-item>
-            <v-tab-item>
-              <ListFriendships
-                :bands="inviters"
-                :friendship="friendships[2]"
-                :change-friendship="postFriendship"
-                :revert-friendship="deleteFriendship"
-                :start-chat="startChat"
-              />
-            </v-tab-item>
-          </v-tabs-items>
-        </v-card>
+        <v-tabs v-model="tabs" background-color="grey darken-3" fixed-tabs>
+          <template v-for="(friendship, index) in friendships">
+            <v-divider :key="index" v-if="index !== 0" vertical />
+            <v-tab :key="friendship.header">
+              {{ friendship.header }}
+            </v-tab>
+          </template>
+        </v-tabs>
+        <v-tabs-items v-model="tabs">
+          <v-tab-item>
+            <ListFriendships
+              :bands="friends"
+              :friendship="friendships[0]"
+              @change-friendship="changeFriendship"
+              @start-chat="startChat"
+            />
+          </v-tab-item>
+          <v-tab-item>
+            <ListFriendships
+              :bands="invitings"
+              :friendship="friendships[1]"
+              @change-friendship="changeFriendship"
+            />
+          </v-tab-item>
+          <v-tab-item>
+            <ListFriendships
+              :bands="inviters"
+              :friendship="friendships[2]"
+              @change-friendship="changeFriendship"
+              @start-chat="startChat"
+            />
+          </v-tab-item>
+        </v-tabs-items>
       </v-col>
     </v-row>
     <v-row v-if="$vuetify.breakpoint.lgAndUp" :dense="$vuetify.breakpoint.lg">
       <ListFriendships
         :bands="friends"
         :friendship="friendships[0]"
-        :change-friendship="deleteFriendship"
-        :revert-friendship="postFriendship"
-        :start-chat="startChat"
+        @change-friendship="changeFriendship"
+        @start-chat="startChat"
       />
       <ListFriendships
         :bands="invitings"
         :friendship="friendships[1]"
-        :change-friendship="deleteFriendship"
-        :revert-friendship="postFriendship"
+        @change-friendship="changeFriendship"
       />
       <ListFriendships
         :bands="inviters"
         :friendship="friendships[2]"
-        :change-friendship="postFriendship"
-        :revert-friendship="deleteFriendship"
-        :start-chat="startChat"
+        @change-friendship="changeFriendship"
+        @start-chat="startChat"
       />
     </v-row>
   </v-container>
@@ -87,18 +77,18 @@ export default {
       friendships: [
         {
           header: "Friend",
-          status: "Friend",
-          oppositeStatus: "Friend承認",
+          status: "friend",
+          oppositeStatus: "invited",
         },
         {
           header: "Friend申請中",
-          status: "Friend申請中",
-          oppositeStatus: "Friend申請",
+          status: "inviting",
+          oppositeStatus: "",
         },
         {
           header: "Friend申請されている",
-          status: "Friend承認",
-          oppositeStatus: "Friend",
+          status: "invited",
+          oppositeStatus: "friend",
         },
       ],
     };
@@ -116,14 +106,15 @@ export default {
     ...mapGetters(["headers", "token"]),
   },
   methods: {
-    deleteFriendship(formData) {
-      this.$axios.delete("/friendships", {
-        headers: this.token,
-        data: formData,
-      });
-    },
-    postFriendship(formData) {
-      this.$axios.post("/friendships", formData, this.headers);
+    changeFriendship(isFollowing, formData) {
+      if (isFollowing) {
+        this.$axios.delete("/friendships", {
+          headers: this.token,
+          data: formData,
+        });
+      } else {
+        this.$axios.post("/friendships", formData, this.headers);
+      }
     },
     async startChat(bandId) {
       const res = await this.$axios.get("/rooms", this.headers);
