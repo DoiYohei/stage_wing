@@ -1,23 +1,17 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col class="text-h5">アカウント情報の編集</v-col>
-    </v-row>
-    <CardAudienceForms
-      v-model="audience"
-      btn-text="更新する"
-      :delivery-forms="patchAudience"
-    />
-  </v-container>
+  <FormAudience v-model="audience" @submit-forms="patchAudience">
+    <template #page-title>アカウント編集</template>
+    <template #btn-text>更新する</template>
+  </FormAudience>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
-import CardAudienceForms from "@/components/Cards/CardAudienceForms";
+import FormAudience from "@/components/Forms/FormAudience";
 
 export default {
   components: {
-    CardAudienceForms,
+    FormAudience,
   },
   props: ["id"],
   data() {

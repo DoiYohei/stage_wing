@@ -32,6 +32,11 @@ export default {
     };
     commit("updateAuthData", authData);
     localStorage.setItem("authDataSW", JSON.stringify(authData));
+    if (authData.userType === "bands") {
+      router.push(`/bands/${authData.userId}`);
+    } else {
+      router.push("/");
+    }
   },
   autoLogin({ commit }) {
     // localStorageにトークンが無ければ抜ける。
@@ -73,7 +78,7 @@ export default {
     if (router.currentRoute.path === "/") {
       router.go({ path: router.currentRoute.path, force: true });
     } else {
-      router.push("/");
+      router.replace("/");
     }
   },
 };

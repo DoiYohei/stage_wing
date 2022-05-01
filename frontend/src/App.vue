@@ -2,7 +2,7 @@
   <v-app>
     <TheAppHeader v-if="!isHome" v-model="drawer" />
     <NavigationMenu v-model="drawer" />
-    <v-main :class="headerSpace"><router-view /></v-main>
+    <v-main><router-view /></v-main>
     <TheAppFooter v-if="!isHome" />
   </v-app>
 </template>
@@ -26,9 +26,6 @@ export default {
   computed: {
     isHome() {
       return this.$route.path === "/";
-    },
-    headerSpace() {
-      return this.isHome ? "" : "mt-16";
     },
   },
 };

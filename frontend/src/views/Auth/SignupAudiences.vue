@@ -1,22 +1,16 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col class="text-h5">Signup</v-col>
-    </v-row>
-    <CardAudienceForms
-      v-model="audience"
-      btn-text="Sign Up"
-      :delivery-forms="signUpAudience"
-    />
-  </v-container>
+  <FormAudience v-model="audience" @submit-forms="signUpAudience">
+    <template #page-title>SIGNUP (AUDIENCE)</template>
+    <template #btn-text>Sign Up</template>
+  </FormAudience>
 </template>
 
 <script>
-import CardAudienceForms from "@/components/Cards/CardAudienceForms";
+import FormAudience from "@/components/Forms/FormAudience";
 
 export default {
   components: {
-    CardAudienceForms,
+    FormAudience,
   },
   data() {
     return {

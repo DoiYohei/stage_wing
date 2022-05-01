@@ -1,21 +1,12 @@
 <template>
   <v-container fluid>
-    <v-row v-if="$vuetify.breakpoint.mdAndDown">
-      <v-card width="100%">
-        <v-row align="center">
-          <v-col cols="6">
-            <v-card-text>
-              <v-text-field
-                v-model="keywordInput"
-                prepend-icon="mdi-magnify"
-                placeholder="Event名で検索"
-                clearable
-                dense
-                hide-details
-              />
-            </v-card-text>
+    <v-row>
+      <v-card v-if="$vuetify.breakpoint.mdAndDown" width="100%" outlined>
+        <v-row align="center" class="mx-2">
+          <v-col cols="10" sm="8" md="6">
+            <CardActionsEventNameSearch v-model="keywordInput" />
           </v-col>
-          <v-col offset="4">
+          <v-col class="d-flex justify-end">
             <v-btn icon @click="show = !show">
               <v-icon>
                 {{ show ? "mdi-chevron-up" : "mdi-chevron-down" }}
@@ -24,112 +15,63 @@
           </v-col>
         </v-row>
         <v-expand-transition>
-          <v-col v-show="show">
-            <v-card class="d-flex flex-wrap">
-              <v-col cols="6">
-                <v-card-text>
-                  <vue-ctk-date-time-picker
-                    v-model="dateInput"
-                    format="YYYY-MM-DD"
-                    label="開催日で検索"
-                    only-date
-                  />
-                </v-card-text>
+          <v-col v-show="show" class="py-0">
+            <v-card flat class="d-flex flex-wrap">
+              <v-col cols="10" sm="8" md="4">
+                <CardActionsEventDateSearch v-model="dateInput" />
               </v-col>
-              <v-col cols="6">
-                <v-card-text>
-                  <v-select
-                    v-model="select"
-                    @change="sortOrder"
-                    :items="sortList"
-                    item-text="value"
-                    label="並び替え"
-                    dense
-                    hide-details
-                    outlined
-                    return-object
-                  />
-                </v-card-text>
+              <v-col sm="5" md="4">
+                <CardActionsEventSort
+                  v-model="select"
+                  @sort-order="moldDisplay"
+                />
               </v-col>
-              <v-col class="py-0">
-                <v-card-text>
-                  <v-checkbox
-                    v-model="selectPastEvents"
-                    label="開催が終了したイベント"
-                    dense
-                  />
-                </v-card-text>
+              <v-col>
+                <CardActionsEventPastSelect v-model="showPast" />
               </v-col>
             </v-card>
           </v-col>
         </v-expand-transition>
       </v-card>
-    </v-row>
-    <v-row>
       <v-col class="d-flex flex-wrap">
-        <v-col v-if="$vuetify.breakpoint.lgAndUp" xl="2" lg="3" md="4">
-          <v-card outlined>
-            <v-card-text>
-              <v-text-field
-                v-model="keywordInput"
-                placeholder="Event名で検索"
-                prepend-icon="mdi-magnify"
-                clearable
-                hide-details
-              />
-            </v-card-text>
+        <v-col v-if="$vuetify.breakpoint.lgAndUp" xl="2" lg="3">
+          <v-card>
             <v-col>
-              <v-card>
-                <v-card-actions>
-                  <vue-ctk-date-time-picker
-                    v-model="dateInput"
-                    format="YYYY-MM-DD"
-                    label="開催日で検索"
-                    only-date
-                  />
-                </v-card-actions>
-                <v-card-actions>
-                  <v-select
-                    v-model="select"
-                    @change="sortOrder"
-                    :items="sortList"
-                    item-text="value"
-                    label="並び替え"
-                    dense
-                    hide-details
-                    outlined
-                    return-object
-                  />
-                </v-card-actions>
-                <v-card-actions class="py-0">
-                  <v-checkbox
-                    v-model="selectPastEvents"
-                    label="開催が終了したイベント"
-                    dense
-                  />
-                </v-card-actions>
+              <CardActionsEventNameSearch v-model="keywordInput" />
+              <v-card flat class="mt-3">
+                <CardActionsEventDateSearch v-model="dateInput" class="mb-3" />
+                <CardActionsEventSort
+                  v-model="select"
+                  @sort-order="moldDisplay"
+                />
+                <CardActionsEventPastSelect v-model="showPast" />
               </v-card>
             </v-col>
           </v-card>
         </v-col>
         <v-col class="pa-0">
-          <CardEventsIndex :events="displayEvents" />
+          <v-col v-if="!displayEvents.length" class="mt-16">
+            <v-card color="#121212" flat>
+              <v-card-text class="text-center">
+                該当するイベントがありません
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <CardEvents :events="displayEvents" />
           <v-col>
-            <PaginationBlocks :mold-display="moldDisplay" />
-            <div v-if="!this.displayEvents.length" class="mt-16">
-              該当するイベントがありません
-            </div>
+            <PaginationBlocks @change-page="moldDisplay" />
           </v-col>
         </v-col>
       </v-col>
     </v-row>
     <v-btn
       v-if="isAuthenticatedBand"
-      to="/event/new"
+      to="/events/new"
       color="grey"
       dark
       fab
       right
+      bottom
       fixed
     >
       <v-icon dark>mdi-plus</v-icon>
@@ -139,13 +81,21 @@
 
 <script>
 import { mapGetters } from "vuex";
+import CardActionsEventNameSearch from "@/components/CardActions/CardActionsEventNameSearch";
+import CardActionsEventDateSearch from "@/components/CardActions/CardActionsEventDateSearch";
+import CardActionsEventSort from "@/components/CardActions/CardActionsEventSort";
+import CardActionsEventPastSelect from "@/components/CardActions/CardActionsEventPastSelect";
+import CardEvents from "@/components/Cards/CardEvents";
 import PaginationBlocks from "@/components/PaginationBlocks";
-import CardEventsIndex from "@/components/Cards/CardEventsIndex";
 
 export default {
   components: {
+    CardActionsEventNameSearch,
+    CardActionsEventDateSearch,
+    CardActionsEventSort,
+    CardActionsEventPastSelect,
+    CardEvents,
     PaginationBlocks,
-    CardEventsIndex,
   },
   data() {
     return {
@@ -154,11 +104,7 @@ export default {
       keywordInput: "",
       dateInput: "",
       select: { key: 1, value: "開催が早い順" },
-      sortList: [
-        { key: 1, value: "開催が早い順" },
-        { key: 2, value: "開催が遅い順" },
-      ],
-      selectPastEvents: false,
+      showPast: false,
       show: false,
       displayEvents: [],
     };
@@ -188,7 +134,7 @@ export default {
     },
     filteredEvents() {
       let events = [];
-      if (this.selectPastEvents) {
+      if (this.showPast) {
         events = this.pastEvents;
       } else {
         events = this.futureEvents;
@@ -205,7 +151,7 @@ export default {
     },
   },
   methods: {
-    sortOrder() {
+    moldDisplay() {
       if (this.select.key === 1) {
         this.filteredEvents.sort(
           (a, b) => new Date(a.open_at) - new Date(b.open_at)
@@ -215,9 +161,6 @@ export default {
           (a, b) => new Date(b.open_at) - new Date(a.open_at)
         );
       }
-      this.moldDisplay();
-    },
-    moldDisplay() {
       this.$page.rowsPerPage = this.rowsPerPage;
       this.$page.displayContents = this.filteredEvents;
       this.displayEvents = this.$page.displayContents;

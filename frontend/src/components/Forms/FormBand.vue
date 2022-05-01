@@ -1,13 +1,21 @@
 <template>
-  <v-row>
-    <v-col>
-      <v-card>
-        <v-col class="d-flex justify-md-start flex-wrap">
+  <v-container>
+    <v-row>
+      <v-col>
+        <v-card color="#121212" flat>
+          <v-card-title class="pb-0">
+            <v-spacer />
+            <slot name="page-title" />
+            <v-spacer />
+          </v-card-title>
+        </v-card>
+      </v-col>
+    </v-row>
+    <v-row class="mt-0">
+      <v-col>
+        <v-card color="#121212" flat class="d-flex flex-wrap">
           <v-col md="7" sm="12">
-            <v-card-text>
-              <v-img v-if="imageUrl" :src="imageUrl" />
-              <v-img v-if="!imageUrl" src="@/assets/img/no-image.jpg" />
-            </v-card-text>
+            <v-img :src="bandImage" aspect-ratio="1.37" />
           </v-col>
           <v-col class="text-left pb-0">
             <v-card-text>
@@ -32,40 +40,35 @@
               />
               <v-text-field v-model="band.website" label="ホームページURL" />
               <v-text-field v-model="band.twitter" label="Twitter URL" />
-            </v-card-text>
-            <v-card-text>
               <v-textarea
                 v-model="band.profile"
                 label="Profile"
+                background-color="grey darken-4"
                 auto-grow
-                filled
+                hide-details
+                outlined
               />
             </v-card-text>
-            <v-card-actions>
-              <v-btn width="100%" elevation="4" @click="submitForms">
-                {{ btnText }}
-              </v-btn>
-            </v-card-actions>
+            <ButtonSubmitForms @submit-forms="submitForms">
+              <slot name="btn-text" />
+            </ButtonSubmitForms>
           </v-col>
-        </v-col>
-      </v-card>
-    </v-col>
-  </v-row>
+        </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
+
 export default {
+  components: {
+    ButtonSubmitForms,
+  },
   props: {
     value: {
       type: Object,
-      require: true,
-    },
-    deliveryForms: {
-      type: Function,
-      require: true,
-    },
-    btnText: {
-      type: String,
       require: true,
     },
   },
@@ -84,6 +87,11 @@ export default {
       set(newValue) {
         this.$emit("input", newValue);
       },
+    },
+    bandImage() {
+      return this.value.image && this.value.image.url
+        ? this.value.image.url
+        : require("@/assets/img/no-band-img.jpg");
     },
   },
   watch: {
@@ -116,7 +124,7 @@ export default {
       }
     },
     submitForms() {
-      this.deliveryForms(this.inputImage);
+      this.$emit("submit-forms", this.inputImage);
     },
   },
 };

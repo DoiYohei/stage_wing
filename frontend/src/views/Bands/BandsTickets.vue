@@ -1,8 +1,18 @@
 <template>
   <v-container>
     <v-row>
+      <v-card color="#121212" flat>
+        <v-col>
+          <CardActionsEventPastSelect v-model="showPast" />
+          <v-card-text v-if="!displayEvents.length" class="px-3">
+            出演予定のイベントはありません
+          </v-card-text>
+        </v-col>
+      </v-card>
+    </v-row>
+    <v-row>
       <v-col
-        v-for="(event, index) in events"
+        v-for="(event, index) in displayEvents"
         :key="index"
         xl="3"
         lg="4"
@@ -33,7 +43,12 @@
                     class="text-left"
                   >
                     <td>{{ index + 1 }}.</td>
-                    <td>{{ audience.name }}</td>
+                    <td>
+                      <v-avatar size="24" class="mr-2">
+                        <v-img :src="audienceImage(audience.image.url)" />
+                      </v-avatar>
+                      {{ audience.name }}
+                    </td>
                   </tr>
                 </tbody>
               </v-simple-table>
@@ -48,12 +63,18 @@
 
 <script>
 import { mapGetters } from "vuex";
+import CardActionsEventPastSelect from "@/components/CardActions/CardActionsEventPastSelect";
 
 export default {
+  components: {
+    CardActionsEventPastSelect,
+  },
   props: ["id"],
   data() {
     return {
-      events: [],
+      futureEvents: [],
+      pastEvents: [],
+      showPast: false,
     };
   },
   async created() {
@@ -61,10 +82,24 @@ export default {
       `/bands/${this.id}/tickets`,
       this.headers
     );
-    this.events = res.data;
+    const now = new Date();
+    this.futureEvents = res.data.filter((event) => {
+      return now.getTime() <= new Date(event.open_at).getTime();
+    });
+    this.pastEvents = res.data.filter((event) => {
+      return now.getTime() >= new Date(event.open_at).getTime();
+    });
   },
   computed: {
     ...mapGetters(["headers"]),
+    displayEvents() {
+      return this.showPast ? this.pastEvents : this.futureEvents;
+    },
+    audienceImage() {
+      return (image) => {
+        return image ? image : require("@/assets/img/no-audience-img.jpeg");
+      };
+    },
   },
 };
 </script>

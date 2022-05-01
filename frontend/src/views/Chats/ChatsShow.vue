@@ -2,22 +2,17 @@
   <v-container>
     <v-row class="text-center">
       <v-col cols="12">
-        <v-card
-          class="mx-auto my-12"
-          elevation="2"
-          max-width="800"
-          color="grey lighten-3"
-        >
-          <router-link :to="`/bands/${partner.id}`">
-            <v-card-title>
-              <v-avatar class="mr-2">
-                <v-img v-if="partner.image" :src="partner.image.url" />
-              </v-avatar>
-              {{ partner.name }}
-            </v-card-title>
-          </router-link>
+        <v-card class="mx-auto my-12" max-width="800">
+          <v-card-actions>
+            <CardAvatar
+              v-if="partner.image"
+              :avatar="partner"
+              size="50"
+              class="font-weight-bold text-h6"
+            />
+          </v-card-actions>
           <v-divider />
-          <v-card-text>
+          <v-card-text class="white--text">
             <v-row>
               <v-col cols="12">
                 <v-container
@@ -43,7 +38,7 @@
                         <div class="balloon_l">
                           <div class="face_icon">
                             <v-avatar size="40">
-                              <v-img :src="message.band_image" />
+                              <v-img :src="bandImage(message.band_image)" />
                             </v-avatar>
                           </div>
                           <p class="says">
@@ -61,10 +56,10 @@
                           </p>
                           <div class="face_icon">
                             <v-avatar size="40">
-                              <v-img :src="message.band_image" />
+                              <v-img :src="bandImage(message.band_image)" />
                             </v-avatar>
                           </div>
-                          <p class="says">
+                          <p class="says black--text">
                             {{ message.content }}
                           </p>
                         </div>
@@ -86,7 +81,7 @@
                   clearable
                   @keyup.enter="sendMessage"
                 />
-                <v-btn class="info" small @click="sendMessage">送信</v-btn>
+                <v-btn color="grey darken-2" @click="sendMessage">送信</v-btn>
               </v-col>
             </v-row>
           </v-card-text>
@@ -98,8 +93,12 @@
 
 <script>
 import { mapGetters } from "vuex";
+import CardAvatar from "@/components/Cards/CardAvatar";
 
 export default {
+  components: {
+    CardAvatar,
+  },
   props: ["roomId"],
   data() {
     return {
@@ -152,6 +151,11 @@ export default {
           ).values()
         );
         return firstMessagesInDate.some((f) => f.id === messageId);
+      };
+    },
+    bandImage() {
+      return (image) => {
+        return image ? image : require("@/assets/img/no-band-img.jpg");
       };
     },
   },
@@ -231,17 +235,17 @@ export default {
   margin-top: -3px;
 }
 .balloon_l .says {
-  background: #ffffff;
+  background: #505050;
 }
 .balloon_l .says:after {
   left: -26px;
-  border-right: 22px solid #ffffff;
+  border-right: 22px solid #505050;
 }
 .balloon_r .says {
-  background: #8ee7b6;
+  background: #f1f1f1;
 }
 .balloon_r .says:after {
   right: -26px;
-  border-left: 22px solid #8ee7b6;
+  border-left: 22px solid #f1f1f1;
 }
 </style>

@@ -1,43 +1,61 @@
 <template>
-  <v-card flat>
-    <v-card-text>
-      <v-text-field v-model="email" label="Email" />
-    </v-card-text>
-    <v-card-text>
-      <v-text-field
-        v-model="password"
-        :append-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
-        :type="visible ? 'text' : 'password'"
-        label="Password"
-        hint="最低8文字です"
-        counter
-        @click:append="visible = !visible"
-      />
-    </v-card-text>
-    <v-card-text>
-      <v-btn @click="submitForms">Log In</v-btn>
-    </v-card-text>
+  <v-card>
+    <v-col md="10" offset-md="1">
+      <v-card flat>
+        <v-card-subtitle
+          v-if="$vuetify.breakpoint.mdAndUp"
+          class="text-center white--text"
+        >
+          <slot />
+        </v-card-subtitle>
+        <v-card-text>
+          <v-text-field v-model="user.email" label="Email" />
+        </v-card-text>
+        <v-card-text>
+          <v-text-field
+            v-model="user.password"
+            :append-icon="user.visible ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="user.visible ? 'text' : 'password'"
+            label="Password"
+            hint="最低8文字です"
+            counter
+            @click:append="user.visible = !user.visible"
+          />
+        </v-card-text>
+        <ButtonSubmitForms @submit-forms="submitForms">
+          Log In
+        </ButtonSubmitForms>
+      </v-card>
+    </v-col>
   </v-card>
 </template>
 
 <script>
+import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
+
 export default {
+  components: {
+    ButtonSubmitForms,
+  },
   props: {
-    postForms: {
-      type: Function,
+    value: {
+      type: Object,
       require: true,
     },
   },
-  data() {
-    return {
-      email: "",
-      password: "",
-      visible: false,
-    };
+  computed: {
+    user: {
+      get() {
+        return this.value;
+      },
+      set(newValue) {
+        this.$emit("input", newValue);
+      },
+    },
   },
   methods: {
     submitForms() {
-      this.postForms(this.email, this.password);
+      this.$emit("submit-forms");
     },
   },
 };

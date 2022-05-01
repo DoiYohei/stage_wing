@@ -1,20 +1,26 @@
 <template>
   <v-container>
     <v-row>
-      <v-col class="text-h5">お気に入り</v-col>
-    </v-row>
-    <v-row>
+      <v-col cols="12" class="pb-0">
+        <v-card flat color="#121212">
+          <v-card-title class="pb-0">
+            <v-spacer />
+            お気に入り
+            <v-spacer />
+          </v-card-title>
+        </v-card>
+      </v-col>
       <v-col>
-        <CardPosts
+        <CardPost
           v-for="(post, index) in displayPosts"
           :key="index"
           :post="post"
-          :delete-post="deletePost"
-          :patch-post="patchPost"
-          :change-like="changeLike"
+          @delete-post="deletePost"
+          @patch-post="patchPost"
+          @change-like="changeLike"
         />
         <v-col>
-          <PaginationBlocks :mold-display="moldDisplay" />
+          <PaginationBlocks @change-page="moldDisplay" />
         </v-col>
       </v-col>
     </v-row>
@@ -23,12 +29,12 @@
 
 <script>
 import { mapGetters } from "vuex";
-import CardPosts from "@/components/Cards/CardPosts";
+import CardPost from "@/components/Cards/CardPost";
 import PaginationBlocks from "@/components/PaginationBlocks";
 
 export default {
   components: {
-    CardPosts,
+    CardPost,
     PaginationBlocks,
   },
   data() {

@@ -2,119 +2,69 @@
   <v-container>
     <v-row>
       <v-col>
-        <v-card flat class="d-flex justify-space-between flex-wrap">
-          <v-card flat class="d-flex">
-            <v-card-title>{{ band.name }}</v-card-title>
-            <v-card-actions v-if="isMyPage">
-              <v-menu>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn icon v-bind="attrs" v-on="on">
-                    <v-icon>mdi-dots-horizontal</v-icon>
-                  </v-btn>
-                </template>
-                <v-card-text class="pa-0">
-                  <v-list>
-                    <v-list-item-group>
-                      <v-list-item :to="`/bands/${this.id}/posts/new`">
-                        新規Posts作成
-                      </v-list-item>
-                      <v-list-item to="/liked_posts">お気に入り</v-list-item>
-                      <v-list-item :to="`/bands/${id}/friends`">
-                        Friends
-                      </v-list-item>
-                      <v-list-item :to="`/bands/${id}/chats`">
-                        Chat
-                      </v-list-item>
-                      <v-list-item :to="`/bands/${id}/tickets`">
-                        Tickets
-                      </v-list-item>
-                      <v-list-item :to="`/bands/${id}/edit`">
-                        Profileを編集する
-                      </v-list-item>
-                      <v-dialog v-model="dialog" width="45vw">
-                        <template #activator="{ on, attrs }">
-                          <v-list-item v-bind="attrs" v-on="on">
-                            退会する
-                          </v-list-item>
-                        </template>
-                        <CardDialog
-                          dialog-text="退会しますか？"
-                          :select-excution="deleteAccount"
-                          :select-cancel="closeDialog"
-                        />
-                      </v-dialog>
-                    </v-list-item-group>
-                  </v-list>
+        <TheBandsHeader
+          v-model="tab"
+          :band="band"
+          :friend-status="friendStatus"
+          :is-my-page="isMyPage"
+          @start-chat="startChat"
+          @change-friendship="changeFriendship"
+        />
+        <v-tabs-items v-model="tab">
+          <v-tab-item>
+            <TheBandsBiography :band="band" :is-my-page="isMyPage" />
+          </v-tab-item>
+          <v-tab-item>
+            <TheBandsPosts
+              :posts="band.posts"
+              :is-my-page="isMyPage"
+              @delete-post="deletePost"
+              @patch-post="patchPost"
+              @change-like="changeLike"
+            />
+          </v-tab-item>
+          <v-tab-item>
+            <v-card color="#121212" flat>
+              <v-col>
+                <CardActionsEventPastSelect v-model="showPast" />
+                <v-card-text v-if="!displayEvents.length" class="px-3">
+                  出演予定のイベントはありません
                 </v-card-text>
-              </v-menu>
-            </v-card-actions>
-            <template v-if="isAuthenticatedBand && !isMyPage">
-              <v-card-actions v-if="isFriend">
-                <v-btn @click="startChat()" icon>
-                  <v-icon>mdi-email-outline</v-icon>
-                </v-btn>
-              </v-card-actions>
-              <v-card-actions>
-                <v-card-subtitle v-if="isInvited">
-                  Friend申請されています
-                </v-card-subtitle>
-                <v-btn @click="changeFriendship">
-                  {{ friendDisplay }}
-                </v-btn>
-              </v-card-actions>
-            </template>
-          </v-card>
-          <v-card-actions>
-            <v-tabs v-if="$vuetify.breakpoint.mdAndUp" v-model="tabs" grow>
-              <v-tab :to="`/bands/${id}`" exact>Biography</v-tab>
-              <v-tab :to="`/bands/${id}/posts`">Post</v-tab>
-              <v-tab :to="`/bands/${id}/events`">Live</v-tab>
-            </v-tabs>
-            <v-menu v-if="$vuetify.breakpoint.smAndDown">
-              <template #activator="{ on, attrs }">
-                <v-btn icon v-bind="attrs" v-on="on">
-                  <v-app-bar-nav-icon />
-                </v-btn>
-              </template>
-              <v-list>
-                <v-list-item :to="`/bands/${id}`" exact>
-                  <v-list-item-title>Biography</v-list-item-title>
-                </v-list-item>
-                <v-list-item :to="`/bands/${id}/posts`">
-                  <v-list-item-title>Post</v-list-item-title>
-                </v-list-item>
-                <v-list-item :to="`/bands/${id}/events`">
-                  <v-list-item-title>Live</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-card-actions>
-        </v-card>
-        <v-divider />
-        <CardBandProfiles v-if="isProfileTab" :band="band" />
-        <router-view v-if="!isProfileTab" />
+              </v-col>
+            </v-card>
+            <CardEvents :events="displayEvents" />
+          </v-tab-item>
+        </v-tabs-items>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
-import CardBandProfiles from "@/components/Cards/CardBandProfiles";
-import CardDialog from "@/components/Cards/CardDialog";
+import { mapGetters } from "vuex";
+import TheBandsHeader from "@/components/TheBands/TheBandsHeader";
+import TheBandsBiography from "@/components/TheBands/TheBandsBiography";
+import TheBandsPosts from "@/components/TheBands/TheBandsPosts";
+import CardActionsEventPastSelect from "@/components/CardActions/CardActionsEventPastSelect";
+import CardEvents from "@/components/Cards/CardEvents";
 
 export default {
   components: {
-    CardBandProfiles,
-    CardDialog,
+    TheBandsHeader,
+    TheBandsBiography,
+    TheBandsPosts,
+    CardActionsEventPastSelect,
+    CardEvents,
   },
   props: ["id"],
   data() {
     return {
       band: {},
       friendStatus: null,
-      tabs: "",
-      dialog: false,
+      tab: 0,
+      showPast: false,
+      futureEvents: [],
+      pastEvents: [],
     };
   },
   created() {
@@ -129,9 +79,6 @@ export default {
   },
   computed: {
     ...mapGetters(["isAuthenticatedBand", "userId", "headers", "token"]),
-    isProfileTab() {
-      return this.$route.path === `/bands/${this.id}`;
-    },
     isMyPage() {
       if (this.isAuthenticatedBand) {
         return this.userId === this.band.id;
@@ -139,34 +86,22 @@ export default {
         return false;
       }
     },
-    isFollowing() {
-      return this.friendStatus === "friend" || this.friendStatus == "inviting";
-    },
-    isFriend() {
-      return this.friendStatus === "friend";
-    },
-    isInviting() {
-      return this.friendStatus === "inviting";
-    },
-    isInvited() {
-      return this.friendStatus === "invited";
-    },
-    friendDisplay() {
-      if (this.isFriend) {
-        return "Friend";
-      } else if (this.isInviting) {
-        return "Friend申請中";
-      } else if (this.isInvited) {
-        return "Friend承認する";
-      } else return "Friend申請";
+    displayEvents() {
+      return this.showPast ? this.pastEvents : this.futureEvents;
     },
   },
   methods: {
-    ...mapActions(["deleteAccount"]),
     async fetchBand() {
       const res = await this.$axios.get(`/bands/${this.id}`, this.headers);
       this.band = res.data;
       this.friendStatus = res.data.friend_status;
+      const now = new Date();
+      this.futureEvents = res.data.events.filter((event) => {
+        return now.getTime() <= new Date(event.open_at).getTime();
+      });
+      this.pastEvents = res.data.events.filter((event) => {
+        return now.getTime() >= new Date(event.open_at).getTime();
+      });
     },
     async startChat() {
       const res = await this.$axios.get("/rooms", this.headers);
@@ -183,10 +118,8 @@ export default {
         query: { partnerId: this.id },
       });
     },
-    changeFriendship() {
-      const formData = new FormData();
-      formData.append("followed_id", this.id);
-      if (this.isFollowing) {
+    changeFriendship(isFollowing, formData) {
+      if (isFollowing) {
         this.$axios.delete("/friendships", {
           headers: this.token,
           data: formData,
@@ -208,8 +141,45 @@ export default {
         }
       }
     },
-    closeDialog() {
-      this.dialog = false;
+    async deletePost(postId) {
+      await this.$axios.delete(
+        `/bands/${this.id}/posts/${postId}`,
+        this.headers
+      );
+      this.updatePage();
+    },
+    async patchPost(postId, postDescription) {
+      const formData = new FormData();
+      formData.append("post[description]", postDescription);
+      await this.$axios.patch(
+        `/bands/${this.id}/posts/${postId}`,
+        formData,
+        this.headers
+      );
+      this.updatePage();
+    },
+    changeLike(post) {
+      if (!this.token) {
+        return this.$router.push("/errors/auth");
+      } else {
+        const formData = new FormData();
+        formData.append("post_id", post.id);
+        if (post.favorite) {
+          this.$axios.delete("/likes", {
+            headers: this.token,
+            data: formData,
+          });
+          post.favorite = false;
+          post.likes_count -= 1;
+        } else {
+          this.$axios.post("/likes", formData, this.headers);
+          post.favorite = true;
+          post.likes_count += 1;
+        }
+      }
+    },
+    updatePage() {
+      this.$router.go({ path: this.$router.currentRoute.path, force: true });
     },
   },
 };

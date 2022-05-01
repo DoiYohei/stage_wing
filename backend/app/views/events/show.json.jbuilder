@@ -2,8 +2,7 @@ json.extract! @event, :id, :name, :place, :open_at, :start_at, :ticket_price, :c
 
 if @event.owner
   json.owner do
-    json.extract! @event.owner, :id, :name
-    json.image @event.owner.image.thumb.url
+    json.extract! @event.owner, :id, :name, :image
   end
 end
 
@@ -21,7 +20,7 @@ json.ticket @ticket
 
 json.comments do
   json.array! @parent_comments do |comment|
-    json.extract! comment, :id, :content, :created_at
+    json.extract! comment, :id, :content, :created_at, :parent_id
     json.commenter do
       if comment.band
         json.extract! comment.band, :id, :name, :image
@@ -34,7 +33,7 @@ json.comments do
     json.replies do
       replies = @all_comments.select { |a| a.parent_id == comment.id }
       json.array! replies do |reply|
-        json.extract! reply, :id, :content, :created_at
+        json.extract! reply, :id, :content, :created_at, :parent_id
         json.commenter do
           if reply.band
             json.extract! reply.band, :id, :name, :image

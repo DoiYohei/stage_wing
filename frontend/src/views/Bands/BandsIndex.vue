@@ -1,44 +1,57 @@
 <template>
   <v-container fluid>
     <v-row>
-      <v-col class="d-flex flex-wrap">
-        <v-col cols="12" xl="2" lg="3">
-          <v-card>
-            <v-card-text>
+      <v-col
+        cols="12"
+        xl="2"
+        lg="3"
+        :class="$vuetify.breakpoint.mdAndDown ? 'pa-0' : 'mt-3'"
+      >
+        <v-card :outlined="$vuetify.breakpoint.mdAndDown">
+          <v-col
+            lg="12"
+            sm="6"
+            :class="$vuetify.breakpoint.mdAndDown ? 'py-0' : 'pt-0'"
+          >
+            <v-card-actions class="pt-0">
               <v-text-field
                 v-model="keywordInput"
                 placeholder="Band名を入力してください"
-                prepend-icon="mdi-magnify"
+                prepend-inner-icon="mdi-magnify"
                 clearable
                 hide-details
               />
+            </v-card-actions>
+          </v-col>
+        </v-card>
+      </v-col>
+      <v-col>
+        <v-card color="#121212" flat class="d-flex flex-wrap">
+          <v-col
+            v-for="(band, index) in displayBands"
+            :key="index"
+            cols="6"
+            xl="2"
+            md="3"
+            sm="4"
+          >
+            <v-card :to="`/bands/${band.id}`">
+              <v-img :src="bandImage(band.image.url)" aspect-ratio="1.37" />
+              <v-card-subtitle>
+                {{ band.name }}
+              </v-card-subtitle>
+            </v-card>
+          </v-col>
+        </v-card>
+        <v-col>
+          <PaginationBlocks @chage-page="moldDisplay" />
+        </v-col>
+        <v-col v-if="!displayBands.length">
+          <v-card color="#121212" flat>
+            <v-card-text class="text-center">
+              該当するアーティストがいません
             </v-card-text>
           </v-card>
-        </v-col>
-        <v-col>
-          <v-card class="d-flex flex-wrap">
-            <v-col
-              v-for="(band, index) in displayBands"
-              :key="index"
-              cols="6"
-              xl="2"
-              md="3"
-              sm="4"
-            >
-              <v-card :to="`/bands/${band.id}`">
-                <v-img :src="band.image.url" />
-                <v-card-subtitle>
-                  {{ band.name }}
-                </v-card-subtitle>
-              </v-card>
-            </v-col>
-          </v-card>
-          <v-col>
-            <PaginationBlocks :mold-display="moldDisplay" />
-            <div v-if="!displayBands.length" class="mt-16">
-              該当するアーティストがいません
-            </div>
-          </v-col>
         </v-col>
       </v-col>
     </v-row>
@@ -76,6 +89,11 @@ export default {
     },
     rowsPerPage() {
       return this.$vuetify.breakpoint.smAndDown ? 10 : 30;
+    },
+    bandImage() {
+      return (image) => {
+        return image ? image : require("@/assets/img/no-band-img.jpg");
+      };
     },
   },
   methods: {

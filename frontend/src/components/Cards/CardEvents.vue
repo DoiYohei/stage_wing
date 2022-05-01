@@ -1,5 +1,5 @@
 <template>
-  <v-card flat class="d-flex flex-wrap">
+  <v-card color="#121212" flat class="d-flex flex-wrap">
     <v-col
       v-for="(event, index) in events"
       :key="index"
@@ -10,7 +10,7 @@
     >
       <v-card :to="`/events/${event.id}`" class="text-left d-flex align-center">
         <v-avatar size="68" tile class="ml-3 my-3">
-          <v-img :src="event.flyer.url" />
+          <v-img :src="eventFlyer(event.flyer.url)" />
         </v-avatar>
         <div
           class="d-flex flex-sm-column align-sm-start align-center flex-wrap"
@@ -33,6 +33,13 @@ export default {
     events: {
       type: Array,
       require: true,
+    },
+  },
+  computed: {
+    eventFlyer() {
+      return (flyer) => {
+        return flyer ? flyer : require("@/assets/img/no-flyer.jpg");
+      };
     },
   },
 };
