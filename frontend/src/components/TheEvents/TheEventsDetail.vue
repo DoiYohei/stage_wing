@@ -10,12 +10,12 @@
     </v-card>
     <v-card-text class="py-0">
       Date:
-      {{ $dayjs(event.open_at).format("YYYY MMM DD") }}
+      {{ $dayjs.tz(event.open_at).format("YYYY MMM DD") }}
     </v-card-text>
     <v-card-text class="py-0">
       Open/Start:
-      {{ $dayjs(event.open_at).format("hh:mm") }}/{{
-        $dayjs(event.start_at).format("hh:mm")
+      {{ $dayjs.tz(event.open_at).format("hh:mm") }}/{{
+        $dayjs.tz(event.start_at).format("hh:mm")
       }}
     </v-card-text>
     <v-card-text class="py-0">Location: {{ event.place }}</v-card-text>

@@ -60,26 +60,30 @@ export default {
         email: "",
         password: "",
         visible: false,
+        isError: false,
       },
       audience: {
         email: "",
         password: "",
         visible: false,
+        isError: false,
       },
     };
   },
   methods: {
-    logInBand() {
+    async logInBand() {
       const formData = new FormData();
       formData.append("email", this.band.email);
       formData.append("password", this.band.password);
-      this.$store.dispatch("loginBand", formData);
+      const res = await this.$store.dispatch("loginBand", formData);
+      if (!res) this.band.isError = true;
     },
-    logInAudience() {
+    async logInAudience() {
       const formData = new FormData();
       formData.append("email", this.audience.email);
       formData.append("password", this.audience.password);
-      this.$store.dispatch("loginAudience", formData);
+      const res = await this.$store.dispatch("loginAudience", formData);
+      if (!res) this.audience.isError = true;
     },
   },
 };

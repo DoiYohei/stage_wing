@@ -10,17 +10,22 @@
         </v-card-subtitle>
         <v-card-text>
           <v-text-field v-model="user.email" label="Email" />
-        </v-card-text>
-        <v-card-text>
           <v-text-field
             v-model="user.password"
             :append-icon="user.visible ? 'mdi-eye' : 'mdi-eye-off'"
             :type="user.visible ? 'text' : 'password'"
             label="Password"
-            hint="最低8文字です"
-            counter
             @click:append="user.visible = !user.visible"
           />
+          <v-alert
+            :value="user.isError"
+            type="error"
+            dense
+            outlined
+            class="mt-5 mb-1"
+          >
+            Email または Password が違います
+          </v-alert>
         </v-card-text>
         <ButtonSubmitForms @submit-forms="submitForms">
           Log In

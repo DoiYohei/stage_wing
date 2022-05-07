@@ -14,44 +14,124 @@
     <v-row class="mt-0">
       <v-col>
         <v-card color="#121212" flat class="d-flex flex-wrap">
-          <v-col md="7" sm="12">
+          <v-col md="7" cols="12">
             <v-img :src="bandImage" aspect-ratio="1.37" />
           </v-col>
-          <v-col class="text-left pb-0">
-            <v-card-text>
-              <v-file-input
-                v-model="inputImage"
-                @change="fetchImageUrl"
-                @blur="fetchOriginal"
-                label="プロフィール画像"
-                chips
-              />
-              <v-text-field v-model="band.name" label="Band Name" />
-              <v-text-field v-model="band.email" label="Email" />
-              <v-text-field
-                v-if="band.password !== undefined"
-                v-model="band.password"
-                :append-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="visible ? 'text' : 'password'"
-                label="Password"
-                hint="最低8文字です"
-                counter
-                @click:append="visible = !visible"
-              />
-              <v-text-field v-model="band.website" label="ホームページURL" />
-              <v-text-field v-model="band.twitter" label="Twitter URL" />
-              <v-textarea
-                v-model="band.profile"
-                label="Profile"
-                background-color="grey darken-4"
-                auto-grow
-                hide-details
-                outlined
-              />
-            </v-card-text>
-            <ButtonSubmitForms @submit-forms="submitForms">
-              <slot name="btn-text" />
-            </ButtonSubmitForms>
+          <v-col md="5" cols="12" class="text-left pb-0">
+            <ValidationObserver v-slot="{ invalid }">
+              <v-card-text>
+                <ValidationProvider
+                  name="画像"
+                  rules="ext:jpg,jpeg,gif,png|size:10000"
+                  v-slot="{ errors }"
+                >
+                  <v-file-input
+                    v-model="inputImage"
+                    @change="fetchImageUrl"
+                    @blur="fetchOriginal"
+                    :error-messages="errors"
+                    label="プロフィール画像"
+                    chips
+                  />
+                </ValidationProvider>
+                <ValidationProvider
+                  name="Band Name"
+                  rules="max:50|required"
+                  v-slot="{ errors }"
+                >
+                  <v-text-field
+                    v-model="band.name"
+                    :error-messages="errors"
+                    label="Band Name（必須）"
+                    prefix="*"
+                  />
+                </ValidationProvider>
+                <ValidationProvider
+                  name="Email"
+                  rules="email|required"
+                  v-slot="{ errors }"
+                >
+                  <v-text-field
+                    v-model="band.email"
+                    :error-messages="errors"
+                    label="Email（必須）"
+                    prefix="*"
+                    validate-on-blur
+                  />
+                </ValidationProvider>
+                <ValidationProvider
+                  name="Password"
+                  rules="max:128|min:8|required"
+                  v-slot="{ errors }"
+                >
+                  <v-text-field
+                    v-if="band.password !== undefined"
+                    v-model="band.password"
+                    @click:append="visible = !visible"
+                    :append-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
+                    :error-messages="errors"
+                    :type="visible ? 'text' : 'password'"
+                    hint="最低8文字です"
+                    label="Password（必須）"
+                    prefix="*"
+                    counter
+                  />
+                </ValidationProvider>
+                <ValidationProvider
+                  name="URL"
+                  :rules="{
+                    regex: /https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+/,
+                  }"
+                  v-slot="{ errors }"
+                >
+                  <v-text-field
+                    v-model="band.website"
+                    :error-messages="errors"
+                    label="ホームページURL"
+                  />
+                </ValidationProvider>
+                <ValidationProvider
+                  name="URL"
+                  :rules="{
+                    regex: /https?:\/\/[-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%#]+/,
+                  }"
+                  v-slot="{ errors }"
+                >
+                  <v-text-field
+                    v-model="band.twitter"
+                    :error-messages="errors"
+                    label="Twitter URL"
+                  />
+                </ValidationProvider>
+                <ValidationProvider
+                  name="Profile"
+                  rules="max:1000"
+                  v-slot="{ errors }"
+                >
+                  <v-textarea
+                    v-model="band.profile"
+                    :error-messages="errors"
+                    label="Profile"
+                    background-color="grey darken-4"
+                    auto-grow
+                    hide-details
+                    outlined
+                  />
+                </ValidationProvider>
+                <v-alert
+                  :value="band.isError"
+                  type="error"
+                  dense
+                  outlined
+                  class="mt-8 mb-0"
+                >
+                  <slot name="error-text" />
+                </v-alert>
+              </v-card-text>
+              <ButtonSubmitForms :invalid="invalid" @submit-forms="submitForms">
+                <slot name="btn-text" />
+              </ButtonSubmitForms>
+            </ValidationObserver>
           </v-col>
         </v-card>
       </v-col>
@@ -60,10 +140,13 @@
 </template>
 
 <script>
+import { ValidationProvider, ValidationObserver } from "vee-validate";
 import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
 
 export default {
   components: {
+    ValidationProvider,
+    ValidationObserver,
     ButtonSubmitForms,
   },
   props: {

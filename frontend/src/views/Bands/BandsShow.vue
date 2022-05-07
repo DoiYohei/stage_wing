@@ -160,7 +160,7 @@ export default {
     },
     changeLike(post) {
       if (!this.token) {
-        return this.$router.push("/errors/auth");
+        return this.$router.push("/auth/error");
       } else {
         const formData = new FormData();
         formData.append("post_id", post.id);

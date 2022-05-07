@@ -40,7 +40,7 @@
                   chips
                 />
                 <v-img v-if="showPhoto" :src="url" />
-                <vuetify-audio v-if="showAudio" :file="url" class="black" />
+                <VuetifyAudio v-if="showAudio" :file="url" class="black" />
               </template>
               <v-text-field
                 v-if="isMediaPass"
@@ -90,8 +90,12 @@
 
 <script>
 import { mapGetters } from "vuex";
+import VuetifyAudio from "vuetify-audio";
 
 export default {
+  components: {
+    VuetifyAudio,
+  },
   props: ["id"],
   data() {
     return {

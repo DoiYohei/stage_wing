@@ -3,24 +3,42 @@ import router from "@/routes";
 
 export default {
   async signupBand({ dispatch }, formData) {
-    const res = await axios.post("/bands", formData);
-    const userType = "bands";
-    return dispatch("setAuthData", { res, userType });
+    const res = await axios.post("/bands", formData).catch((error) => {
+      return error.response.success;
+    });
+    if (res) {
+      const userType = "bands";
+      return dispatch("setAuthData", { res, userType });
+    } else return res;
   },
   async signupAudience({ dispatch }, formData) {
-    const res = await axios.post("/audiences", formData);
-    const userType = "audiences";
-    return dispatch("setAuthData", { res, userType });
+    const res = await axios.post("/audiences", formData).catch((error) => {
+      return error.response.success;
+    });
+    if (res) {
+      const userType = "audiences";
+      return dispatch("setAuthData", { res, userType });
+    } else return res;
   },
   async loginBand({ dispatch }, formData) {
-    const res = await axios.post("/bands/sign_in", formData);
-    const userType = "bands";
-    return dispatch("setAuthData", { res, userType });
+    const res = await axios.post("/bands/sign_in", formData).catch((error) => {
+      return error.response.success;
+    });
+    if (res) {
+      const userType = "bands";
+      return dispatch("setAuthData", { res, userType });
+    } else return res;
   },
   async loginAudience({ dispatch }, formData) {
-    const res = await axios.post("/audiences/sign_in", formData);
-    const userType = "audiences";
-    return dispatch("setAuthData", { res, userType });
+    const res = await axios
+      .post("/audiences/sign_in", formData)
+      .catch((error) => {
+        return error.response.success;
+      });
+    if (res) {
+      const userType = "audiences";
+      return dispatch("setAuthData", { res, userType });
+    } else return res;
   },
   setAuthData({ commit }, payload) {
     const authData = {
@@ -33,9 +51,9 @@ export default {
     commit("updateAuthData", authData);
     localStorage.setItem("authDataSW", JSON.stringify(authData));
     if (authData.userType === "bands") {
-      router.push(`/bands/${authData.userId}`);
+      router.replace(`/bands/${authData.userId}`);
     } else {
-      router.push("/");
+      router.replace("/");
     }
   },
   autoLogin({ commit }) {

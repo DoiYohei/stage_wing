@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
+import store from "@/store";
 import Home from "@/views/Home";
 import SignupBands from "@/views/Auth/SignupBands";
 import SignupAudiences from "@/views/Auth/SignupAudiences";
@@ -19,10 +20,14 @@ import ChatsIndex from "@/views/Chats/ChatsIndex";
 import ChatsShow from "@/views/Chats/ChatsShow";
 import AudiencesEdit from "@/views/Audiences/AudiencesEdit";
 import AudiencesTickets from "@/views/Audiences/AudiencesTickets";
-import AuthError from "@/views/Errors/AuthError";
+import AuthError from "@/views/Auth/AuthError";
 import LikesIndex from "@/views/Likes/LikesIndex";
 
 Vue.use(Router);
+
+const redirectWithToken = () => {
+  if (store.getters.token) return "/";
+};
 
 export default new Router({
   mode: "history",
@@ -36,21 +41,33 @@ export default new Router({
       path: "/signup/bands",
       name: "SignupBands",
       component: SignupBands,
+      beforeEnter(to, from, next) {
+        next(redirectWithToken());
+      },
     },
     {
       path: "/signup/audiences",
       name: "SignupAudiences",
       component: SignupAudiences,
+      beforeEnter(to, from, next) {
+        next(redirectWithToken());
+      },
     },
     {
       path: "/login",
       name: "Login",
       component: Login,
+      beforeEnter(to, from, next) {
+        next(redirectWithToken());
+      },
     },
     {
       path: "/events/new",
       name: "EventsNew",
       component: EventsNew,
+      beforeEnter(to, from, next) {
+        store.getters.userType !== "bands" ? next("/") : next();
+      },
     },
     {
       path: "/events",
@@ -126,6 +143,9 @@ export default new Router({
       path: "/liked_posts",
       name: "LikesIndex",
       component: LikesIndex,
+      beforeEnter(to, from, next) {
+        !store.getters.token ? next("/") : next();
+      },
     },
     {
       path: "/audiences/:id/edit",
@@ -140,7 +160,7 @@ export default new Router({
       props: true,
     },
     {
-      path: "/errors/auth",
+      path: "/auth/error",
       name: "AuthError",
       component: AuthError,
     },

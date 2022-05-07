@@ -14,7 +14,7 @@
     <v-row>
       <v-col>
         <v-card color="#121212" flat class="d-flex flex-wrap">
-          <v-col md="7" sm="12" class="pa-0">
+          <v-col md="7" cols="12" class="pa-0">
             <v-img :src="eventFlyer" aspect-ratio="1.25" />
           </v-col>
           <v-col class="text-left">
@@ -37,24 +37,30 @@
                 hide-details
               />
             </v-card-title>
-            <div class="d-flex flex-column flex-xl-row">
+            <v-card flat color="#121212" class="d-flex flex-column flex-xl-row">
               <v-card-text>
-                <vue-ctk-date-time-picker
+                Open
+                <DatePicker
                   v-model="event.open_at"
-                  format="YYYY-MM-DD HH:mm"
-                  label="Open"
-                  id="open-at"
+                  format="YYYY-MMM-DD HH:mm"
+                  time-title-format="YYYY-MMM-DD"
+                  type="datetime"
+                  confirm
+                  class="ml-2"
                 />
               </v-card-text>
               <v-card-text>
-                <vue-ctk-date-time-picker
+                Start
+                <DatePicker
                   v-model="event.start_at"
-                  format="YYYY-MM-DD HH:mm"
-                  label="Start"
-                  id="start-at"
+                  format="YYYY-MMM-DD HH:mm"
+                  time-title-format="YYYY-MMM-DD"
+                  type="datetime"
+                  confirm
+                  class="ml-4"
                 />
               </v-card-text>
-            </div>
+            </v-card>
             <v-card-text>
               <v-text-field
                 v-model="event.place"
@@ -104,10 +110,13 @@
 </template>
 
 <script>
+import DatePicker from "vue2-datepicker";
+import "vue2-datepicker/index.css";
 import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
 
 export default {
   components: {
+    DatePicker,
     ButtonSubmitForms,
   },
   props: {

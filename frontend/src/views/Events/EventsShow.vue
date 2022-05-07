@@ -105,7 +105,7 @@ export default {
     },
     async postComment(newReply, parentId) {
       if (!this.token) {
-        return this.$router.push("/errors/auth");
+        return this.$router.push("/auth/error");
       } else {
         const formData = new FormData();
         if (newReply) {

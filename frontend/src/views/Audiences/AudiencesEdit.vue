@@ -1,6 +1,9 @@
 <template>
   <FormAudience v-model="audience" @submit-forms="patchAudience">
     <template #page-title>アカウント編集</template>
+    <template #error-text>
+      更新できませんでした。入力事項をご確認の上、もう一度お試しください。
+    </template>
     <template #btn-text>更新する</template>
   </FormAudience>
 </template>
@@ -20,11 +23,13 @@ export default {
     };
   },
   async created() {
-    const res = await this.$axios.get(
-      `/audiences/${this.id}/edit`,
-      this.headers
-    );
-    this.audience = res.data;
+    const res = await this.$axios
+      .get(`/audiences/${this.id}/edit`, this.headers)
+      .catch((error) => error.response.success);
+    if (res) {
+      this.audience = res.data;
+      this.audience.isError = false;
+    } else this.$router.replace("/");
   },
   computed: {
     ...mapGetters(["headers"]),
@@ -35,8 +40,16 @@ export default {
       formData.append("name", this.audience.name);
       formData.append("email", this.audience.email);
       if (image) formData.append("image", image);
-      await this.$axios.patch("/audiences", formData, this.headers);
-      this.$router.replace(`/audiences/${this.id}`);
+      const res = await this.$axios
+        .patch("/audiences", formData, this.headers)
+        .catch((error) => {
+          return error.response.success;
+        });
+      if (res) {
+        const userType = "audiences";
+        this.$store.dispatch("setAuthData", { res, userType });
+        this.$router.replace("/");
+      } else this.audience.isError = true;
     },
   },
 };

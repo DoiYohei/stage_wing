@@ -2,7 +2,7 @@
   <v-col sm="10" offset-sm="1" lg="8" offset-lg="2" xl="6" offset-xl="3">
     <v-card outlined>
       <v-img v-if="post.format === 'photo'" :src="post.photo.url" />
-      <vuetify-audio
+      <VuetifyAudio
         v-if="post.format === 'audio'"
         :file="post.audio.url"
         class="black"
@@ -89,12 +89,14 @@
 
 <script>
 import { mapGetters } from "vuex";
+import VuetifyAudio from "vuetify-audio";
 import CardAvatar from "@/components/Cards/CardAvatar";
 import CardDialog from "@/components/Cards/CardDialog";
 
 export default {
   name: "CardPosts",
   components: {
+    VuetifyAudio,
     CardAvatar,
     CardDialog,
   },

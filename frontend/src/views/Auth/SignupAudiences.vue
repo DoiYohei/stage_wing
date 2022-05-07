@@ -1,6 +1,9 @@
 <template>
   <FormAudience v-model="audience" @submit-forms="signUpAudience">
     <template #page-title>SIGNUP (AUDIENCE)</template>
+    <template #error-text>
+      登録できませんでした。入力事項をご確認の上、もう一度お試しください。
+    </template>
     <template #btn-text>Sign Up</template>
   </FormAudience>
 </template>
@@ -18,17 +21,19 @@ export default {
         name: "",
         email: "",
         password: "",
+        isError: false,
       },
     };
   },
   methods: {
-    signUpAudience(image) {
+    async signUpAudience(image) {
       const formData = new FormData();
       formData.append("name", this.audience.name);
       formData.append("email", this.audience.email);
       formData.append("password", this.audience.password);
       formData.append("image", image);
-      this.$store.dispatch("signupAudience", formData);
+      const res = await this.$store.dispatch("signupAudience", formData);
+      if (!res) this.audience.isError = true;
     },
   },
 };
