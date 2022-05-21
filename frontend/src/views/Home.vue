@@ -31,7 +31,7 @@
                 </v-list-item>
                 <v-list-item>
                   <v-list-item-content>
-                    <v-dialog v-model="dialog" width="45vw">
+                    <v-dialog v-model="logoutDialog" width="45vw">
                       <template #activator="{ on, attrs }">
                         <v-card-title
                           v-bind="attrs"
@@ -41,19 +41,21 @@
                           LOG OUT
                         </v-card-title>
                       </template>
-                      <CardDialog
+                      <DialogYesNo
                         dialog-text="ログアウトしますか？"
-                        @select-excution="logout"
+                        @select-excution="logOut"
                         @close-dialog="closeDialog"
                       />
                     </v-dialog>
+                    <DialogShowText v-model="errorDialog">
+                      {{ errorMessage }}
+                    </DialogShowText>
                   </v-list-item-content>
                 </v-list-item>
               </template>
             </v-list-item-group>
           </v-list>
         </v-card>
-        <NavigationMenu v-model="drawer" />
       </v-col>
     </v-row>
   </v-container>
@@ -61,13 +63,19 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
-import CardDialog from "@/components/Cards/CardDialog";
-import NavigationMenu from "@/components/NavigationMenu";
+import DialogYesNo from "@/components/Dialogs/DialogYesNo";
+import DialogShowText from "@/components/Dialogs/DialogShowText";
 
 export default {
   components: {
-    CardDialog,
-    NavigationMenu,
+    DialogYesNo,
+    DialogShowText,
+  },
+  props: {
+    value: {
+      type: Boolean,
+      require: true,
+    },
   },
   data() {
     return {
@@ -96,8 +104,9 @@ export default {
         },
       ],
       textStyle: "text-h2 font-weight-black",
-      drawer: false,
-      dialog: false,
+      logoutDialog: false,
+      errorDialog: false,
+      errorMessage: "",
     };
   },
   created() {
@@ -109,11 +118,27 @@ export default {
   },
   computed: {
     ...mapGetters(["isAuthenticatedBand", "isAuthenticatedAudience", "token"]),
+    drawer: {
+      get() {
+        return this.value;
+      },
+      set(newValue) {
+        this.$emit("input", newValue);
+      },
+    },
   },
   methods: {
     ...mapActions(["logout"]),
+    async logOut() {
+      const res = await this.logout();
+      this.closeDialog();
+      if (res) {
+        this.errorMessage = res;
+        this.errorDialog = true;
+      }
+    },
     closeDialog() {
-      this.dialog = false;
+      this.logoutDialog = false;
     },
   },
 };

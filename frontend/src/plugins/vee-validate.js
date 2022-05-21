@@ -3,6 +3,7 @@ import ja from "vee-validate/dist/locale/ja.json";
 import {
   email,
   ext,
+  integer,
   max,
   min,
   regex,
@@ -12,6 +13,10 @@ import {
 
 extend("email", email);
 extend("ext", ext);
+extend("integer", {
+  ...integer,
+  message: "半角数字で入力してください",
+});
 extend("max", max);
 extend("min", min);
 extend("regex", regex);

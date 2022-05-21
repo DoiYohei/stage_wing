@@ -18,90 +18,169 @@
             <v-img :src="eventFlyer" aspect-ratio="1.25" />
           </v-col>
           <v-col class="text-left">
-            <v-card-text>
-              <v-file-input
-                v-model="inputFlyer"
-                @change="fetchFlyerUrl"
-                @blur="fetchOriginal"
-                label="フライヤーを変更する"
-                chips
-                dense
-                hide-details
-              />
-            </v-card-text>
-            <v-card-title>
-              <v-text-field
-                v-model="event.name"
-                label="イベント名"
-                dense
-                hide-details
-              />
-            </v-card-title>
-            <v-card flat color="#121212" class="d-flex flex-column flex-xl-row">
+            <ValidationObserver v-slot="{ invalid }">
               <v-card-text>
-                Open
-                <DatePicker
-                  v-model="event.open_at"
-                  format="YYYY-MMM-DD HH:mm"
-                  time-title-format="YYYY-MMM-DD"
-                  type="datetime"
-                  confirm
-                  class="ml-2"
+                <ValidationProvider
+                  name="フライヤー"
+                  rules="ext:jpg,jpeg,gif,png|size:10000"
+                  v-slot="{ errors }"
+                >
+                  <v-file-input
+                    v-model="inputFlyer"
+                    @change="fetchFlyerUrl"
+                    @blur="fetchOriginal"
+                    :error-messages="errors"
+                    label="フライヤーを変更する"
+                    chips
+                    dense
+                  />
+                </ValidationProvider>
+              </v-card-text>
+              <v-card-text>
+                <ValidationProvider
+                  name="イベント名"
+                  rules="max:50|required"
+                  v-slot="{ errors }"
+                >
+                  <v-text-field
+                    v-model="event.name"
+                    :error-messages="errors"
+                    label="イベント名（必須）"
+                    prefix="*"
+                    dense
+                  />
+                </ValidationProvider>
+              </v-card-text>
+              <v-card
+                color="#121212"
+                flat
+                class="d-flex flex-column flex-xl-row"
+              >
+                <v-card-text class="pr-xl-0">
+                  <ValidationProvider
+                    name="Open"
+                    rules="required"
+                    v-slot="{ errors, dirty, invalid }"
+                  >
+                    *Open
+                    <DatePicker
+                      v-model="event.open_at"
+                      format="YYYY MMM. DD - HH:mm"
+                      :placeholder="placeholder(event.open_at)"
+                      time-title-format="YYYY MMM. DD - HH:mm"
+                      type="datetime"
+                      confirm
+                      show-time-header
+                      class="ml-2"
+                    />
+                    <v-card-text
+                      v-if="dirty && invalid"
+                      class="red--text pt-1 pb-0 pl-0"
+                    >
+                      {{ errors[0] }}
+                    </v-card-text>
+                  </ValidationProvider>
+                </v-card-text>
+                <v-card-text class="pl-xl-0">
+                  <ValidationProvider
+                    name="Start"
+                    rules="required"
+                    v-slot="{ errors, dirty, invalid }"
+                  >
+                    *Start
+                    <DatePicker
+                      v-model="event.start_at"
+                      :error-messages="errors"
+                      format="YYYY MMM. DD - HH:mm"
+                      :placeholder="placeholder(event.start_at)"
+                      time-title-format="YYYY MMM. DD - HH:mm"
+                      type="datetime"
+                      confirm
+                      show-time-header
+                      class="ml-4"
+                    />
+                    <v-card-text
+                      v-if="dirty && invalid"
+                      class="red--text pt-1 pb-0 pl-0"
+                    >
+                      {{ errors[0] }}
+                    </v-card-text>
+                  </ValidationProvider>
+                </v-card-text>
+              </v-card>
+              <v-card-text>
+                <ValidationProvider
+                  name="場所"
+                  rules="max:50|required"
+                  v-slot="{ errors }"
+                >
+                  <v-text-field
+                    v-model="event.place"
+                    :error-messages="errors"
+                    label="場所（必須）"
+                    prefix="*"
+                    dense
+                  />
+                </ValidationProvider>
+              </v-card-text>
+              <v-card-text>
+                <ValidationProvider
+                  name="チケット料金"
+                  rules="integer"
+                  v-slot="{ errors }"
+                >
+                  <v-text-field
+                    v-model="event.ticket_price"
+                    :error-messages="errors"
+                    label="チケット料金（半角数字）"
+                    prefix="¥"
+                    dense
+                  />
+                </ValidationProvider>
+              </v-card-text>
+              <v-card-text>
+                <v-checkbox
+                  v-model="event.reservation"
+                  hint="利用する場合はチェックを入れてください（本サイトに登録されているバンドのみ利用可能）"
+                  label="チケット取り置き機能"
+                  dense
+                  persistent-hint
+                  class="mt-0"
                 />
               </v-card-text>
               <v-card-text>
-                Start
-                <DatePicker
-                  v-model="event.start_at"
-                  format="YYYY-MMM-DD HH:mm"
-                  time-title-format="YYYY-MMM-DD"
-                  type="datetime"
-                  confirm
-                  class="ml-4"
-                />
+                <ValidationProvider
+                  name="詳細"
+                  rules="max:1000"
+                  v-slot="{ errors }"
+                >
+                  <v-textarea
+                    v-model="event.content"
+                    background-color="grey darken-4"
+                    :error-messages="errors"
+                    label="詳細"
+                    auto-grow
+                    dense
+                    outlined
+                  />
+                </ValidationProvider>
               </v-card-text>
-            </v-card>
-            <v-card-text>
-              <v-text-field
-                v-model="event.place"
-                label="場所"
-                dense
-                hide-details
-              />
-            </v-card-text>
-            <v-card-text>
-              <v-text-field
-                v-model="event.ticket_price"
-                label="チケット料金(半角数字)"
-                prefix="¥"
-                :rules="rules"
-                dense
-                hide-details
-              />
-            </v-card-text>
-            <v-card-text>
-              <v-switch
-                v-model="event.reservation"
-                label="チケット取り置きを受けつける(本サイトに登録されているバンドのみ可能)"
-                dense
-                hide-details
-                inset
-                class="mt-0"
-              />
-            </v-card-text>
-            <v-card-text>
-              <v-textarea
-                v-model="event.content"
-                label="詳細"
-                dense
-                hide-details
-                outlined
-              />
-            </v-card-text>
-            <slot name="lineup" />
-            <ButtonSubmitForms @submit-forms="submitForms">
-              <slot name="btn-text" />
-            </ButtonSubmitForms>
+              <slot name="lineup" />
+              <v-card-text v-if="isError">
+                <v-alert
+                  :value="isError"
+                  type="error"
+                  dense
+                  outlined
+                  class="mb-0"
+                >
+                  <slot name="error-text" />
+                </v-alert>
+              </v-card-text>
+              <ButtonSubmitForms @submit-forms="submitForms" :invalid="invalid">
+                <slot name="btn-text" />
+              </ButtonSubmitForms>
+            </ValidationObserver>
           </v-col>
         </v-card>
       </v-col>
@@ -110,12 +189,15 @@
 </template>
 
 <script>
+import { ValidationProvider, ValidationObserver } from "vee-validate";
 import DatePicker from "vue2-datepicker";
 import "vue2-datepicker/index.css";
 import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
 
 export default {
   components: {
+    ValidationProvider,
+    ValidationObserver,
     DatePicker,
     ButtonSubmitForms,
   },
@@ -124,17 +206,15 @@ export default {
       type: Object,
       require: true,
     },
+    isError: {
+      type: Boolean,
+      require: true,
+    },
   },
   data() {
     return {
       inputFlyer: null,
       flyerUrl: "",
-      rules: [
-        (value) => {
-          const pattern = /^[0-9]*$/;
-          return pattern.test(value) || "半角数字で入力してください";
-        },
-      ],
     };
   },
   computed: {
@@ -150,6 +230,13 @@ export default {
       return this.flyerUrl
         ? this.flyerUrl
         : require("@/assets/img/no-flyer.jpg");
+    },
+    placeholder() {
+      return (datetime) => {
+        if (datetime) {
+          return this.$dayjs(datetime).format("YYYY MMM. DD - HH:mm");
+        } else return "選択してください（必須）";
+      };
     },
   },
   watch: {

@@ -1,5 +1,5 @@
 <template>
-  <FormBand v-model="band" @submit-forms="signUpBand">
+  <FormBand v-model="band" :is-error="isError" @submit-forms="signUpBand">
     <template #page-title>SIGNUP (BAND)</template>
     <template #error-text>
       登録できませんでした。入力事項をご確認の上、もう一度お試しください。
@@ -25,22 +25,27 @@ export default {
         website: "",
         twitter: "",
         image: null,
-        isError: false,
       },
+      isError: false,
     };
   },
   methods: {
     async signUpBand(image) {
-      const formData = new FormData();
-      formData.append("name", this.band.name);
-      formData.append("email", this.band.email);
-      formData.append("password", this.band.password);
-      formData.append("image", image);
-      formData.append("profile", this.band.profile);
-      formData.append("website", this.band.website);
-      formData.append("twitter", this.band.twitter);
-      const res = await this.$store.dispatch("signupBand", formData);
-      if (!res) this.band.isError = true;
+      try {
+        const formData = new FormData();
+        formData.append("name", this.band.name);
+        formData.append("email", null);
+        formData.append("password", this.band.password);
+        formData.append("image", image);
+        formData.append("profile", this.band.profile);
+        formData.append("website", this.band.website);
+        formData.append("twitter", this.band.twitter);
+        const res = await this.$axios.post("/bands", formData);
+        const userType = "bands";
+        this.$store.dispatch("setAuthData", { res, userType });
+      } catch (error) {
+        if (error.response) this.isError = true;
+      }
     },
   },
 };

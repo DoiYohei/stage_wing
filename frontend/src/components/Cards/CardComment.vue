@@ -18,7 +18,7 @@
             </v-btn>
           </v-card-actions>
         </template>
-        <CardDialog
+        <DialogYesNo
           dialogText="このコメントを削除しますか？"
           @select-excution="deleteComment"
           @close-dialog="closeDialog"
@@ -32,11 +32,11 @@
 <script>
 import { mapGetters } from "vuex";
 import CardAvatar from "@/components/Cards/CardAvatar";
-import CardDialog from "@/components/Cards/CardDialog";
+import DialogYesNo from "@/components/Dialogs/DialogYesNo";
 
 export default {
   components: {
-    CardDialog,
+    DialogYesNo,
     CardAvatar,
   },
   props: {

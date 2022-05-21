@@ -19,7 +19,7 @@
           </v-col>
           <v-col md="5" cols="12" class="text-left pb-0">
             <ValidationObserver v-slot="{ invalid }">
-              <v-card-text>
+              <v-card-text class="pb-0">
                 <ValidationProvider
                   name="画像"
                   rules="ext:jpg,jpeg,gif,png|size:10000"
@@ -114,21 +114,14 @@
                     label="Profile"
                     background-color="grey darken-4"
                     auto-grow
-                    hide-details
                     outlined
                   />
                 </ValidationProvider>
-                <v-alert
-                  :value="band.isError"
-                  type="error"
-                  dense
-                  outlined
-                  class="mt-8 mb-0"
-                >
+                <v-alert :value="isError" type="error" dense outlined>
                   <slot name="error-text" />
                 </v-alert>
               </v-card-text>
-              <ButtonSubmitForms :invalid="invalid" @submit-forms="submitForms">
+              <ButtonSubmitForms @submit-forms="submitForms" :invalid="invalid">
                 <slot name="btn-text" />
               </ButtonSubmitForms>
             </ValidationObserver>
@@ -154,6 +147,10 @@ export default {
       type: Object,
       require: true,
     },
+    isError: {
+      type: Boolean,
+      require: true,
+    },
   },
   data() {
     return {
@@ -172,8 +169,8 @@ export default {
       },
     },
     bandImage() {
-      return this.value.image && this.value.image.url
-        ? this.value.image.url
+      return this.imageUrl
+        ? this.imageUrl
         : require("@/assets/img/no-band-img.jpg");
     },
   },

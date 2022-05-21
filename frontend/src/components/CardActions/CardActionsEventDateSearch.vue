@@ -2,7 +2,7 @@
   <v-card-actions>
     <DatePicker
       v-model="dateInput"
-      format="YYYY-MMM-DD"
+      format="YYYY MMM DD"
       value-type="YYYY-MM-DD"
       placeholder="開催日で検索"
       confirm

@@ -44,7 +44,7 @@
                   <template #activator="{ on, attrs }">
                     <v-list-item v-bind="attrs" v-on="on">削除する</v-list-item>
                   </template>
-                  <CardDialog
+                  <DialogYesNo
                     dialogText="この投稿を削除しますか？"
                     @select-excution="deletePost"
                     @close-dialog="closeDialog"
@@ -91,14 +91,14 @@
 import { mapGetters } from "vuex";
 import VuetifyAudio from "vuetify-audio";
 import CardAvatar from "@/components/Cards/CardAvatar";
-import CardDialog from "@/components/Cards/CardDialog";
+import DialogYesNo from "@/components/Dialogs/DialogYesNo";
 
 export default {
   name: "CardPosts",
   components: {
     VuetifyAudio,
     CardAvatar,
-    CardDialog,
+    DialogYesNo,
   },
   props: {
     post: {

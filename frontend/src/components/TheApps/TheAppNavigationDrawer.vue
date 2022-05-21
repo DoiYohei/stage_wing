@@ -28,7 +28,7 @@
               </v-list-item-content>
             </v-list-item>
           </template>
-          <CardDialog
+          <DialogYesNo
             dialog-text="ログアウトしますか？"
             @select-excution="logOut"
             @close-dialog="closeDialog"
@@ -42,12 +42,15 @@
               </v-list-item-content>
             </v-list-item>
           </template>
-          <CardDialog
+          <DialogYesNo
             dialog-text="退会しますか？"
             @select-excution="closeAccount"
             @close-dialog="closeDialog"
           />
         </v-dialog>
+        <DialogShowText v-model="errorDialog">
+          {{ errorMessage }}
+        </DialogShowText>
       </template>
     </v-list>
   </v-navigation-drawer>
@@ -56,11 +59,13 @@
 <script>
 import { mapGetters } from "vuex";
 import { mapActions } from "vuex";
-import CardDialog from "@/components/Cards/CardDialog";
+import DialogYesNo from "@/components/Dialogs/DialogYesNo";
+import DialogShowText from "@/components/Dialogs/DialogShowText";
 
 export default {
   components: {
-    CardDialog,
+    DialogYesNo,
+    DialogShowText,
   },
   props: {
     value: {
@@ -73,6 +78,8 @@ export default {
       contents: [],
       logoutDialog: false,
       deleteDialog: false,
+      errorDialog: false,
+      errorMessage: "",
     };
   },
   created() {
@@ -103,17 +110,21 @@ export default {
   },
   methods: {
     ...mapActions(["logout", "deleteAccount"]),
-    logOut() {
-      this.logout();
-      this.closeDialog();
+    async logOut() {
+      const res = await this.logout();
+      this.closeDialog(res);
     },
-    closeAccount() {
-      this.deleteAccount();
-      this.closeDialog();
+    async closeAccount() {
+      const res = await this.deleteAccount();
+      this.closeDialog(res);
     },
-    closeDialog() {
+    closeDialog(message) {
       this.logoutDialog = false;
       this.deleteDialog = false;
+      if (message) {
+        this.errorMessage = message;
+        this.errorDialog = true;
+      }
     },
     fetchList() {
       if (this.isAuthenticatedBand) {

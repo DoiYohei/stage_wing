@@ -48,14 +48,21 @@ export default {
     };
   },
   async created() {
-    const res = await this.$axios.get(`/events/${this.id}/lineups`);
-    this.lineup.performers = res.data.performers;
-    this.originalLineupIds = res.data.lineup_ids;
-    if (res.data.unregistered_performers) {
-      this.lineup.unregisteredBands =
-        res.data.unregistered_performers.split("*/");
+    try {
+      const res = await this.$axios.get(
+        `/events/${this.id}/lineups`,
+        this.headers
+      );
+      this.lineup.performers = res.data.performers;
+      this.originalLineupIds = res.data.lineup_ids;
+      if (res.data.unregistered_performers) {
+        this.lineup.unregisteredBands =
+          res.data.unregistered_performers.split("*/");
+      }
+      this.lineup.registeredBands = res.data.bands;
+    } catch (error) {
+      if (error.response) this.$router.replace("/");
     }
-    this.lineup.registeredBands = res.data.bands;
   },
   computed: {
     ...mapGetters(["headers"]),

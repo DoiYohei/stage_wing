@@ -7,7 +7,7 @@
             チケットを取り置きしています。
           </v-card-text>
         </template>
-        <CardDialog
+        <DialogYesNo
           dialogText="このイベントのチケットをキャンセルしますか？"
           @select-excution="deleteTicket"
           @close-dialog="closeDialog"
@@ -23,12 +23,12 @@
 </template>
 
 <script>
-import CardDialog from "@/components/Cards/CardDialog";
+import DialogYesNo from "@/components/Dialogs/DialogYesNo";
 import TheEventsTicketsNew from "@/components/TheEvents/TheEventsTicketsNew";
 
 export default {
   components: {
-    CardDialog,
+    DialogYesNo,
     TheEventsTicketsNew,
   },
   props: {

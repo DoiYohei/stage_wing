@@ -22,6 +22,9 @@
                   @post-ticket="postTicket"
                   @delete-ticket="deleteTicket"
                 />
+                <DialogShowText v-model="eventError">
+                  イベントを削除できませんでした。
+                </DialogShowText>
               </v-tab-item>
               <v-tab-item>
                 <v-card flat>
@@ -55,12 +58,14 @@
 <script>
 import { mapGetters } from "vuex";
 import TheEventsDetail from "@/components/TheEvents/TheEventsDetail";
+import DialogShowText from "@/components/Dialogs/DialogShowText";
 import FormComment from "@/components/Forms/FormComment";
 import TheEventsComment from "@/components/TheEvents/TheEventsComment";
 
 export default {
   components: {
     TheEventsDetail,
+    DialogShowText,
     FormComment,
     TheEventsComment,
   },
@@ -71,23 +76,28 @@ export default {
       lineups: [],
       tab: 0,
       newComment: "",
+      eventError: false,
     };
   },
   async created() {
-    const audienceToken = this.isAuthenticatedAudience ? this.headers : null;
-    const res = await this.$axios.get(`/events/${this.id}`, audienceToken);
-    this.event = res.data;
-    for (let performer of this.event.performers) {
-      this.lineups.push({
-        text: performer.name,
-        to: `/bands/${performer.id}`,
-      });
-    }
-    if (this.event.unregistered_performers) {
-      const unregisters = this.event.unregistered_performers.split("*/");
-      for (let unregister of unregisters) {
-        this.lineups.push({ text: unregister });
+    try {
+      const audienceToken = this.isAuthenticatedAudience ? this.headers : null;
+      const res = await this.$axios.get(`/events/${this.id}`, audienceToken);
+      this.event = res.data;
+      for (let performer of this.event.performers) {
+        this.lineups.push({
+          text: performer.name,
+          to: `/bands/${performer.id}`,
+        });
       }
+      if (this.event.unregistered_performers) {
+        const unregisters = this.event.unregistered_performers.split("*/");
+        for (let unregister of unregisters) {
+          this.lineups.push({ text: unregister });
+        }
+      }
+    } catch (error) {
+      if (error.response) this.$router.replace("/errors/not_found");
     }
   },
   computed: {
@@ -100,12 +110,16 @@ export default {
   },
   methods: {
     async deleteEvent() {
-      await this.$axios.delete(`/events/${this.id}`, this.headers);
-      this.$router.replace("/");
+      try {
+        await this.$axios.delete(`/events/${this.id}`, this.headers);
+        this.$router.replace("/");
+      } catch (error) {
+        if (error.response) this.eventError = true;
+      }
     },
     async postComment(newReply, parentId) {
       if (!this.token) {
-        return this.$router.push("/auth/error");
+        return this.$router.push("/errors/unauthorized");
       } else {
         const formData = new FormData();
         if (newReply) {

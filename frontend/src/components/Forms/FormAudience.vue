@@ -28,11 +28,7 @@
               <v-card-text>
                 <v-card flat class="d-flex align-center">
                   <v-avatar size="50">
-                    <v-img v-if="imageUrl" :src="imageUrl" />
-                    <v-img
-                      v-if="!imageUrl"
-                      src="@/assets/img/no-audience-img.jpeg"
-                    />
+                    <v-img :src="audienceImage" />
                   </v-avatar>
                   <v-card-text class="py-0 pr-0">
                     <ValidationProvider
@@ -94,7 +90,7 @@
                   />
                 </ValidationProvider>
                 <v-alert
-                  :value="audience.isError"
+                  :value="isError"
                   type="error"
                   dense
                   outlined
@@ -129,6 +125,10 @@ export default {
       type: Object,
       require: true,
     },
+    isError: {
+      type: Boolean,
+      require: true,
+    },
   },
   data() {
     return {
@@ -145,6 +145,11 @@ export default {
       set(newValue) {
         this.$emit("input", newValue);
       },
+    },
+    audienceImage() {
+      return this.imageUrl
+        ? this.imageUrl
+        : require("@/assets/img/no-audience-img.jpeg");
     },
   },
   watch: {

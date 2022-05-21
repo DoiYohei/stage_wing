@@ -67,8 +67,12 @@ export default {
       pastEvents: [],
     };
   },
-  created() {
-    this.fetchBand();
+  async created() {
+    try {
+      await this.fetchBand();
+    } catch (error) {
+      if (error.response) this.$router.replace("/errors/not_found");
+    }
   },
   watch: {
     $route(to, from) {
@@ -160,7 +164,7 @@ export default {
     },
     changeLike(post) {
       if (!this.token) {
-        return this.$router.push("/auth/error");
+        return this.$router.push("/errors/unauthorized");
       } else {
         const formData = new FormData();
         formData.append("post_id", post.id);

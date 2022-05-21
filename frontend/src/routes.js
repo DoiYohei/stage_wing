@@ -20,8 +20,9 @@ import ChatsIndex from "@/views/Chats/ChatsIndex";
 import ChatsShow from "@/views/Chats/ChatsShow";
 import AudiencesEdit from "@/views/Audiences/AudiencesEdit";
 import AudiencesTickets from "@/views/Audiences/AudiencesTickets";
-import AuthError from "@/views/Auth/AuthError";
 import LikesIndex from "@/views/Likes/LikesIndex";
+import ErrorsUnauthorized from "@/views/Errors/ErrorsUnauthorized";
+import ErrorsNotFound from "@/views/Errors/ErrorsNotFound";
 
 Vue.use(Router);
 
@@ -160,9 +161,14 @@ export default new Router({
       props: true,
     },
     {
-      path: "/auth/error",
-      name: "AuthError",
-      component: AuthError,
+      path: "/errors/unauthorized",
+      name: "ErrorsUnauthorized",
+      component: ErrorsUnauthorized,
+    },
+    {
+      path: "/errors/not_found",
+      name: "ErrorsNotFound",
+      component: ErrorsNotFound,
     },
   ],
 });

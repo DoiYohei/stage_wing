@@ -72,18 +72,28 @@ export default {
   },
   methods: {
     async logInBand() {
-      const formData = new FormData();
-      formData.append("email", this.band.email);
-      formData.append("password", this.band.password);
-      const res = await this.$store.dispatch("loginBand", formData);
-      if (!res) this.band.isError = true;
+      try {
+        const formData = new FormData();
+        formData.append("email", this.band.email);
+        formData.append("password", this.band.password);
+        const res = await this.$axios.post("/bands/sign_in", formData);
+        const userType = "bands";
+        return this.$store.dispatch("setAuthData", { res, userType });
+      } catch (error) {
+        if (error.response) this.band.isError = true;
+      }
     },
     async logInAudience() {
-      const formData = new FormData();
-      formData.append("email", this.audience.email);
-      formData.append("password", this.audience.password);
-      const res = await this.$store.dispatch("loginAudience", formData);
-      if (!res) this.audience.isError = true;
+      try {
+        const formData = new FormData();
+        formData.append("email", this.audience.email);
+        formData.append("password", this.audience.password);
+        const res = await this.$axios.post("/audiences/sign_in", formData);
+        const userType = "audiences";
+        return this.$store.dispatch("setAuthData", { res, userType });
+      } catch (error) {
+        if (error.response) this.audience.isError = true;
+      }
     },
   },
 };

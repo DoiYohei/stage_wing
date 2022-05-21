@@ -27,7 +27,7 @@
             </template>
           </v-data-table>
           <v-dialog v-model="dialog" width="45vw">
-            <CardDialog
+            <DialogYesNo
               :dialog-text="dialogText"
               @select-excution="deleteTicket"
               @close-dialog="closeDialog"
@@ -42,12 +42,12 @@
 <script>
 import { mapGetters } from "vuex";
 import CardActionsEventPastSelect from "@/components/CardActions/CardActionsEventPastSelect";
-import CardDialog from "@/components/Cards/CardDialog";
+import DialogYesNo from "@/components/Dialogs/DialogYesNo";
 
 export default {
   components: {
     CardActionsEventPastSelect,
-    CardDialog,
+    DialogYesNo,
   },
   props: ["id"],
   data() {
