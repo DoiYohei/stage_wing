@@ -7,7 +7,7 @@ class PostsController < ApplicationController
     if @post.save
       render json: :created
     else
-      render json: @post.errors, status: :unprocessable_entity
+      render json: :unprocessable_entity
     end
   end
 
@@ -15,13 +15,16 @@ class PostsController < ApplicationController
     if @post.update(post_params)
       render json: :ok
     else
-      render json: @post.errors, status: :unprocessable_entity
+      render json: :unprocessable_entity
     end
   end
 
   def destroy
-    @post.destroy!
-    render json: :ok
+    if @post.destroy
+      render json: :ok
+    else
+      render json: :bad_request
+    end
   end
 
   private

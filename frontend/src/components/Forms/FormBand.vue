@@ -18,7 +18,7 @@
             <v-img :src="bandImage" aspect-ratio="1.37" />
           </v-col>
           <v-col md="5" cols="12" class="text-left pb-0">
-            <ValidationObserver v-slot="{ invalid }">
+            <ValidationObserver v-slot="{ handleSubmit }">
               <v-card-text class="pb-0">
                 <ValidationProvider
                   name="画像"
@@ -60,12 +60,12 @@
                   />
                 </ValidationProvider>
                 <ValidationProvider
+                  v-if="band.password !== undefined"
                   name="Password"
                   rules="max:128|min:8|required"
                   v-slot="{ errors }"
                 >
                   <v-text-field
-                    v-if="band.password !== undefined"
                     v-model="band.password"
                     @click:append="visible = !visible"
                     :append-icon="visible ? 'mdi-eye' : 'mdi-eye-off'"
@@ -121,7 +121,7 @@
                   <slot name="error-text" />
                 </v-alert>
               </v-card-text>
-              <ButtonSubmitForms @submit-forms="submitForms" :invalid="invalid">
+              <ButtonSubmitForms @submit-forms="handleSubmit(submitForms)">
                 <slot name="btn-text" />
               </ButtonSubmitForms>
             </ValidationObserver>

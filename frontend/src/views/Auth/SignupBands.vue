@@ -34,7 +34,7 @@ export default {
       try {
         const formData = new FormData();
         formData.append("name", this.band.name);
-        formData.append("email", null);
+        formData.append("email", this.band.email);
         formData.append("password", this.band.password);
         formData.append("image", image);
         formData.append("profile", this.band.profile);

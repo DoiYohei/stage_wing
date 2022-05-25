@@ -18,7 +18,7 @@
             <v-img :src="eventFlyer" aspect-ratio="1.25" />
           </v-col>
           <v-col class="text-left">
-            <ValidationObserver v-slot="{ invalid }">
+            <ValidationObserver v-slot="{ handleSubmit }">
               <v-card-text>
                 <ValidationProvider
                   name="フライヤー"
@@ -177,7 +177,7 @@
                   <slot name="error-text" />
                 </v-alert>
               </v-card-text>
-              <ButtonSubmitForms @submit-forms="submitForms" :invalid="invalid">
+              <ButtonSubmitForms @submit-forms="handleSubmit(submitForms)">
                 <slot name="btn-text" />
               </ButtonSubmitForms>
             </ValidationObserver>

@@ -24,7 +24,7 @@
       >
         <v-card>
           <v-col sm="10" offset-sm="1">
-            <ValidationObserver v-slot="{ invalid }">
+            <ValidationObserver v-slot="{ handleSubmit }">
               <v-card-text>
                 <v-card flat class="d-flex align-center">
                   <v-avatar size="50">
@@ -99,7 +99,7 @@
                   <slot name="error-text" />
                 </v-alert>
               </v-card-text>
-              <ButtonSubmitForms :invalid="invalid" @submit-forms="submitForms">
+              <ButtonSubmitForms @submit-forms="handleSubmit(submitForms)">
                 <slot name="btn-text" />
               </ButtonSubmitForms>
             </ValidationObserver>

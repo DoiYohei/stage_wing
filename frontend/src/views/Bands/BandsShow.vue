@@ -22,6 +22,12 @@
               @patch-post="patchPost"
               @change-like="changeLike"
             />
+            <DialogShowText v-model="deleteDialog">
+              投稿を削除できませんでした。
+            </DialogShowText>
+            <DialogShowText v-model="patchDialog">
+              投稿を更新できませんでした。
+            </DialogShowText>
           </v-tab-item>
           <v-tab-item>
             <v-card color="#121212" flat>
@@ -45,6 +51,7 @@ import { mapGetters } from "vuex";
 import TheBandsHeader from "@/components/TheBands/TheBandsHeader";
 import TheBandsBiography from "@/components/TheBands/TheBandsBiography";
 import TheBandsPosts from "@/components/TheBands/TheBandsPosts";
+import DialogShowText from "@/components/Dialogs/DialogShowText";
 import CardActionsEventPastSelect from "@/components/CardActions/CardActionsEventPastSelect";
 import CardEvents from "@/components/Cards/CardEvents";
 
@@ -53,6 +60,7 @@ export default {
     TheBandsHeader,
     TheBandsBiography,
     TheBandsPosts,
+    DialogShowText,
     CardActionsEventPastSelect,
     CardEvents,
   },
@@ -65,14 +73,12 @@ export default {
       showPast: false,
       futureEvents: [],
       pastEvents: [],
+      deleteDialog: false,
+      patchDialog: false,
     };
   },
-  async created() {
-    try {
-      await this.fetchBand();
-    } catch (error) {
-      if (error.response) this.$router.replace("/errors/not_found");
-    }
+  created() {
+    this.fetchBand();
   },
   watch: {
     $route(to, from) {
@@ -96,16 +102,20 @@ export default {
   },
   methods: {
     async fetchBand() {
-      const res = await this.$axios.get(`/bands/${this.id}`, this.headers);
-      this.band = res.data;
-      this.friendStatus = res.data.friend_status;
-      const now = new Date();
-      this.futureEvents = res.data.events.filter((event) => {
-        return now.getTime() <= new Date(event.open_at).getTime();
-      });
-      this.pastEvents = res.data.events.filter((event) => {
-        return now.getTime() >= new Date(event.open_at).getTime();
-      });
+      try {
+        const res = await this.$axios.get(`/bands/${this.id}`, this.headers);
+        this.band = res.data;
+        this.friendStatus = res.data.friend_status;
+        const now = new Date();
+        this.futureEvents = res.data.events.filter((event) => {
+          return now.getTime() <= new Date(event.open_at).getTime();
+        });
+        this.pastEvents = res.data.events.filter((event) => {
+          return now.getTime() >= new Date(event.open_at).getTime();
+        });
+      } catch (error) {
+        if (error.response) this.$router.replace("/errors/not_found");
+      }
     },
     async startChat() {
       const res = await this.$axios.get("/rooms", this.headers);
@@ -146,21 +156,29 @@ export default {
       }
     },
     async deletePost(postId) {
-      await this.$axios.delete(
-        `/bands/${this.id}/posts/${postId}`,
-        this.headers
-      );
-      this.updatePage();
+      try {
+        await this.$axios.delete(
+          `/bands/${this.id}/posts/${postId}`,
+          this.headers
+        );
+        this.updatePage();
+      } catch (error) {
+        if (error.response) this.deleteDialog = true;
+      }
     },
     async patchPost(postId, postDescription) {
-      const formData = new FormData();
-      formData.append("post[description]", postDescription);
-      await this.$axios.patch(
-        `/bands/${this.id}/posts/${postId}`,
-        formData,
-        this.headers
-      );
-      this.updatePage();
+      try {
+        const formData = new FormData();
+        formData.append("post[description]", postDescription);
+        await this.$axios.patch(
+          `/bands/${this.id}/posts/${postId}`,
+          formData,
+          this.headers
+        );
+        this.updatePage();
+      } catch (error) {
+        if (error.response) this.patchDialog = true;
+      }
     },
     changeLike(post) {
       if (!this.token) {
