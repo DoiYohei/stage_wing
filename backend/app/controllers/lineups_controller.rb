@@ -1,10 +1,10 @@
 class LineupsController < ApplicationController
   before_action :authenticate_band!
+  before_action :set_event
   before_action :set_lineup, only: %i(update destroy)
 
   def index
     @bands = Band.all
-    @event = current_band.created_events.find(params[:event_id])
     @lineups = @event.lineups
   end
 
@@ -35,9 +35,12 @@ class LineupsController < ApplicationController
 
   private
 
-  def set_lineup
-    #Event作成者のみLineupの変更・削除が可能
+  def set_event
+    #Event作成者か否かのチェックも兼ねる
     @event = current_band.created_events.find(params[:event_id])
+  end
+
+  def set_lineup
     @lineup = Lineup.find(params[:id])
   end
 

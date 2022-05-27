@@ -25,6 +25,9 @@
                 <DialogShowText v-model="eventError">
                   イベントを削除できませんでした。
                 </DialogShowText>
+                <DialogShowText v-model="lineupError">
+                  {{ lineupErrorText }}
+                </DialogShowText>
               </v-tab-item>
               <v-tab-item>
                 <v-card flat>
@@ -77,6 +80,8 @@ export default {
       tab: 0,
       newComment: "",
       eventError: false,
+      lineupError: false,
+      lineupErrorText: "",
     };
   },
   async created() {
@@ -96,6 +101,11 @@ export default {
           this.lineups.push({ text: unregister });
         }
       }
+      const query = this.$route.query;
+      if (query.lineupError) {
+        this.lineupError = JSON.parse(query.lineupError);
+        this.lineupErrorText = query.errorText;
+      }
     } catch (error) {
       if (error.response) this.$router.replace("/errors/not_found");
     }
@@ -106,6 +116,11 @@ export default {
       return this.event.flyer
         ? this.event.flyer
         : require("@/assets/img/no-flyer.jpg");
+    },
+  },
+  watch: {
+    lineupError(newValue) {
+      if (!newValue) this.$router.replace({ query: {} });
     },
   },
   methods: {
