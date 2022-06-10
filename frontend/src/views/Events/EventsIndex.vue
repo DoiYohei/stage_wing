@@ -61,7 +61,7 @@
       </v-col>
     </v-row>
     <v-btn
-      v-if="isAuthenticatedBand"
+      v-if="bandId"
       to="/events/new"
       color="grey"
       dark
@@ -117,7 +117,7 @@ export default {
     this.moldDisplay();
   },
   computed: {
-    ...mapGetters(["isAuthenticatedBand"]),
+    ...mapGetters(["bandId"]),
     keyword() {
       if (this.keywordInput) {
         return this.keywordInput.toLowerCase().trim();

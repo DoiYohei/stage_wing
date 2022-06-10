@@ -34,7 +34,7 @@
                       </v-col>
                     </v-row>
                     <v-row :key="index" dense>
-                      <v-col v-if="message.band_id !== userId">
+                      <v-col v-if="message.band_id !== bandId">
                         <div class="balloon_l">
                           <div class="face_icon">
                             <v-avatar size="40">
@@ -49,7 +49,7 @@
                           </p>
                         </div>
                       </v-col>
-                      <v-col v-if="message.band_id === userId">
+                      <v-col v-if="message.band_id === bandId">
                         <div class="balloon_r">
                           <p class="time">
                             {{ $dayjs(message.created_at).format("hh:mm") }}
@@ -136,7 +136,7 @@ export default {
     this.scrollToEnd();
   },
   computed: {
-    ...mapGetters(["userId", "token"]),
+    ...mapGetters(["bandId", "token"]),
     isFirstContentInDate() {
       return (messageId) => {
         const firstMessagesInDate = Array.from(

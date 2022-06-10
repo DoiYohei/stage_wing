@@ -19,7 +19,7 @@
         sm="6"
         cols="12"
       >
-        <v-expansion-panels>
+        <v-expansion-panels v-model="event.id">
           <v-expansion-panel>
             <v-expansion-panel-header>
               <v-card flat>
@@ -78,20 +78,25 @@ export default {
     };
   },
   async created() {
-    const res = await this.$axios.get(
-      `/bands/${this.id}/tickets`,
-      this.headers
-    );
-    const now = new Date();
-    this.futureEvents = res.data.filter((event) => {
-      return now.getTime() <= new Date(event.open_at).getTime();
-    });
-    this.pastEvents = res.data.filter((event) => {
-      return now.getTime() >= new Date(event.open_at).getTime();
-    });
+    try {
+      if (this.id !== this.bandId) throw { response: "status 401" };
+      const res = await this.$axios.get(
+        `/bands/${this.id}/tickets`,
+        this.headers
+      );
+      const now = new Date();
+      this.futureEvents = res.data.filter((event) => {
+        return now.getTime() <= new Date(event.open_at).getTime();
+      });
+      this.pastEvents = res.data.filter((event) => {
+        return now.getTime() >= new Date(event.open_at).getTime();
+      });
+    } catch (error) {
+      if (error.response) this.$router.replace("/");
+    }
   },
   computed: {
-    ...mapGetters(["headers"]),
+    ...mapGetters(["bandId", "headers"]),
     displayEvents() {
       return this.showPast ? this.pastEvents : this.futureEvents;
     },

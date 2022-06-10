@@ -117,10 +117,7 @@ export default {
           if (error.response) {
             this.$router.replace({
               path: `/events/${eventId}`,
-              query: {
-                lineupError: true,
-                errorText: "Lineupに登録できないBandがありました。",
-              },
+              query: { lineupCreateError: true },
             });
           }
         }

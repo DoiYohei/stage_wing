@@ -33,7 +33,7 @@
       </v-card>
     </v-col>
     <TheEventsTicketsShow
-      v-if="isAuthenticatedAudience"
+      v-if="audienceId"
       :event="event"
       @post-ticket="postTicket"
       @delete-ticket="deleteTicket"
@@ -70,10 +70,10 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["userId", "isAuthenticatedBand", "isAuthenticatedAudience"]),
+    ...mapGetters(["bandId", "audienceId"]),
     isEventOwner() {
       if (this.event.owner) {
-        return this.isAuthenticatedBand && this.userId === this.event.owner.id;
+        return this.bandId === this.event.owner.id;
       } else {
         return false;
       }

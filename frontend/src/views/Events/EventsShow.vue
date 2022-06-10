@@ -22,11 +22,8 @@
                   @post-ticket="postTicket"
                   @delete-ticket="deleteTicket"
                 />
-                <DialogShowText v-model="eventError">
-                  イベントを削除できませんでした。
-                </DialogShowText>
-                <DialogShowText v-model="lineupError">
-                  {{ lineupErrorText }}
+                <DialogShowText v-model="isError">
+                  {{ errorText }}
                 </DialogShowText>
               </v-tab-item>
               <v-tab-item>
@@ -79,14 +76,13 @@ export default {
       lineups: [],
       tab: 0,
       newComment: "",
-      eventError: false,
-      lineupError: false,
-      lineupErrorText: "",
+      isError: false,
+      errorText: "",
     };
   },
   async created() {
     try {
-      const audienceToken = this.isAuthenticatedAudience ? this.headers : null;
+      const audienceToken = this.audienceId ? this.headers : null;
       const res = await this.$axios.get(`/events/${this.id}`, audienceToken);
       this.event = res.data;
       for (let performer of this.event.performers) {
@@ -102,16 +98,20 @@ export default {
         }
       }
       const query = this.$route.query;
-      if (query.lineupError) {
-        this.lineupError = JSON.parse(query.lineupError);
-        this.lineupErrorText = query.errorText;
+      if (query.lineupCreateError) {
+        this.isError = true;
+        this.errorText = "Lineupに登録できないBandがありました。";
+      }
+      if (query.lineupUpdateError) {
+        this.isError = true;
+        this.errorText = "Lineupに更新できないBandがありました。";
       }
     } catch (error) {
       if (error.response) this.$router.replace("/errors/not_found");
     }
   },
   computed: {
-    ...mapGetters(["headers", "token", "isAuthenticatedAudience"]),
+    ...mapGetters(["audienceId", "headers", "token"]),
     eventFlyer() {
       return this.event.flyer
         ? this.event.flyer
@@ -119,8 +119,11 @@ export default {
     },
   },
   watch: {
-    lineupError(newValue) {
-      if (!newValue) this.$router.replace({ query: {} });
+    isError(newValue) {
+      if (!newValue) {
+        this.errorText = "";
+        if (this.$router.query) this.$router.replace({ query: {} });
+      }
     },
   },
   methods: {
@@ -129,7 +132,10 @@ export default {
         await this.$axios.delete(`/events/${this.id}`, this.headers);
         this.$router.replace("/");
       } catch (error) {
-        if (error.response) this.eventError = true;
+        if (error.response) {
+          this.isError = true;
+          this.errorText = "イベントを削除できませんでした";
+        }
       }
     },
     async postComment(newReply, parentId) {
@@ -160,22 +166,32 @@ export default {
       this.updatePage();
     },
     async postTicket(bandId) {
-      const formData = new FormData();
-      formData.append("ticket[event_id]", this.id);
-      formData.append("ticket[band_id]", bandId);
-      await this.$axios.post(
-        `/events/${this.id}/tickets`,
-        formData,
-        this.headers
-      );
-      this.updatePage();
+      try {
+        const formData = new FormData();
+        formData.append("ticket[event_id]", this.id);
+        formData.append("ticket[band_id]", bandId);
+        await this.$axios.post(`/tickets`, formData, this.headers);
+        this.updatePage();
+      } catch (error) {
+        if (error.response) {
+          this.isError = true;
+          this.errorText = "チケットを取り置きできませんでした。";
+        }
+      }
     },
     async deleteTicket() {
-      await this.$axios.delete(
-        `/events/${this.id}/tickets/${this.event.ticket.id}`,
-        this.headers
-      );
-      this.updatePage();
+      try {
+        await this.$axios.delete(
+          `/tickets/${this.event.ticket.id}`,
+          this.headers
+        );
+        this.updatePage();
+      } catch (error) {
+        if (error.response) {
+          this.isError = true;
+          this.errorText = "チケットをキャンセルできませんでした。";
+        }
+      }
     },
     updatePage() {
       this.$router.go({ path: this.$router.currentRoute.path, force: true });

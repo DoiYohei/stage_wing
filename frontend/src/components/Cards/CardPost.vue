@@ -122,13 +122,9 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["isAuthenticatedBand", "userId"]),
+    ...mapGetters(["bandId"]),
     isMyPost() {
-      if (this.isAuthenticatedBand) {
-        return this.userId === this.post.band.id;
-      } else {
-        return false;
-      }
+      return this.bandId === this.post.band.id;
     },
   },
   methods: {

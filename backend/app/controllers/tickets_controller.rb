@@ -6,14 +6,17 @@ class TicketsController < ApplicationController
     if ticket.save
       render json: :created
     else
-      render json: ticket.errors, status: :unprocessable_entity
+      render json: :unprocessable_entity
     end
   end
 
   def destroy
     ticket = current_audience.tickets.find(params[:id])
-    ticket.destroy!
-    render json: :ok
+    if ticket.destroy
+      render json: :ok
+    else
+      render json: :bad_request
+    end
   end
 
   private

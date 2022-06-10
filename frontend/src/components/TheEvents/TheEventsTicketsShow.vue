@@ -1,24 +1,22 @@
 <template>
   <v-card-actions>
-    <v-card color="grey darken-3">
-      <v-dialog v-if="event.ticket" v-model="dialog" width="45vw">
-        <template #activator="{ on, attrs }">
-          <v-card-text v-bind="attrs" v-on="on" class="pa-2">
-            チケットを取り置きしています。
-          </v-card-text>
-        </template>
-        <DialogYesNo
-          dialogText="このイベントのチケットをキャンセルしますか？"
-          @select-excution="deleteTicket"
-          @close-dialog="closeDialog"
-        />
-      </v-dialog>
-      <TheEventsTicketsNew
-        v-if="!event.ticket && event.reservation"
-        :event="event"
-        @post-ticket="postTicket"
+    <v-dialog v-if="event.ticket" v-model="dialog" width="45vw">
+      <template #activator="{ on, attrs }">
+        <v-btn v-bind="attrs" v-on="on" color="grey darken-2" small>
+          チケットを取り置きしています。
+        </v-btn>
+      </template>
+      <DialogYesNo
+        dialogText="このイベントのチケットをキャンセルしますか？"
+        @select-excution="deleteTicket"
+        @close-dialog="closeDialog"
       />
-    </v-card>
+    </v-dialog>
+    <TheEventsTicketsNew
+      v-if="!event.ticket && event.reservation"
+      :event="event"
+      @post-ticket="postTicket"
+    />
   </v-card-actions>
 </template>
 
@@ -45,6 +43,7 @@ export default {
   methods: {
     deleteTicket() {
       this.$emit("delete-ticket");
+      this.closeDialog();
     },
     postTicket(bandId) {
       this.$emit("post-ticket", bandId);

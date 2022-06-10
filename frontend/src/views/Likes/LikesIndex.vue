@@ -53,19 +53,16 @@ export default {
     };
   },
   async created() {
-    const res = await this.$axios.get("/likes", this.headers);
-    this.posts = res.data;
-    this.moldDisplay();
+    try {
+      const res = await this.$axios.get("/likes", this.headers);
+      this.posts = res.data;
+      this.moldDisplay();
+    } catch (error) {
+      if (error.response) this.$router.replace("/");
+    }
   },
   computed: {
-    ...mapGetters(["isAuthenticatedBand", "userId", "headers", "token"]),
-    isMyPage() {
-      if (this.isAuthenticatedBand) {
-        return this.userId === this.id;
-      } else {
-        return false;
-      }
-    },
+    ...mapGetters(["bandId", "headers", "token"]),
   },
   methods: {
     moldDisplay() {
@@ -75,10 +72,7 @@ export default {
     },
     async deletePost(postId) {
       try {
-        await this.$axios.delete(
-          `/bands/${this.id}/posts/${postId}`,
-          this.headers
-        );
+        await this.$axios.delete(`/posts/${postId}`, this.headers);
         this.updatePage();
       } catch (error) {
         if (error.response) this.deleteDialog = true;
@@ -88,11 +82,7 @@ export default {
       try {
         const formData = new FormData();
         formData.append("post[description]", postDescription);
-        await this.$axios.patch(
-          `/bands/${this.id}/posts/${postId}`,
-          formData,
-          this.headers
-        );
+        await this.$axios.patch(`/posts/${postId}`, formData, this.headers);
         this.updatePage();
       } catch (error) {
         if (error.response) this.patchDialog = true;

@@ -88,13 +88,9 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["isAuthenticatedBand", "userId", "headers", "token"]),
+    ...mapGetters(["bandId", "headers", "token"]),
     isMyPage() {
-      if (this.isAuthenticatedBand) {
-        return this.userId === this.band.id;
-      } else {
-        return false;
-      }
+      return this.bandId === this.band.id;
     },
     displayEvents() {
       return this.showPast ? this.pastEvents : this.futureEvents;
@@ -128,7 +124,7 @@ export default {
         roomId = res.data;
       }
       this.$router.push({
-        path: `/bands/${this.userId}/chats/${roomId}`,
+        path: `/bands/${this.bandId}/chats/${roomId}`,
         query: { partnerId: this.id },
       });
     },
@@ -157,10 +153,7 @@ export default {
     },
     async deletePost(postId) {
       try {
-        await this.$axios.delete(
-          `/bands/${this.id}/posts/${postId}`,
-          this.headers
-        );
+        await this.$axios.delete(`/posts/${postId}`, this.headers);
         this.updatePage();
       } catch (error) {
         if (error.response) this.deleteDialog = true;
@@ -170,11 +163,7 @@ export default {
       try {
         const formData = new FormData();
         formData.append("post[description]", postDescription);
-        await this.$axios.patch(
-          `/bands/${this.id}/posts/${postId}`,
-          formData,
-          this.headers
-        );
+        await this.$axios.patch(`/posts/${postId}`, formData, this.headers);
         this.updatePage();
       } catch (error) {
         if (error.response) this.patchDialog = true;

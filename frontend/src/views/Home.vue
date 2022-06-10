@@ -117,7 +117,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["isAuthenticatedBand", "isAuthenticatedAudience", "token"]),
+    ...mapGetters(["token"]),
     drawer: {
       get() {
         return this.value;

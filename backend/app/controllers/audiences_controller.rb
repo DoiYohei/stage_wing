@@ -1,15 +1,19 @@
 class AudiencesController < ApplicationController
-  before_action :authenticate_audience!, except: :index
-  
-  def index
-    @audiences = Audience.all
-  end
+  before_action :accessible_by_owner
   
   def edit
-    @audience = current_audience
+    render json: current_audience
   end
   
   def tickets
     @tickets = current_audience.tickets
+  end
+
+  private
+
+  def accessible_by_owner
+    if current_audience != Audience.find(params[:id])
+      render status: :unauthorized
+    end
   end
 end

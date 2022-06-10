@@ -14,8 +14,8 @@ import BandsIndex from "@/views/Bands/BandsIndex";
 import BandsShow from "@/views/Bands/BandsShow";
 import BandsEdit from "@/views/Bands/BandsEdit";
 import BandsTickets from "@/views/Bands/BandsTickets";
-import BandsPostsNew from "@/views/Bands/BandsPostsNew";
 import BandsFriends from "@/views/Bands/BandsFriends";
+import PostsNew from "@/views/Posts/PostsNew";
 import ChatsIndex from "@/views/Chats/ChatsIndex";
 import ChatsShow from "@/views/Chats/ChatsShow";
 import AudiencesEdit from "@/views/Audiences/AudiencesEdit";
@@ -67,7 +67,7 @@ export default new Router({
       name: "EventsNew",
       component: EventsNew,
       beforeEnter(to, from, next) {
-        store.getters.userType !== "bands" ? next("/") : next();
+        store.getters.bandId ? next() : next("/");
       },
     },
     {
@@ -117,12 +117,6 @@ export default new Router({
       props: true,
     },
     {
-      path: "/bands/:id/posts/new",
-      name: "BandsPostsNew",
-      component: BandsPostsNew,
-      props: true,
-    },
-    {
       path: "/bands/:id/friends",
       name: "BandsFriends",
       component: BandsFriends,
@@ -141,11 +135,19 @@ export default new Router({
       props: true,
     },
     {
-      path: "/liked_posts",
+      path: "/posts/new",
+      name: "PostsNew",
+      component: PostsNew,
+      beforeEnter(to, from, next) {
+        store.getters.bandId ? next() : next("/");
+      },
+    },
+    {
+      path: "/likes",
       name: "LikesIndex",
       component: LikesIndex,
       beforeEnter(to, from, next) {
-        !store.getters.token ? next("/") : next();
+        store.getters.token ? next() : next("/");
       },
     },
     {

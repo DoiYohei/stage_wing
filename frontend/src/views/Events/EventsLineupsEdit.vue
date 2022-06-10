@@ -168,10 +168,7 @@ export default {
         if (error.response) {
           this.$router.replace({
             path: `/events/${this.id}`,
-            query: {
-              lineupError: true,
-              errorText: "Lineupに更新できないBandがありました。",
-            },
+            query: { lineupUpdateError: true },
           });
         }
         if (error.overLength) {

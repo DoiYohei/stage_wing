@@ -3,9 +3,9 @@ class LineupsController < ApplicationController
   before_action :set_event
   before_action :set_lineup, only: %i(update destroy)
 
-  def index
+  def index # Lineups編集時に使用
     @bands = Band.all
-    @lineups = @event.lineups
+    @lineups = event.lineups
   end
 
   def create
@@ -36,8 +36,7 @@ class LineupsController < ApplicationController
   private
 
   def set_event
-    #Event作成者か否かのチェックも兼ねる
-    @event = current_band.created_events.find(params[:event_id])
+    event = current_band.created_events.find(params[:event_id])
   end
 
   def set_lineup

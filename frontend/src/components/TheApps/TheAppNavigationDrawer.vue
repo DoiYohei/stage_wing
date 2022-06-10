@@ -86,14 +86,7 @@ export default {
     this.fetchList();
   },
   computed: {
-    ...mapGetters([
-      "isAuthenticatedBand",
-      "isAuthenticatedAudience",
-      "token",
-      "userId",
-      "userName",
-      "userImage",
-    ]),
+    ...mapGetters(["bandId", "audienceId", "token", "userName", "userImage"]),
     drawer: {
       get() {
         return this.value;
@@ -127,14 +120,14 @@ export default {
       }
     },
     fetchList() {
-      if (this.isAuthenticatedBand) {
+      if (this.bandId) {
         this.contents = [
           {
             text: "マイページ",
             link: {
               name: "BandsShow",
               params: {
-                id: this.userId,
+                id: this.bandId,
               },
             },
           },
@@ -147,10 +140,7 @@ export default {
           {
             text: "新規Post作成",
             link: {
-              name: "BandsPostsNew",
-              params: {
-                id: this.userId,
-              },
+              name: "PostsNew",
             },
           },
           {
@@ -158,7 +148,7 @@ export default {
             link: {
               name: "BandsFriends",
               params: {
-                id: this.userId,
+                id: this.bandId,
               },
             },
           },
@@ -167,7 +157,7 @@ export default {
             link: {
               name: "ChatsIndex",
               params: {
-                id: this.userId,
+                id: this.bandId,
               },
             },
           },
@@ -176,7 +166,7 @@ export default {
             link: {
               name: "BandsTickets",
               params: {
-                id: this.userId,
+                id: this.bandId,
               },
             },
           },
@@ -191,19 +181,19 @@ export default {
             link: {
               name: "BandsEdit",
               params: {
-                id: this.userId,
+                id: this.bandId,
               },
             },
           },
         ];
-      } else if (this.isAuthenticatedAudience) {
+      } else if (this.audienceId) {
         this.contents = [
           {
             text: "取り置きしているチケット",
             link: {
               name: "AudiencesTickets",
               params: {
-                id: this.userId,
+                id: this.audienceId,
               },
             },
           },
@@ -218,7 +208,7 @@ export default {
             link: {
               name: "AudiencesEdit",
               params: {
-                id: this.userId,
+                id: this.audienceId,
               },
             },
           },

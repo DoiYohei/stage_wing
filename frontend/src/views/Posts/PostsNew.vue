@@ -131,7 +131,6 @@ export default {
     VuetifyAudio,
     ButtonSubmitForms,
   },
-  props: ["id"],
   data() {
     return {
       format: "",
@@ -151,13 +150,8 @@ export default {
       createError: false,
     };
   },
-  created() {
-    if (!this.isAuthenticatedBand || this.userId !== Number(this.id)) {
-      return this.$router.replace("/");
-    }
-  },
   computed: {
-    ...mapGetters(["headers", "userId", "isAuthenticatedBand"]),
+    ...mapGetters(["bandId", "headers"]),
     isFile() {
       return this.format === "photo" || this.format === "audio";
     },
@@ -250,12 +244,8 @@ export default {
           if (this.isMediaPass) {
             formData.append("post[media_pass]", this.mediaPass);
           }
-          await this.$axios.post(
-            `/bands/${this.id}/posts`,
-            formData,
-            this.headers
-          );
-          this.$router.replace(`/bands/${this.id}`);
+          await this.$axios.post(`/posts`, formData, this.headers);
+          this.$router.replace(`/bands/${this.bandId}`);
         } catch (error) {
           if (error.response) this.createError = true;
         }
