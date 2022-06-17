@@ -82,9 +82,12 @@ export default {
   },
   async created() {
     try {
+      // ユーザーがAudienceの場合はTicket取り置き状況も取得
       const audienceToken = this.audienceId ? this.headers : null;
       const res = await this.$axios.get(`/events/${this.id}`, audienceToken);
       this.event = res.data;
+
+      // 取得したLineupのデータを表示用に整形
       for (let performer of this.event.performers) {
         this.lineups.push({
           text: performer.name,
@@ -97,15 +100,17 @@ export default {
           this.lineups.push({ text: unregister });
         }
       }
+
+      // Lineup作成or更新でエラーがあった場合、メッセージを表示
       const query = this.$route.query;
-      if (query.lineupCreateError) {
-        this.isError = true;
-        this.errorText = "Lineupに登録できないBandがありました。";
-      }
-      if (query.lineupUpdateError) {
-        this.isError = true;
-        this.errorText = "Lineupに更新できないBandがありました。";
-      }
+      this.showError(
+        query.lineupCreateError,
+        "Lineupに登録できないBandがありました。"
+      );
+      this.showError(
+        query.lineupUpdateError,
+        "Lineupに更新できないBandがありました。"
+      );
     } catch (error) {
       if (error.response) this.$router.replace("/errors/not_found");
     }
@@ -132,38 +137,36 @@ export default {
         await this.$axios.delete(`/events/${this.id}`, this.headers);
         this.$router.replace("/");
       } catch (error) {
-        if (error.response) {
-          this.isError = true;
-          this.errorText = "イベントを削除できませんでした";
-        }
+        this.showError(error.response, "イベントを削除できませんでした。");
       }
     },
     async postComment(newReply, parentId) {
       if (!this.token) {
         return this.$router.push("/errors/unauthorized");
       } else {
-        const formData = new FormData();
-        if (newReply) {
-          formData.append("comment[content]", newReply);
-          formData.append("comment[parent_id", parentId);
-        } else {
-          formData.append("comment[content]", this.newComment);
+        try {
+          const formData = new FormData();
+          if (newReply) {
+            formData.append("comment[content]", newReply);
+            formData.append("comment[parent_id", parentId);
+          } else {
+            formData.append("comment[content]", this.newComment);
+          }
+          formData.append("comment[event_id]", this.id);
+          await this.$axios.post("/comments", formData, this.headers);
+          this.updatePage();
+        } catch (error) {
+          this.showError(error.response, "コメントを投稿できませんでした。");
         }
-        formData.append("comment[event_id]", this.id);
-        await this.$axios.post(
-          `/events/${this.id}/comments`,
-          formData,
-          this.headers
-        );
-        this.updatePage();
       }
     },
     async deleteComment(commentId) {
-      await this.$axios.delete(
-        `/events/${this.id}/comments/${commentId}`,
-        this.headers
-      );
-      this.updatePage();
+      try {
+        await this.$axios.delete(`/comments/${commentId}`, this.headers);
+        this.updatePage();
+      } catch (error) {
+        this.showError(error.response, "コメントを削除できませんでした。");
+      }
     },
     async postTicket(bandId) {
       try {
@@ -173,10 +176,7 @@ export default {
         await this.$axios.post(`/tickets`, formData, this.headers);
         this.updatePage();
       } catch (error) {
-        if (error.response) {
-          this.isError = true;
-          this.errorText = "チケットを取り置きできませんでした。";
-        }
+        this.showError(error.response, "チケットを取り置きできませんでした。");
       }
     },
     async deleteTicket() {
@@ -187,10 +187,16 @@ export default {
         );
         this.updatePage();
       } catch (error) {
-        if (error.response) {
-          this.isError = true;
-          this.errorText = "チケットをキャンセルできませんでした。";
-        }
+        this.showError(
+          error.response,
+          "チケットをキャンセルできませんでした。"
+        );
+      }
+    },
+    showError(error, text) {
+      if (error) {
+        this.isError = true;
+        this.errorText = text;
       }
     },
     updatePage() {

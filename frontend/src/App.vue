@@ -53,4 +53,9 @@ img {
 .reflect-return {
   white-space: pre-wrap;
 }
+
+.reply-comment {
+  border: thin;
+  border-style: none none outset inset;
+}
 </style>

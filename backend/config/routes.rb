@@ -17,8 +17,8 @@ Rails.application.routes.draw do
     resources :events do
       get :edit, on: :member
       resources :lineups, except: :show
-      resources :comments, only: %i(create destroy)
     end
+    resources :comments, only: %i(create destroy)
     resources :tickets, only: %i(create destroy)
     resources :bands, only: %i(show index edit) do
       member do

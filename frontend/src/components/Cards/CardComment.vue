@@ -73,6 +73,7 @@ export default {
   methods: {
     deleteComment() {
       this.$emit("delete-comment", this.comment.id);
+      this.closeDialog();
     },
     closeDialog() {
       this.dialog = false;
