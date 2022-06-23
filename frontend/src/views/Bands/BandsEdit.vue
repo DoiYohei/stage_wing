@@ -25,7 +25,7 @@ export default {
   },
   async created() {
     try {
-      if (this.id !== this.bandId) throw { response: "status 401" };
+      if (Number(this.id) !== this.bandId) throw { response: "status 401" };
       const res = await this.$axios.get(`/bands/${this.id}/edit`, this.headers);
       this.band = res.data;
     } catch (error) {

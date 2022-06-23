@@ -1,5 +1,8 @@
 <template>
   <v-container :fluid="$vuetify.breakpoint.lg">
+    <DialogShowText v-model="isError">
+      {{ errorText }}
+    </DialogShowText>
     <v-row v-if="$vuetify.breakpoint.mdAndDown">
       <v-col>
         <v-tabs v-model="tabs" background-color="grey darken-3" fixed-tabs>
@@ -61,15 +64,19 @@
 
 <script>
 import { mapGetters } from "vuex";
+import DialogShowText from "@/components/Dialogs/DialogShowText";
 import ListFriendships from "@/components/ListFriendships";
 
 export default {
   components: {
+    DialogShowText,
     ListFriendships,
   },
   props: ["id"],
   data() {
     return {
+      isError: false,
+      errorText: "",
       tabs: 0,
       friends: [],
       invitings: [],
@@ -94,16 +101,21 @@ export default {
     };
   },
   async created() {
-    const res = await this.$axios.get(
-      `/bands/${this.id}/friendships`,
-      this.headers
-    );
-    this.friends = res.data.friends;
-    this.invitings = res.data.inviting;
-    this.inviters = res.data.inviters;
+    try {
+      if (Number(this.id) !== this.bandId) throw { response: "status 401" };
+      const res = await this.$axios.get(
+        `/bands/${this.id}/friendships`,
+        this.headers
+      );
+      this.friends = res.data.friends;
+      this.invitings = res.data.inviting;
+      this.inviters = res.data.inviters;
+    } catch (error) {
+      if (error.response) this.$router.replace("/");
+    }
   },
   computed: {
-    ...mapGetters(["headers", "token"]),
+    ...mapGetters(["bandId", "headers", "token"]),
   },
   methods: {
     changeFriendship(isFollowing, formData) {
@@ -117,19 +129,29 @@ export default {
       }
     },
     async startChat(bandId) {
-      const res = await this.$axios.get("/rooms", this.headers);
-      const room = res.data.find((data) => data.friend_id === bandId);
-      let roomId = room.id;
-      if (!roomId) {
-        const formData = new FormData();
-        formData.append("band_room[band_id]", bandId);
-        const res = await this.$axios.post("/rooms", formData, this.headers);
-        roomId = res.data;
+      try {
+        const res = await this.$axios.get(
+          `/bands/${this.bandId}/rooms`,
+          this.headers
+        );
+        const room = res.data.find((data) => data.friend_id === bandId);
+        let roomId = room.id;
+        if (!roomId) {
+          const formData = new FormData();
+          formData.append("band_room[band_id]", bandId);
+          const res = await this.$axios.post("/rooms", formData, this.headers);
+          roomId = res.data;
+        }
+        this.$router.push({
+          path: `/bands/${this.id}/chats/${roomId}`,
+          query: { partnerId: bandId },
+        });
+      } catch (error) {
+        if (error.response) {
+          this.isError = true;
+          this.errorText = "チャットを開始できません。";
+        }
       }
-      this.$router.push({
-        path: `/bands/${this.id}/chats/${roomId}`,
-        query: { partnerId: bandId },
-      });
     },
   },
 };

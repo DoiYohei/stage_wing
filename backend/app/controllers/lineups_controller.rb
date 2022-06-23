@@ -5,38 +5,38 @@ class LineupsController < ApplicationController
 
   def index # Lineups編集時に使用
     @bands = Band.all
-    @lineups = event.lineups
+    @lineups = @event.lineups
   end
 
   def create
     lineup = Lineup.new(lineup_params)
     if lineup.save
-      render json: :created
+      head :created
     else
-      render json: :unprocessable_entity
+      head :unprocessable_entity
     end
   end
 
   def update
     if @lineup.update(lineup_params)
-      render json: :ok
+      head :ok
     else
-      render json: :unprocessable_entity
+      head :unprocessable_entity
     end
   end
   
   def destroy
     if @lineup.destroy
-      render json: :ok
+      head :ok
     else
-      render json: :bad_request
+      head :bad_request
     end
   end
 
   private
 
   def set_event
-    event = current_band.created_events.find(params[:event_id])
+    @event = current_band.created_events.find(params[:event_id])
   end
 
   def set_lineup

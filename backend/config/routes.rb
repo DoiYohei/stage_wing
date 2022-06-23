@@ -21,10 +21,9 @@ Rails.application.routes.draw do
     resources :comments, only: %i(create destroy)
     resources :tickets, only: %i(create destroy)
     resources :bands, only: %i(show index edit) do
-      member do
-        get :friendships
-        get :tickets
-      end
+      resources :friendships, only: :index
+      resources :rooms, only: :index
+      get :tickets, on: :member
     end
     resources :audiences, only: :edit do
       get :tickets, on: :member
@@ -36,7 +35,7 @@ Rails.application.routes.draw do
     resources :friendships, only: :create do
       delete :destroy, on: :collection
     end
-    resources :rooms, only: %i(index create) do
+    resources :rooms, only: :create do
       resources :messages, only: :index
     end
   end

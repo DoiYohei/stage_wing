@@ -1,34 +1,35 @@
 <template>
   <v-card-text>
-    <ValidationObserver v-slot="{ handleSubmit }">
-      <ValidationProvider name="コメント" rules="max: 1000" v-slot="{ errors }">
-        <v-textarea
-          v-model="comment"
-          :error-messages="errors"
-          :label="label"
-          row-height="6"
-          auto-grow
-          dense
-          outlined
-        />
-      </ValidationProvider>
+    <ValidationProvider
+      name="コメント"
+      rules="max: 1000|required"
+      v-slot="{ errors }"
+    >
+      <v-textarea
+        v-model="comment"
+        :error-messages="errorMessage"
+        :label="label"
+        row-height="6"
+        auto-grow
+        dense
+        outlined
+      />
       <v-card-actions class="pt-0 px-0">
         <v-spacer />
-        <v-btn @click="handleSubmit(submitForm)" color="grey darken-3">
+        <v-btn @click="submitForm(errors)" color="grey darken-3">
           <slot />
         </v-btn>
       </v-card-actions>
-    </ValidationObserver>
+    </ValidationProvider>
   </v-card-text>
 </template>
 
 <script>
-import { ValidationProvider, ValidationObserver } from "vee-validate";
+import { ValidationProvider } from "vee-validate";
 
 export default {
   components: {
     ValidationProvider,
-    ValidationObserver,
   },
   props: {
     value: {
@@ -39,6 +40,11 @@ export default {
       type: String,
       require: true,
     },
+  },
+  data() {
+    return {
+      errorMessage: "",
+    };
   },
   computed: {
     comment: {
@@ -51,8 +57,13 @@ export default {
     },
   },
   methods: {
-    submitForm() {
-      this.$emit("submit-form");
+    submitForm(errors) {
+      if (errors.length) {
+        return (this.errorMessage = errors);
+      } else {
+        this.errorMessage = "";
+        this.$emit("submit-form");
+      }
     },
   },
 };

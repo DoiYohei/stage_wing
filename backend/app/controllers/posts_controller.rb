@@ -5,25 +5,25 @@ class PostsController < ApplicationController
   def create
     @post = current_band.posts.build(post_params)
     if @post.save
-      render json: :created
+      head :created
     else
-      render json: :unprocessable_entity
+      head :unprocessable_entity
     end
   end
 
   def update
     if @post.update(post_params)
-      render json: :ok
+      head :ok
     else
-      render json: :unprocessable_entity
+      head :unprocessable_entity
     end
   end
 
   def destroy
     if @post.destroy
-      render json: :ok
+      head :ok
     else
-      render json: :bad_request
+      head :bad_request
     end
   end
 

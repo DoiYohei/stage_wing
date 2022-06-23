@@ -2,6 +2,9 @@
   <v-container>
     <v-row>
       <v-col>
+        <DialogShowText v-model="isError">
+          {{ errorText }}
+        </DialogShowText>
         <TheBandsHeader
           v-model="tab"
           :band="band"
@@ -22,12 +25,6 @@
               @patch-post="patchPost"
               @change-like="changeLike"
             />
-            <DialogShowText v-model="deleteDialog">
-              投稿を削除できませんでした。
-            </DialogShowText>
-            <DialogShowText v-model="patchDialog">
-              投稿を更新できませんでした。
-            </DialogShowText>
           </v-tab-item>
           <v-tab-item>
             <v-card color="#121212" flat>
@@ -48,19 +45,19 @@
 
 <script>
 import { mapGetters } from "vuex";
+import DialogShowText from "@/components/Dialogs/DialogShowText";
 import TheBandsHeader from "@/components/TheBands/TheBandsHeader";
 import TheBandsBiography from "@/components/TheBands/TheBandsBiography";
 import TheBandsPosts from "@/components/TheBands/TheBandsPosts";
-import DialogShowText from "@/components/Dialogs/DialogShowText";
 import CardActionsEventPastSelect from "@/components/CardActions/CardActionsEventPastSelect";
 import CardEvents from "@/components/Cards/CardEvents";
 
 export default {
   components: {
+    DialogShowText,
     TheBandsHeader,
     TheBandsBiography,
     TheBandsPosts,
-    DialogShowText,
     CardActionsEventPastSelect,
     CardEvents,
   },
@@ -73,8 +70,8 @@ export default {
       showPast: false,
       futureEvents: [],
       pastEvents: [],
-      deleteDialog: false,
-      patchDialog: false,
+      isError: false,
+      errorText: "",
     };
   },
   created() {
@@ -82,9 +79,10 @@ export default {
   },
   watch: {
     $route(to, from) {
-      if (to.params.id !== from.params.id) {
-        this.fetchBand();
-      }
+      if (to.params.id !== from.params.id) this.fetchBand();
+    },
+    isError(newValue) {
+      if (!newValue) this.errorText = "";
     },
   },
   computed: {
@@ -114,19 +112,28 @@ export default {
       }
     },
     async startChat() {
-      const res = await this.$axios.get("/rooms", this.headers);
-      const room = res.data.find((data) => data.friend_id === Number(this.id));
-      let roomId = room.id;
-      if (!roomId) {
-        const formData = new FormData();
-        formData.append("band_room[band_id]", this.id);
-        const res = await this.$axios.post("/rooms", formData, this.headers);
-        roomId = res.data;
+      try {
+        const res = await this.$axios.get(
+          `/bands/${this.bandId}/rooms`,
+          this.headers
+        );
+        const room = res.data.find(
+          (data) => data.friend_id === Number(this.id)
+        );
+        let roomId = room.id;
+        if (!roomId) {
+          const formData = new FormData();
+          formData.append("band_room[band_id]", this.id);
+          const res = await this.$axios.post("/rooms", formData, this.headers);
+          roomId = res.data;
+        }
+        this.$router.push({
+          path: `/bands/${this.bandId}/chats/${roomId}`,
+          query: { partnerId: this.id },
+        });
+      } catch (error) {
+        this.showError(error.response, "チャットを開始できません。");
       }
-      this.$router.push({
-        path: `/bands/${this.bandId}/chats/${roomId}`,
-        query: { partnerId: this.id },
-      });
     },
     changeFriendship(isFollowing, formData) {
       if (isFollowing) {
@@ -135,19 +142,16 @@ export default {
           data: formData,
         });
         if (this.friendStatus === "friend") {
-          this.friendStatus = "invited";
-          return;
+          return (this.friendStatus = "invited");
         } else {
-          this.friendStatus = "";
-          return;
+          return (this.friendStatus = "");
         }
       } else {
         this.$axios.post("/friendships", formData, this.headers);
         if (this.friendStatus === "invited") {
-          this.friendStatus = "friend";
-          return;
+          return (this.friendStatus = "friend");
         } else {
-          this.friendStatus = "inviting";
+          return (this.friendStatus = "inviting");
         }
       }
     },
@@ -156,7 +160,7 @@ export default {
         await this.$axios.delete(`/posts/${postId}`, this.headers);
         this.updatePage();
       } catch (error) {
-        if (error.response) this.deleteDialog = true;
+        this.showError(error.response, "投稿を削除できませんでした。");
       }
     },
     async patchPost(postId, postDescription) {
@@ -166,7 +170,7 @@ export default {
         await this.$axios.patch(`/posts/${postId}`, formData, this.headers);
         this.updatePage();
       } catch (error) {
-        if (error.response) this.patchDialog = true;
+        this.showError(error.response, "投稿を更新できませんでした。");
       }
     },
     changeLike(post) {
@@ -187,6 +191,12 @@ export default {
           post.favorite = true;
           post.likes_count += 1;
         }
+      }
+    },
+    showError(error, text) {
+      if (error) {
+        this.isError = true;
+        this.errorText = text;
       }
     },
     updatePage() {

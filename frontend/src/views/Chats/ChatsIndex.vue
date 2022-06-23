@@ -23,6 +23,9 @@
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
+                <DialogShowText v-model="isError">
+                  {{ errorText }}
+                </DialogShowText>
               </v-list-item-group>
             </v-list>
             <v-spacer />
@@ -39,36 +42,55 @@
 <script>
 import { mapGetters } from "vuex";
 import ListItemAvatar from "@/components/ListItemAvatar";
+import DialogShowText from "@/components/Dialogs/DialogShowText";
 
 export default {
   components: {
     ListItemAvatar,
+    DialogShowText,
   },
   props: ["id"],
   data() {
     return {
       rooms: null,
+      isError: false,
+      errorText: "",
     };
   },
   async created() {
-    const res = await this.$axios.get("/rooms", this.headers);
-    if (res.data[0]) this.rooms = res.data;
+    try {
+      if (Number(this.id) !== this.bandId) throw { response: "status 401" };
+      const res = await this.$axios.get(
+        `/bands/${this.id}/rooms`,
+        this.headers
+      );
+      if (res.data[0]) this.rooms = res.data;
+    } catch (error) {
+      if (error.response) this.$router.replace("/");
+    }
   },
   computed: {
-    ...mapGetters(["headers"]),
+    ...mapGetters(["bandId", "headers"]),
   },
   methods: {
     async startChat(roomId, friendId) {
-      if (!roomId) {
-        const formData = new FormData();
-        formData.append("band_room[band_id]", friendId);
-        const res = await this.$axios.post("/rooms", formData, this.headers);
-        roomId = res.data;
+      try {
+        if (!roomId) {
+          const formData = new FormData();
+          formData.append("band_room[band_id]", friendId);
+          const res = await this.$axios.post("/rooms", formData, this.headers);
+          roomId = res.data;
+        }
+        this.$router.push({
+          path: `/bands/${this.id}/chats/${roomId}`,
+          query: { partnerId: friendId },
+        });
+      } catch (error) {
+        if (error.response) {
+          this.isError = true;
+          this.errorText = "チャットを開始できません。";
+        }
       }
-      this.$router.push({
-        path: `/bands/${this.id}/chats/${roomId}`,
-        query: { partnerId: friendId },
-      });
     },
   },
 };

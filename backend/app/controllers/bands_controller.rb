@@ -1,5 +1,5 @@
 class BandsController < ApplicationController
-  before_action :accessible_by_owner, only: %i(edit friendships tickets)
+  before_action :accessible_by_owner, only: %i(edit tickets)
 
   def index
     @bands = Band.all.order(:name)
@@ -22,12 +22,6 @@ class BandsController < ApplicationController
     render json: current_band
   end
 
-  def friendships
-    @friends = current_band.friends
-    @inviting = current_band.inviting
-    @inviters = current_band.inviters
-  end
-
   def tickets
     @events = current_band.performing_events.order(:open_at)
     @tickets = current_band.tickets
@@ -37,7 +31,7 @@ class BandsController < ApplicationController
 
   def accessible_by_owner
     if current_band != Band.find(params[:id])
-      render status: :unauthorized
+      head :unauthorized
     end
   end
 end

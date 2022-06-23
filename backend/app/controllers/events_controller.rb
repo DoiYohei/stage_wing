@@ -5,9 +5,9 @@ class EventsController < ApplicationController
   def create
     @event = current_band.created_events.build(event_params)
     if @event.save
-      render json: { id: @event.id }, status: :ok
+      render json: { id: @event.id }, status: :created
     else
-      render json: :unprocessable_entity
+      head :unprocessable_entity
     end
   end
 
@@ -30,17 +30,17 @@ class EventsController < ApplicationController
 
   def update
     if @event.update(event_params)
-      render json: :ok
+      head :ok
     else
-      render json: :unprocessable_entity
+      head :unprocessable_entity
     end
   end
 
   def destroy
     if @event.destroy
-      render json: :ok
+      head :ok
     else
-      render json: :bad_request
+      head :bad_request
     end
   end
 

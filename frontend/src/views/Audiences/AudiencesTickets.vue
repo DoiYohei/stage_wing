@@ -87,7 +87,7 @@ export default {
   },
   async created() {
     try {
-      if (this.id !== this.audienceId) throw { response: "status 401" };
+      if (Number(this.id) !== this.audienceId) throw { response: "status 401" };
       const res = await this.$axios.get(
         `/audiences/${this.id}/tickets`,
         this.headers

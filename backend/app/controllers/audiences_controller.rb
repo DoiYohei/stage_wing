@@ -13,7 +13,7 @@ class AudiencesController < ApplicationController
 
   def accessible_by_owner
     if current_audience != Audience.find(params[:id])
-      render status: :unauthorized
+      head :unauthorized
     end
   end
 end
