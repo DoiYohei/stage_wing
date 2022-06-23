@@ -27,12 +27,15 @@
             </template>
           </v-data-table>
           <v-dialog v-model="dialog" width="45vw">
-            <CardDialog
+            <DialogYesNo
               :dialog-text="dialogText"
               @select-excution="deleteTicket"
               @close-dialog="closeDialog"
             />
           </v-dialog>
+          <DialogShowText v-model="isError">
+            チケットをキャンセルできませんでした。
+          </DialogShowText>
         </v-card>
       </v-col>
     </v-row>
@@ -42,12 +45,14 @@
 <script>
 import { mapGetters } from "vuex";
 import CardActionsEventPastSelect from "@/components/CardActions/CardActionsEventPastSelect";
-import CardDialog from "@/components/Cards/CardDialog";
+import DialogYesNo from "@/components/Dialogs/DialogYesNo";
+import DialogShowText from "@/components/Dialogs/DialogShowText";
 
 export default {
   components: {
     CardActionsEventPastSelect,
-    CardDialog,
+    DialogYesNo,
+    DialogShowText,
   },
   props: ["id"],
   data() {
@@ -77,24 +82,30 @@ export default {
       selectedTicket: {},
       showPast: false,
       dialog: false,
+      isError: false,
     };
   },
   async created() {
-    const res = await this.$axios.get(
-      `/audiences/${this.id}/tickets`,
-      this.headers
-    );
-    const now = new Date();
-    this.futureTickets = res.data.filter((ticket) => {
-      return now.getTime() <= new Date(ticket.event.open_at).getTime();
-    });
-    this.pastTickets = res.data.filter((ticket) => {
-      return now.getTime() >= new Date(ticket.event.open_at).getTime();
-    });
-    this.setDisplayTickets();
+    try {
+      if (Number(this.id) !== this.audienceId) throw { response: "status 401" };
+      const res = await this.$axios.get(
+        `/audiences/${this.id}/tickets`,
+        this.headers
+      );
+      const now = new Date();
+      this.futureTickets = res.data.filter((ticket) => {
+        return now.getTime() <= new Date(ticket.event.open_at).getTime();
+      });
+      this.pastTickets = res.data.filter((ticket) => {
+        return now.getTime() >= new Date(ticket.event.open_at).getTime();
+      });
+      this.setDisplayTickets();
+    } catch (error) {
+      if (error.response) this.$router.replace("/");
+    }
   },
   computed: {
-    ...mapGetters(["headers"]),
+    ...mapGetters(["audienceId", "headers"]),
     dialogText() {
       const event = this.selectedTicket.event;
       return event ? `${event.name}のチケット取り置きをやめますか？` : "";
@@ -125,11 +136,18 @@ export default {
       }
     },
     async deleteTicket() {
-      await this.$axios.delete(
-        `/events/${this.selectedTicket.event.id}/tickets/${this.selectedTicket.id}`,
-        this.headers
-      );
-      this.$router.go({ path: this.$router.currentRoute.path, force: true });
+      try {
+        await this.$axios.delete(
+          `/tickets/${this.selectedTicket.id}`,
+          this.headers
+        );
+        this.$router.go({ path: this.$router.currentRoute.path, force: true });
+      } catch (error) {
+        if (error.response) {
+          this.closeDialog();
+          this.isError = true;
+        }
+      }
     },
     openDialog(item) {
       this.selectedTicket = item;

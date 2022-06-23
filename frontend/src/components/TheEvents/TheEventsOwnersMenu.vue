@@ -18,7 +18,7 @@
                   Eventを削除する
                 </v-list-item>
               </template>
-              <CardDialog
+              <DialogYesNo
                 dialogText="このイベントを削除しますか？"
                 @select-excution="deleteEvent"
                 @close-dialog="closeDialog"
@@ -35,11 +35,11 @@
 </template>
 
 <script>
-import CardDialog from "@/components/Cards/CardDialog";
+import DialogYesNo from "@/components/Dialogs/DialogYesNo";
 
 export default {
   components: {
-    CardDialog,
+    DialogYesNo,
   },
   props: {
     eventId: {
@@ -55,6 +55,7 @@ export default {
   methods: {
     deleteEvent() {
       this.$emit("delete-event");
+      this.closeDialog();
     },
     closeDialog() {
       this.dialog = false;

@@ -60,26 +60,40 @@ export default {
         email: "",
         password: "",
         visible: false,
+        isError: false,
       },
       audience: {
         email: "",
         password: "",
         visible: false,
+        isError: false,
       },
     };
   },
   methods: {
-    logInBand() {
-      const formData = new FormData();
-      formData.append("email", this.band.email);
-      formData.append("password", this.band.password);
-      this.$store.dispatch("loginBand", formData);
+    async logInBand() {
+      try {
+        const formData = new FormData();
+        formData.append("email", this.band.email);
+        formData.append("password", this.band.password);
+        const res = await this.$axios.post("/bands/sign_in", formData);
+        const userType = "bands";
+        return this.$store.dispatch("setAuthData", { res, userType });
+      } catch (error) {
+        if (error.response) this.band.isError = true;
+      }
     },
-    logInAudience() {
-      const formData = new FormData();
-      formData.append("email", this.audience.email);
-      formData.append("password", this.audience.password);
-      this.$store.dispatch("loginAudience", formData);
+    async logInAudience() {
+      try {
+        const formData = new FormData();
+        formData.append("email", this.audience.email);
+        formData.append("password", this.audience.password);
+        const res = await this.$axios.post("/audiences/sign_in", formData);
+        const userType = "audiences";
+        return this.$store.dispatch("setAuthData", { res, userType });
+      } catch (error) {
+        if (error.response) this.audience.isError = true;
+      }
     },
   },
 };

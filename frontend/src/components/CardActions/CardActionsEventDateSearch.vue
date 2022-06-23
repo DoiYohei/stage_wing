@@ -1,20 +1,23 @@
 <template>
   <v-card-actions>
-    <vue-ctk-date-time-picker
+    <DatePicker
       v-model="dateInput"
-      format="YYYY-MM-DD"
-      label="開催日で検索"
-      color="grey"
-      auto-close
-      dark
-      no-button-now
-      only-date
+      format="YYYY MMM DD"
+      value-type="YYYY-MM-DD"
+      placeholder="開催日で検索"
+      confirm
     />
   </v-card-actions>
 </template>
 
 <script>
+import DatePicker from "vue2-datepicker";
+import "vue2-datepicker/index.css";
+
 export default {
+  components: {
+    DatePicker,
+  },
   props: {
     value: {
       type: String,

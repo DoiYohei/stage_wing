@@ -2,11 +2,11 @@
   <v-container fluid>
     <v-row>
       <v-card v-if="$vuetify.breakpoint.mdAndDown" width="100%" outlined>
-        <v-row align="center" class="mx-2">
-          <v-col cols="10" sm="8" md="6">
+        <v-row align="end" class="mx-2">
+          <v-col cols="10" sm="8" md="5">
             <CardActionsEventNameSearch v-model="keywordInput" />
           </v-col>
-          <v-col class="d-flex justify-end">
+          <v-col>
             <v-btn icon @click="show = !show">
               <v-icon>
                 {{ show ? "mdi-chevron-up" : "mdi-chevron-down" }}
@@ -15,20 +15,16 @@
           </v-col>
         </v-row>
         <v-expand-transition>
-          <v-col v-show="show" class="py-0">
-            <v-card flat class="d-flex flex-wrap">
-              <v-col cols="10" sm="8" md="4">
-                <CardActionsEventDateSearch v-model="dateInput" />
-              </v-col>
-              <v-col sm="5" md="4">
+          <v-col v-show="show">
+            <v-card flat class="d-flex flex-wrap" v-show="show">
+              <v-card flat max-width="37%">
                 <CardActionsEventSort
                   v-model="select"
                   @sort-order="moldDisplay"
                 />
-              </v-col>
-              <v-col>
-                <CardActionsEventPastSelect v-model="showPast" />
-              </v-col>
+              </v-card>
+              <CardActionsEventDateSearch v-model="dateInput" />
+              <CardActionsEventPastSelect v-model="showPast" />
             </v-card>
           </v-col>
         </v-expand-transition>
@@ -39,11 +35,11 @@
             <v-col>
               <CardActionsEventNameSearch v-model="keywordInput" />
               <v-card flat class="mt-3">
-                <CardActionsEventDateSearch v-model="dateInput" class="mb-3" />
                 <CardActionsEventSort
                   v-model="select"
                   @sort-order="moldDisplay"
                 />
+                <CardActionsEventDateSearch v-model="dateInput" class="mt-3" />
                 <CardActionsEventPastSelect v-model="showPast" />
               </v-card>
             </v-col>
@@ -65,7 +61,7 @@
       </v-col>
     </v-row>
     <v-btn
-      v-if="isAuthenticatedBand"
+      v-if="bandId"
       to="/events/new"
       color="grey"
       dark
@@ -121,7 +117,7 @@ export default {
     this.moldDisplay();
   },
   computed: {
-    ...mapGetters(["isAuthenticatedBand"]),
+    ...mapGetters(["bandId"]),
     keyword() {
       if (this.keywordInput) {
         return this.keywordInput.toLowerCase().trim();

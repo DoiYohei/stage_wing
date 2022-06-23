@@ -1,36 +1,43 @@
 class LineupsController < ApplicationController
-  before_action :authenticate_band!, except: :index
+  before_action :authenticate_band!
+  before_action :set_event
   before_action :set_lineup, only: %i(update destroy)
 
-  def index
+  def index # Lineups編集時に使用
     @bands = Band.all
-    @event = Event.find(params[:event_id])
     @lineups = @event.lineups
   end
 
   def create
     lineup = Lineup.new(lineup_params)
     if lineup.save
-      render json: :created
+      head :created
     else
-      render json: lineup.errors, status: :unprocessable_entity
+      head :unprocessable_entity
     end
   end
 
   def update
     if @lineup.update(lineup_params)
-      render json: :ok
+      head :ok
     else
-      render json: lineup.errors, status: :unprocessable_entity
+      head :unprocessable_entity
     end
   end
   
   def destroy
-    @lineup.destroy!
-    render json: :ok
+    if @lineup.destroy
+      head :ok
+    else
+      head :bad_request
+    end
   end
 
   private
+
+  def set_event
+    @event = current_band.created_events.find(params[:event_id])
+  end
 
   def set_lineup
     @lineup = Lineup.find(params[:id])

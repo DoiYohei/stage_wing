@@ -2,7 +2,7 @@
   <v-col sm="10" offset-sm="1" lg="8" offset-lg="2" xl="6" offset-xl="3">
     <v-card outlined>
       <v-img v-if="post.format === 'photo'" :src="post.photo.url" />
-      <vuetify-audio
+      <VuetifyAudio
         v-if="post.format === 'audio'"
         :file="post.audio.url"
         class="black"
@@ -39,12 +39,12 @@
           <v-card-text class="pa-0">
             <v-list dense class="py-0" color="grey darken-3">
               <v-list-item-group>
-                <v-list-item @click="editable = true">編集する</v-list-item>
+                <v-list-item @click="editDescription()">編集する</v-list-item>
                 <v-dialog v-model="dialog" width="45vw">
                   <template #activator="{ on, attrs }">
                     <v-list-item v-bind="attrs" v-on="on">削除する</v-list-item>
                   </template>
-                  <CardDialog
+                  <DialogYesNo
                     dialogText="この投稿を削除しますか？"
                     @select-excution="deletePost"
                     @close-dialog="closeDialog"
@@ -67,21 +67,26 @@
           v-text="post.description"
           class="reflect-return"
         />
-        <template v-if="editable">
-          <v-textarea
-            v-model="post.description"
-            @blur="editable = false"
-            label="内容"
-            auto-grow
-            autofocus
-            hide-details
-            outlined
-          />
-          <v-card-actions class="d-flex justify-center">
-            <v-btn @click="editable = false" outlined>キャンセル</v-btn>
-            <v-btn @click="patchPost" outlined>変更する</v-btn>
+        <ValidationObserver v-if="editable" v-slot="{ handleSubmit }">
+          <ValidationProvider
+            name="キャプション"
+            rules="max:500"
+            v-slot="{ errors }"
+          >
+            <v-textarea
+              v-model="newDescription"
+              :error-messages="errors"
+              label="キャプション"
+              auto-grow
+              autofocus
+              outlined
+            />
+          </ValidationProvider>
+          <v-card-actions class="pt-0 d-flex justify-center">
+            <v-btn @click="cancelEdit()" outlined>キャンセル</v-btn>
+            <v-btn @click="handleSubmit(patchPost)" outlined>変更する</v-btn>
           </v-card-actions>
-        </template>
+        </ValidationObserver>
       </v-card-text>
     </v-card>
   </v-col>
@@ -89,14 +94,19 @@
 
 <script>
 import { mapGetters } from "vuex";
+import VuetifyAudio from "vuetify-audio";
 import CardAvatar from "@/components/Cards/CardAvatar";
-import CardDialog from "@/components/Cards/CardDialog";
+import DialogYesNo from "@/components/Dialogs/DialogYesNo";
+import { ValidationProvider, ValidationObserver } from "vee-validate";
 
 export default {
   name: "CardPosts",
   components: {
+    VuetifyAudio,
     CardAvatar,
-    CardDialog,
+    DialogYesNo,
+    ValidationProvider,
+    ValidationObserver,
   },
   props: {
     post: {
@@ -106,26 +116,32 @@ export default {
   },
   data() {
     return {
+      newDescription: "",
       dialog: false,
       editable: false,
     };
   },
   computed: {
-    ...mapGetters(["isAuthenticatedBand", "userId"]),
+    ...mapGetters(["bandId"]),
     isMyPost() {
-      if (this.isAuthenticatedBand) {
-        return this.userId === this.post.band.id;
-      } else {
-        return false;
-      }
+      return this.bandId === this.post.band.id;
     },
   },
   methods: {
     deletePost() {
       this.$emit("delete-post", this.post.id);
+      this.dialog = false;
     },
     patchPost() {
       this.$emit("patch-post", this.post.id, this.post.description);
+      this.editable = false;
+    },
+    editDescription() {
+      this.newDescription = this.post.description;
+      this.editable = true;
+    },
+    cancelEdit() {
+      this.newDescription = "";
       this.editable = false;
     },
     changeLike() {

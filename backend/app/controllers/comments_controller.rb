@@ -4,16 +4,19 @@ class CommentsController < ApplicationController
   def create
     comment = current_member.comments.build(comment_params)
     if comment.save
-      render json: :created
+      head :created
     else
-      render json: comment.errors, status: :unprocessable_entity
+      head :unprocessable_entity
     end
   end
 
   def destroy
     comment = current_member.comments.find(params[:id])
-    comment.destroy!
-    render json: :ok
+    if comment.destroy
+      head :ok
+    else
+      head :bad_request
+    end
   end
 
   private

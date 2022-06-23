@@ -15,6 +15,10 @@ export default {
   headers: (state) => {
     return { headers: state.token };
   },
-  isAuthenticatedBand: (state) => state.userType === "bands",
-  isAuthenticatedAudience: (state) => state.userType === "audiences",
+  bandId: (state) => {
+    return state.userType === "bands" ? state.userId : null;
+  },
+  audienceId: (state) => {
+    return state.userType === "audiences" ? state.userId : null;
+  },
 };

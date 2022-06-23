@@ -34,34 +34,36 @@
                       </v-col>
                     </v-row>
                     <v-row :key="index" dense>
-                      <v-col v-if="message.band_id !== userId">
+                      <v-col v-if="message.band_id !== bandId">
                         <div class="balloon_l">
                           <div class="face_icon">
                             <v-avatar size="40">
                               <v-img :src="bandImage(message.band_image)" />
                             </v-avatar>
                           </div>
-                          <p class="says">
-                            {{ message.content }}
-                          </p>
+                          <p
+                            v-text="message.content"
+                            class="says reflect-return text-left"
+                          />
                           <p class="time">
-                            {{ $dayjs(message.created_at).format("hh:mm") }}
+                            {{ $dayjs(message.created_at).format("HH:mm") }}
                           </p>
                         </div>
                       </v-col>
-                      <v-col v-if="message.band_id === userId">
+                      <v-col v-if="message.band_id === bandId">
                         <div class="balloon_r">
                           <p class="time">
-                            {{ $dayjs(message.created_at).format("hh:mm") }}
+                            {{ $dayjs(message.created_at).format("HH:mm") }}
                           </p>
                           <div class="face_icon">
                             <v-avatar size="40">
                               <v-img :src="bandImage(message.band_image)" />
                             </v-avatar>
                           </div>
-                          <p class="says black--text">
-                            {{ message.content }}
-                          </p>
+                          <p
+                            v-text="message.content"
+                            class="says reflect-return black--text text-left"
+                          />
                         </div>
                       </v-col>
                     </v-row>
@@ -74,14 +76,24 @@
           <v-card-text>
             <v-row>
               <v-col>
-                <v-text-field
-                  autofocus
-                  label="メッセージ"
-                  v-model="inputMessage"
-                  clearable
-                  @keyup.enter="sendMessage"
-                />
-                <v-btn color="grey darken-2" @click="sendMessage">送信</v-btn>
+                <ValidationProvider
+                  name="メッセージ"
+                  rules="max:1000|required"
+                  v-slot="{ errors }"
+                >
+                  <v-textarea
+                    v-model="inputMessage"
+                    :error-messages="errorMessage"
+                    label="メッセージ"
+                    rows="1"
+                    auto-grow
+                    autofocus
+                    clearable
+                  />
+                  <v-btn color="grey darken-2" @click="sendMessage(errors)">
+                    送信
+                  </v-btn>
+                </ValidationProvider>
               </v-col>
             </v-row>
           </v-card-text>
@@ -94,49 +106,60 @@
 <script>
 import { mapGetters } from "vuex";
 import CardAvatar from "@/components/Cards/CardAvatar";
+import { ValidationProvider } from "vee-validate";
 
 export default {
   components: {
     CardAvatar,
+    ValidationProvider,
   },
-  props: ["roomId"],
+  props: ["id", "roomId"],
   data() {
     return {
       inputMessage: "",
+      errorMessage: "",
       messages: [],
       partner: {},
     };
   },
   channels: {
     RoomChannel: {
-      connected() {
-        console.log("connected");
-      },
       received(data) {
-        console.log("received");
         this.messages.push(data);
       },
     },
   },
   async created() {
-    const res = await this.$axios.get(`/rooms/${this.roomId}/messages`, {
-      headers: this.token,
-      params: { band_id: this.$route.query.partnerId },
-    });
-    this.messages = res.data.messages;
-    this.partner = res.data.partner;
-    const params = `uid=${this.token["uid"]}&access-token=${this.token["access-token"]}&client=${this.token["client"]}`;
-    this.$cable.connection.connect(
-      `ws://${process.env.VUE_APP_WS}/cable?${params}`
-    );
-    this.$cable.subscribe({ channel: "RoomChannel", room: this.roomId });
-    this.scrollToEnd();
+    try {
+      if (Number(this.id) !== this.bandId) {
+        return this.$router.replace("/");
+      } else {
+        const res = await this.$axios.get(`/rooms/${this.roomId}/messages`, {
+          headers: this.token,
+          params: { band_id: this.$route.query.partnerId },
+        });
+        this.messages = res.data.messages;
+        this.partner = res.data.partner;
+        const params = `uid=${this.token["uid"]}&access-token=${this.token["access-token"]}&client=${this.token["client"]}`;
+        this.$cable.connection.connect(
+          `ws://${process.env.VUE_APP_WS}/cable?${params}`
+        );
+        this.$cable.subscribe({ channel: "RoomChannel", room: this.roomId });
+        this.scrollToEnd();
+      }
+    } catch (error) {
+      if (error.response) this.$router.replace("/errors/not_found");
+    }
   },
   updated() {
     this.scrollToEnd();
   },
+  beforeRouteLeave(to, from, next) {
+    this.$cable.connection.disconnect();
+    next();
+  },
   computed: {
-    ...mapGetters(["userId", "token"]),
+    ...mapGetters(["bandId", "token"]),
     isFirstContentInDate() {
       return (messageId) => {
         const firstMessagesInDate = Array.from(
@@ -160,14 +183,19 @@ export default {
     },
   },
   methods: {
-    sendMessage() {
-      this.$cable.perform({
-        channel: "RoomChannel",
-        room: this.roomId,
-        action: "speak",
-        data: { message: this.inputMessage },
-      });
-      this.inputMessage = "";
+    sendMessage(errors) {
+      if (errors.length) {
+        return (this.errorMessage = errors);
+      } else {
+        this.errorMessage = "";
+        this.$cable.perform({
+          channel: "RoomChannel",
+          room: this.roomId,
+          action: "speak",
+          data: { message: this.inputMessage },
+        });
+        this.inputMessage = "";
+      }
     },
     scrollToEnd() {
       this.$nextTick(() => {
@@ -175,10 +203,6 @@ export default {
         container.scrollTop = container.scrollHeight;
       });
     },
-  },
-  beforeRouteLeave(to, from, next) {
-    this.$cable.connection.disconnect();
-    next();
   },
 };
 </script>

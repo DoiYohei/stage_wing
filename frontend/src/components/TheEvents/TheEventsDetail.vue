@@ -10,21 +10,22 @@
     </v-card>
     <v-card-text class="py-0">
       Date:
-      {{ $dayjs(event.open_at).format("YYYY MMM DD") }}
+      {{ $dayjs(event.open_at).format("YYYY MMMM DD") }}
     </v-card-text>
     <v-card-text class="py-0">
       Open/Start:
-      {{ $dayjs(event.open_at).format("hh:mm") }}/{{
-        $dayjs(event.start_at).format("hh:mm")
+      {{ $dayjs(event.open_at).format("HH:mm") }}/{{
+        $dayjs(event.start_at).format("HH:mm")
       }}
     </v-card-text>
     <v-card-text class="py-0">Location: {{ event.place }}</v-card-text>
-    <v-card-text class="py-0">Ticket: ¥{{ event.ticket_price }}</v-card-text>
-    <v-card-text>
-      {{ event.content }}
+    <v-card-text class="py-0">
+      Ticket:
+      {{ event.ticket_price !== null ? "¥ " + event.ticket_price : "未定" }}
     </v-card-text>
+    <v-card-text v-text="event.content" class="reflect-return" />
     <v-col>
-      <v-card tile outlined>
+      <v-card tile outlined style="border-color: #b1b1b1">
         <v-card-subtitle>Lineup</v-card-subtitle>
         <v-card-text>
           <v-breadcrumbs :items="lineups" divider="/" class="pt-0" />
@@ -32,7 +33,7 @@
       </v-card>
     </v-col>
     <TheEventsTicketsShow
-      v-if="isAuthenticatedAudience"
+      v-if="audienceId"
       :event="event"
       @post-ticket="postTicket"
       @delete-ticket="deleteTicket"
@@ -69,10 +70,10 @@ export default {
     },
   },
   computed: {
-    ...mapGetters(["userId", "isAuthenticatedBand", "isAuthenticatedAudience"]),
+    ...mapGetters(["bandId", "audienceId"]),
     isEventOwner() {
       if (this.event.owner) {
-        return this.isAuthenticatedBand && this.userId === this.event.owner.id;
+        return this.bandId === this.event.owner.id;
       } else {
         return false;
       }

@@ -29,14 +29,25 @@ class Band < ActiveRecord::Base
   has_many :tickets, dependent: :destroy
   
   # Bandをフォローする
-  def follow(followed_id)
-    active_friendships.create!(followed_id: followed_id)
+  def follow(other_band)
+    following << other_band
   end
 
   # Bandをフォロー解除する
-  def unfollow(followed_id)
-    active_friendships.find_by(followed_id: followed_id).destroy!
+  def unfollow(other_band)
+    active_friendships.find_by!(followed_id: other_band.id).destroy
   end
+
+  # フォローしていたらtrueを返す
+  def following?(other_band)
+    following.include?(other_band)
+  end
+
+  # フォローされていたらtrueを返す
+  def followed_by?(other_band)
+    followers.include?(other_band)
+  end
+
 
   # 相互フォロー(友達)の関係にあるBandを返す
   def friends
@@ -64,16 +75,6 @@ class Band < ActiveRecord::Base
     else
       nil
     end
-  end
-
-  # フォローしていたらtrueを返す
-  def following?(other_band)
-    following.include?(other_band)
-  end
-
-  # フォローされていたらtrueを返す
-  def followed_by?(other_band)
-    followers.include?(other_band)
   end
 
   # 相互フォロー(友達)関係にあるBandと共通のroom_idを取得

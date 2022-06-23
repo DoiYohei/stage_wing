@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
+import store from "@/store";
 import Home from "@/views/Home";
 import SignupBands from "@/views/Auth/SignupBands";
 import SignupAudiences from "@/views/Auth/SignupAudiences";
@@ -13,16 +14,21 @@ import BandsIndex from "@/views/Bands/BandsIndex";
 import BandsShow from "@/views/Bands/BandsShow";
 import BandsEdit from "@/views/Bands/BandsEdit";
 import BandsTickets from "@/views/Bands/BandsTickets";
-import BandsPostsNew from "@/views/Bands/BandsPostsNew";
 import BandsFriends from "@/views/Bands/BandsFriends";
+import PostsNew from "@/views/Posts/PostsNew";
 import ChatsIndex from "@/views/Chats/ChatsIndex";
 import ChatsShow from "@/views/Chats/ChatsShow";
 import AudiencesEdit from "@/views/Audiences/AudiencesEdit";
 import AudiencesTickets from "@/views/Audiences/AudiencesTickets";
-import AuthError from "@/views/Errors/AuthError";
 import LikesIndex from "@/views/Likes/LikesIndex";
+import ErrorsUnauthorized from "@/views/Errors/ErrorsUnauthorized";
+import ErrorsNotFound from "@/views/Errors/ErrorsNotFound";
 
 Vue.use(Router);
+
+const redirectWithToken = () => {
+  if (store.getters.token) return "/";
+};
 
 export default new Router({
   mode: "history",
@@ -36,21 +42,33 @@ export default new Router({
       path: "/signup/bands",
       name: "SignupBands",
       component: SignupBands,
+      beforeEnter(to, from, next) {
+        next(redirectWithToken());
+      },
     },
     {
       path: "/signup/audiences",
       name: "SignupAudiences",
       component: SignupAudiences,
+      beforeEnter(to, from, next) {
+        next(redirectWithToken());
+      },
     },
     {
       path: "/login",
       name: "Login",
       component: Login,
+      beforeEnter(to, from, next) {
+        next(redirectWithToken());
+      },
     },
     {
       path: "/events/new",
       name: "EventsNew",
       component: EventsNew,
+      beforeEnter(to, from, next) {
+        store.getters.bandId ? next() : next("/");
+      },
     },
     {
       path: "/events",
@@ -99,12 +117,6 @@ export default new Router({
       props: true,
     },
     {
-      path: "/bands/:id/posts/new",
-      name: "BandsPostsNew",
-      component: BandsPostsNew,
-      props: true,
-    },
-    {
       path: "/bands/:id/friends",
       name: "BandsFriends",
       component: BandsFriends,
@@ -117,15 +129,26 @@ export default new Router({
       props: true,
     },
     {
-      path: "/bands/:bandId/chats/:roomId",
+      path: "/bands/:id/chats/:roomId",
       name: "ChatsShow",
       component: ChatsShow,
       props: true,
     },
     {
-      path: "/liked_posts",
+      path: "/posts/new",
+      name: "PostsNew",
+      component: PostsNew,
+      beforeEnter(to, from, next) {
+        store.getters.bandId ? next() : next("/");
+      },
+    },
+    {
+      path: "/likes",
       name: "LikesIndex",
       component: LikesIndex,
+      beforeEnter(to, from, next) {
+        store.getters.token ? next() : next("/");
+      },
     },
     {
       path: "/audiences/:id/edit",
@@ -140,9 +163,14 @@ export default new Router({
       props: true,
     },
     {
-      path: "/errors/auth",
-      name: "AuthError",
-      component: AuthError,
+      path: "/errors/unauthorized",
+      name: "ErrorsUnauthorized",
+      component: ErrorsUnauthorized,
+    },
+    {
+      path: "/errors/not_found",
+      name: "ErrorsNotFound",
+      component: ErrorsNotFound,
     },
   ],
 });

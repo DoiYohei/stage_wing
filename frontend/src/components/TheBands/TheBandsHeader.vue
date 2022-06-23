@@ -2,7 +2,7 @@
   <v-card color="#121212" flat class="d-flex justify-space-between flex-wrap">
     <v-card color="#121212" flat class="d-flex">
       <v-card-title>{{ band.name }}</v-card-title>
-      <template v-if="isAuthenticatedBand && !isMyPage">
+      <template v-if="bandId && !isMyPage">
         <v-card-actions v-if="friendStatus === 'friend'">
           <v-btn @click="startChat" icon>
             <v-icon>mdi-email-outline</v-icon>
@@ -75,7 +75,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["isAuthenticatedBand"]),
+    ...mapGetters(["bandId"]),
     tab: {
       get() {
         return this.value;

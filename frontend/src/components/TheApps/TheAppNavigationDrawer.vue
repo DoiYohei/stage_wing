@@ -28,7 +28,7 @@
               </v-list-item-content>
             </v-list-item>
           </template>
-          <CardDialog
+          <DialogYesNo
             dialog-text="ログアウトしますか？"
             @select-excution="logOut"
             @close-dialog="closeDialog"
@@ -42,12 +42,15 @@
               </v-list-item-content>
             </v-list-item>
           </template>
-          <CardDialog
+          <DialogYesNo
             dialog-text="退会しますか？"
             @select-excution="closeAccount"
             @close-dialog="closeDialog"
           />
         </v-dialog>
+        <DialogShowText v-model="errorDialog">
+          {{ errorMessage }}
+        </DialogShowText>
       </template>
     </v-list>
   </v-navigation-drawer>
@@ -56,11 +59,13 @@
 <script>
 import { mapGetters } from "vuex";
 import { mapActions } from "vuex";
-import CardDialog from "@/components/Cards/CardDialog";
+import DialogYesNo from "@/components/Dialogs/DialogYesNo";
+import DialogShowText from "@/components/Dialogs/DialogShowText";
 
 export default {
   components: {
-    CardDialog,
+    DialogYesNo,
+    DialogShowText,
   },
   props: {
     value: {
@@ -73,20 +78,15 @@ export default {
       contents: [],
       logoutDialog: false,
       deleteDialog: false,
+      errorDialog: false,
+      errorMessage: "",
     };
   },
   created() {
     this.fetchList();
   },
   computed: {
-    ...mapGetters([
-      "isAuthenticatedBand",
-      "isAuthenticatedAudience",
-      "token",
-      "userId",
-      "userName",
-      "userImage",
-    ]),
+    ...mapGetters(["bandId", "audienceId", "token", "userName", "userImage"]),
     drawer: {
       get() {
         return this.value;
@@ -103,27 +103,31 @@ export default {
   },
   methods: {
     ...mapActions(["logout", "deleteAccount"]),
-    logOut() {
-      this.logout();
-      this.closeDialog();
+    async logOut() {
+      const res = await this.logout();
+      this.closeDialog(res);
     },
-    closeAccount() {
-      this.deleteAccount();
-      this.closeDialog();
+    async closeAccount() {
+      const res = await this.deleteAccount();
+      this.closeDialog(res);
     },
-    closeDialog() {
+    closeDialog(message) {
       this.logoutDialog = false;
       this.deleteDialog = false;
+      if (message) {
+        this.errorMessage = message;
+        this.errorDialog = true;
+      }
     },
     fetchList() {
-      if (this.isAuthenticatedBand) {
+      if (this.bandId) {
         this.contents = [
           {
             text: "マイページ",
             link: {
               name: "BandsShow",
               params: {
-                id: this.userId,
+                id: this.bandId,
               },
             },
           },
@@ -136,10 +140,7 @@ export default {
           {
             text: "新規Post作成",
             link: {
-              name: "BandsPostsNew",
-              params: {
-                id: this.userId,
-              },
+              name: "PostsNew",
             },
           },
           {
@@ -147,7 +148,7 @@ export default {
             link: {
               name: "BandsFriends",
               params: {
-                id: this.userId,
+                id: this.bandId,
               },
             },
           },
@@ -156,7 +157,7 @@ export default {
             link: {
               name: "ChatsIndex",
               params: {
-                id: this.userId,
+                id: this.bandId,
               },
             },
           },
@@ -165,7 +166,7 @@ export default {
             link: {
               name: "BandsTickets",
               params: {
-                id: this.userId,
+                id: this.bandId,
               },
             },
           },
@@ -180,19 +181,19 @@ export default {
             link: {
               name: "BandsEdit",
               params: {
-                id: this.userId,
+                id: this.bandId,
               },
             },
           },
         ];
-      } else if (this.isAuthenticatedAudience) {
+      } else if (this.audienceId) {
         this.contents = [
           {
             text: "取り置きしているチケット",
             link: {
               name: "AudiencesTickets",
               params: {
-                id: this.userId,
+                id: this.audienceId,
               },
             },
           },
@@ -207,7 +208,7 @@ export default {
             link: {
               name: "AudiencesEdit",
               params: {
-                id: this.userId,
+                id: this.audienceId,
               },
             },
           },

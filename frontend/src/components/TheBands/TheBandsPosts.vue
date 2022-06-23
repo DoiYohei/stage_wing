@@ -1,15 +1,7 @@
 <template>
   <v-card color="#121212" flat>
     <v-col>
-      <v-btn
-        v-if="isMyPage"
-        :to="`${$route.path}/posts/new`"
-        light
-        fab
-        right
-        bottom
-        fixed
-      >
+      <v-btn v-if="isMyPage" to="/posts/new" light fab right bottom fixed>
         <v-icon dark>mdi-plus</v-icon>
       </v-btn>
       <CardPost

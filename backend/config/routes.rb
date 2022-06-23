@@ -17,27 +17,26 @@ Rails.application.routes.draw do
     resources :events do
       get :edit, on: :member
       resources :lineups, except: :show
-      resources :comments, only: %i(create destroy)
-      resources :tickets, only: %i(create destroy)
     end
+    resources :comments, only: %i(create destroy)
+    resources :tickets, only: %i(create destroy)
     resources :bands, only: %i(show index edit) do
-      resources :posts, only: %i(create update destroy)
-      member do
-        get :friendships
-        get :tickets
-      end
-    end
-    resources :audiences, only: %i(index edit) do
+      resources :friendships, only: :index
+      resources :rooms, only: :index
       get :tickets, on: :member
     end
-    resources :rooms, only: %i(index create) do
-      resources :messages, only: :index
+    resources :audiences, only: :edit do
+      get :tickets, on: :member
     end
+    resources :posts, only: %i(create update destroy)
     resources :likes, only: %i(create index) do
       delete :destroy, on: :collection
     end
     resources :friendships, only: :create do
       delete :destroy, on: :collection
+    end
+    resources :rooms, only: :create do
+      resources :messages, only: :index
     end
   end
 end

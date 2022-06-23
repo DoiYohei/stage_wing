@@ -1,21 +1,21 @@
 <template>
   <v-app>
     <TheAppHeader v-if="!isHome" v-model="drawer" />
-    <NavigationMenu v-model="drawer" />
-    <v-main><router-view /></v-main>
+    <TheAppNavigationDrawer v-model="drawer" />
+    <v-main><router-view v-model="drawer" /></v-main>
     <TheAppFooter v-if="!isHome" />
   </v-app>
 </template>
 
 <script>
-import TheAppHeader from "@/components/TheAppHeader";
-import NavigationMenu from "@/components/NavigationMenu";
-import TheAppFooter from "@/components/TheAppFooter";
+import TheAppHeader from "@/components/TheApps/TheAppHeader";
+import TheAppNavigationDrawer from "@/components/TheApps/TheAppNavigationDrawer";
+import TheAppFooter from "@/components/TheApps/TheAppFooter";
 
 export default {
   components: {
     TheAppHeader,
-    NavigationMenu,
+    TheAppNavigationDrawer,
     TheAppFooter,
   },
   data() {
@@ -52,5 +52,10 @@ img {
 
 .reflect-return {
   white-space: pre-wrap;
+}
+
+.reply-comment {
+  border: thin;
+  border-style: none none outset inset;
 }
 </style>

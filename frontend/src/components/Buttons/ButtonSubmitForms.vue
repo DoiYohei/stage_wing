@@ -1,6 +1,6 @@
 <template>
   <v-card-actions>
-    <v-btn color="grey darken-3" width="100%" @click="submitForms">
+    <v-btn @click="submitForms" color="grey darken-3" block>
       <slot />
     </v-btn>
   </v-card-actions>

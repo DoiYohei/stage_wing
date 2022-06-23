@@ -19,6 +19,12 @@
           @patch-post="patchPost"
           @change-like="changeLike"
         />
+        <DialogShowText v-model="deleteDialog">
+          投稿を削除できませんでした。
+        </DialogShowText>
+        <DialogShowText v-model="patchDialog">
+          投稿を更新できませんでした。
+        </DialogShowText>
         <v-col>
           <PaginationBlocks @change-page="moldDisplay" />
         </v-col>
@@ -30,32 +36,33 @@
 <script>
 import { mapGetters } from "vuex";
 import CardPost from "@/components/Cards/CardPost";
+import DialogShowText from "@/components/Dialogs/DialogShowText";
 import PaginationBlocks from "@/components/PaginationBlocks";
 
 export default {
   components: {
     CardPost,
+    DialogShowText,
     PaginationBlocks,
   },
   data() {
     return {
       displayPosts: [],
+      deleteDialog: false,
+      patchDialog: false,
     };
   },
   async created() {
-    const res = await this.$axios.get("/likes", this.headers);
-    this.posts = res.data;
-    this.moldDisplay();
+    try {
+      const res = await this.$axios.get("/likes", this.headers);
+      this.posts = res.data;
+      this.moldDisplay();
+    } catch (error) {
+      if (error.response) this.$router.replace("/");
+    }
   },
   computed: {
-    ...mapGetters(["isAuthenticatedBand", "userId", "headers", "token"]),
-    isMyPage() {
-      if (this.isAuthenticatedBand) {
-        return this.userId === this.id;
-      } else {
-        return false;
-      }
-    },
+    ...mapGetters(["bandId", "headers", "token"]),
   },
   methods: {
     moldDisplay() {
@@ -64,21 +71,22 @@ export default {
       this.displayPosts = this.$page.displayContents;
     },
     async deletePost(postId) {
-      await this.$axios.delete(
-        `/bands/${this.id}/posts/${postId}`,
-        this.headers
-      );
-      this.updatePage();
+      try {
+        await this.$axios.delete(`/posts/${postId}`, this.headers);
+        this.updatePage();
+      } catch (error) {
+        if (error.response) this.deleteDialog = true;
+      }
     },
     async patchPost(postId, postDescription) {
-      const formData = new FormData();
-      formData.append("post[description]", postDescription);
-      await this.$axios.patch(
-        `/bands/${this.id}/posts/${postId}`,
-        formData,
-        this.headers
-      );
-      this.updatePage();
+      try {
+        const formData = new FormData();
+        formData.append("post[description]", postDescription);
+        await this.$axios.patch(`/posts/${postId}`, formData, this.headers);
+        this.updatePage();
+      } catch (error) {
+        if (error.response) this.patchDialog = true;
+      }
     },
     changeLike(post) {
       if (!this.token) {

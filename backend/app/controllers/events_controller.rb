@@ -1,14 +1,13 @@
 class EventsController < ApplicationController
   before_action :authenticate_band!, except: %i(index show)
-  before_action :set_event, only: %i(update destroy)
+  before_action :set_event, only: %i(edit update destroy)
 
   def create
     @event = current_band.created_events.build(event_params)
-    @owner = @event.owner
     if @event.save
-      render :show, status: :ok
+      render json: { id: @event.id }, status: :created
     else
-      render json: @event.errors, status: :unprocessable_entity
+      head :unprocessable_entity
     end
   end
 
@@ -26,22 +25,23 @@ class EventsController < ApplicationController
   end
 
   def edit
-    @event = Event.find(params[:id])
     render json: @event
   end
 
   def update
-    @owner = @event.owner
     if @event.update(event_params)
-      render :show, status: :ok
+      head :ok
     else
-      render json: @event.errors, status: :unprocessable_entity
+      head :unprocessable_entity
     end
   end
 
   def destroy
-    @event.destroy!
-    render json: :ok
+    if @event.destroy
+      head :ok
+    else
+      head :bad_request
+    end
   end
 
   private

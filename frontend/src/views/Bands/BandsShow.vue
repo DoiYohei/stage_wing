@@ -2,6 +2,9 @@
   <v-container>
     <v-row>
       <v-col>
+        <DialogShowText v-model="isError">
+          {{ errorText }}
+        </DialogShowText>
         <TheBandsHeader
           v-model="tab"
           :band="band"
@@ -42,6 +45,7 @@
 
 <script>
 import { mapGetters } from "vuex";
+import DialogShowText from "@/components/Dialogs/DialogShowText";
 import TheBandsHeader from "@/components/TheBands/TheBandsHeader";
 import TheBandsBiography from "@/components/TheBands/TheBandsBiography";
 import TheBandsPosts from "@/components/TheBands/TheBandsPosts";
@@ -50,6 +54,7 @@ import CardEvents from "@/components/Cards/CardEvents";
 
 export default {
   components: {
+    DialogShowText,
     TheBandsHeader,
     TheBandsBiography,
     TheBandsPosts,
@@ -65,6 +70,8 @@ export default {
       showPast: false,
       futureEvents: [],
       pastEvents: [],
+      isError: false,
+      errorText: "",
     };
   },
   created() {
@@ -72,19 +79,16 @@ export default {
   },
   watch: {
     $route(to, from) {
-      if (to.params.id !== from.params.id) {
-        this.fetchBand();
-      }
+      if (to.params.id !== from.params.id) this.fetchBand();
+    },
+    isError(newValue) {
+      if (!newValue) this.errorText = "";
     },
   },
   computed: {
-    ...mapGetters(["isAuthenticatedBand", "userId", "headers", "token"]),
+    ...mapGetters(["bandId", "headers", "token"]),
     isMyPage() {
-      if (this.isAuthenticatedBand) {
-        return this.userId === this.band.id;
-      } else {
-        return false;
-      }
+      return this.bandId === this.band.id;
     },
     displayEvents() {
       return this.showPast ? this.pastEvents : this.futureEvents;
@@ -92,31 +96,44 @@ export default {
   },
   methods: {
     async fetchBand() {
-      const res = await this.$axios.get(`/bands/${this.id}`, this.headers);
-      this.band = res.data;
-      this.friendStatus = res.data.friend_status;
-      const now = new Date();
-      this.futureEvents = res.data.events.filter((event) => {
-        return now.getTime() <= new Date(event.open_at).getTime();
-      });
-      this.pastEvents = res.data.events.filter((event) => {
-        return now.getTime() >= new Date(event.open_at).getTime();
-      });
+      try {
+        const res = await this.$axios.get(`/bands/${this.id}`, this.headers);
+        this.band = res.data;
+        this.friendStatus = res.data.friend_status;
+        const now = new Date();
+        this.futureEvents = res.data.events.filter((event) => {
+          return now.getTime() <= new Date(event.open_at).getTime();
+        });
+        this.pastEvents = res.data.events.filter((event) => {
+          return now.getTime() >= new Date(event.open_at).getTime();
+        });
+      } catch (error) {
+        if (error.response) this.$router.replace("/errors/not_found");
+      }
     },
     async startChat() {
-      const res = await this.$axios.get("/rooms", this.headers);
-      const room = res.data.find((data) => data.friend_id === Number(this.id));
-      let roomId = room.id;
-      if (!roomId) {
-        const formData = new FormData();
-        formData.append("band_room[band_id]", this.id);
-        const res = await this.$axios.post("/rooms", formData, this.headers);
-        roomId = res.data;
+      try {
+        const res = await this.$axios.get(
+          `/bands/${this.bandId}/rooms`,
+          this.headers
+        );
+        const room = res.data.find(
+          (data) => data.friend_id === Number(this.id)
+        );
+        let roomId = room.id;
+        if (!roomId) {
+          const formData = new FormData();
+          formData.append("band_room[band_id]", this.id);
+          const res = await this.$axios.post("/rooms", formData, this.headers);
+          roomId = res.data;
+        }
+        this.$router.push({
+          path: `/bands/${this.bandId}/chats/${roomId}`,
+          query: { partnerId: this.id },
+        });
+      } catch (error) {
+        this.showError(error.response, "チャットを開始できません。");
       }
-      this.$router.push({
-        path: `/bands/${this.userId}/chats/${roomId}`,
-        query: { partnerId: this.id },
-      });
     },
     changeFriendship(isFollowing, formData) {
       if (isFollowing) {
@@ -125,42 +142,40 @@ export default {
           data: formData,
         });
         if (this.friendStatus === "friend") {
-          this.friendStatus = "invited";
-          return;
+          return (this.friendStatus = "invited");
         } else {
-          this.friendStatus = "";
-          return;
+          return (this.friendStatus = "");
         }
       } else {
         this.$axios.post("/friendships", formData, this.headers);
         if (this.friendStatus === "invited") {
-          this.friendStatus = "friend";
-          return;
+          return (this.friendStatus = "friend");
         } else {
-          this.friendStatus = "inviting";
+          return (this.friendStatus = "inviting");
         }
       }
     },
     async deletePost(postId) {
-      await this.$axios.delete(
-        `/bands/${this.id}/posts/${postId}`,
-        this.headers
-      );
-      this.updatePage();
+      try {
+        await this.$axios.delete(`/posts/${postId}`, this.headers);
+        this.updatePage();
+      } catch (error) {
+        this.showError(error.response, "投稿を削除できませんでした。");
+      }
     },
     async patchPost(postId, postDescription) {
-      const formData = new FormData();
-      formData.append("post[description]", postDescription);
-      await this.$axios.patch(
-        `/bands/${this.id}/posts/${postId}`,
-        formData,
-        this.headers
-      );
-      this.updatePage();
+      try {
+        const formData = new FormData();
+        formData.append("post[description]", postDescription);
+        await this.$axios.patch(`/posts/${postId}`, formData, this.headers);
+        this.updatePage();
+      } catch (error) {
+        this.showError(error.response, "投稿を更新できませんでした。");
+      }
     },
     changeLike(post) {
       if (!this.token) {
-        return this.$router.push("/errors/auth");
+        return this.$router.push("/errors/unauthorized");
       } else {
         const formData = new FormData();
         formData.append("post_id", post.id);
@@ -176,6 +191,12 @@ export default {
           post.favorite = true;
           post.likes_count += 1;
         }
+      }
+    },
+    showError(error, text) {
+      if (error) {
+        this.isError = true;
+        this.errorText = text;
       }
     },
     updatePage() {

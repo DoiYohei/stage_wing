@@ -2,26 +2,6 @@ import axios from "@/plugins/axios";
 import router from "@/routes";
 
 export default {
-  async signupBand({ dispatch }, formData) {
-    const res = await axios.post("/bands", formData);
-    const userType = "bands";
-    return dispatch("setAuthData", { res, userType });
-  },
-  async signupAudience({ dispatch }, formData) {
-    const res = await axios.post("/audiences", formData);
-    const userType = "audiences";
-    return dispatch("setAuthData", { res, userType });
-  },
-  async loginBand({ dispatch }, formData) {
-    const res = await axios.post("/bands/sign_in", formData);
-    const userType = "bands";
-    return dispatch("setAuthData", { res, userType });
-  },
-  async loginAudience({ dispatch }, formData) {
-    const res = await axios.post("/audiences/sign_in", formData);
-    const userType = "audiences";
-    return dispatch("setAuthData", { res, userType });
-  },
   setAuthData({ commit }, payload) {
     const authData = {
       token: payload.res.headers,
@@ -33,9 +13,9 @@ export default {
     commit("updateAuthData", authData);
     localStorage.setItem("authDataSW", JSON.stringify(authData));
     if (authData.userType === "bands") {
-      router.push(`/bands/${authData.userId}`);
+      router.replace(`/bands/${authData.userId}`);
     } else {
-      router.push("/");
+      router.replace("/");
     }
   },
   autoLogin({ commit }) {
@@ -58,12 +38,20 @@ export default {
     }
   },
   async logout({ dispatch, getters }) {
-    await axios.delete(`/${getters.userType}/sign_out`, getters.headers);
-    return dispatch("deleteToken");
+    try {
+      await axios.delete(`/${getters.userType}/sign_out`, getters.headers);
+      return dispatch("deleteToken");
+    } catch (error) {
+      if (error) return "ログアウトできませんでした";
+    }
   },
   async deleteAccount({ dispatch, getters }) {
-    await axios.delete(`/${getters.userType}`, getters.headers);
-    return dispatch("deleteToken");
+    try {
+      await axios.delete(`/${getters.userType}`, getters.headers);
+      return dispatch("deleteToken");
+    } catch (error) {
+      if (error) return "退会できませんでした";
+    }
   },
   deleteToken({ commit }) {
     const authData = {

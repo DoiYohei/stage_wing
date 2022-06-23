@@ -11,7 +11,7 @@
         </v-card-actions>
       </CardComment>
       <v-expand-transition>
-        <div v-show="show">
+        <div v-show="show" tile class="ml-2 reply-comment">
           <template v-if="comment.replies.length">
             <v-col
               v-for="reply of comment.replies"
