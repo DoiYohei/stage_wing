@@ -1,11 +1,11 @@
 FactoryBot.define do
   factory :band, aliases: [:owner, :performer] do
-    name { "The Examples" }
-    sequence(:email) { |n| "tester#{n}@example.com" }
+    name { "Test Name" }
+    sequence(:email) { |n| "teste#{n}@example.com" }
     password { "testPassword" }
     image { Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec/fixtures/band-image.jpeg')) }
-    profile { "テストバンドです。テストバンドです。テストバンドです。テストバンドです。テストバンドです。テストバンドです。"}
+    profile { "This is the test profile"}
     website { "http://example.com" }
-    twitter { "http://example.net/" }
+    twitter { "http://example.com/" }
   end
 end

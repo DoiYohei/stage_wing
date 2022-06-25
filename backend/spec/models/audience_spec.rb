@@ -1,24 +1,17 @@
 require 'rails_helper'
 
 RSpec.describe Audience, type: :model do
-  describe "a new record" do
-    context "with a name, email, password, and image" do
-      let(:audience) { build(:audience) }
-      it "is valid" do
-        expect(audience).to be_valid
+  describe "validation" do
+    let(:audience) { build(:audience) }
+    subject { audience }
+    describe ":name" do
+      context "when present" do
+        before { audience.name = "test" }
+        it { is_expected.to be_valid }
       end
-    end
-    context "without a image" do
-      let(:audience) { build(:audience, image: nil) }
-      it "is valid" do
-        expect(audience).to be_valid  
-      end
-    end
-    context "without a name" do
-      let(:audience) { build(:audience, name: nil) }
-      it "is invalid" do
-        audience.valid?
-        expect(audience.errors[:name]).to include("can't be blank")
+      context "when not present" do
+        before { audience.name = nil }
+        it { is_expected.to be_invalid}
       end
     end
   end
