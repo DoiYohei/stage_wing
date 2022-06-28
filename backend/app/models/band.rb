@@ -43,12 +43,6 @@ class Band < ActiveRecord::Base
     following.include?(other_band)
   end
 
-  # フォローされていたらtrueを返す
-  def followed_by?(other_band)
-    followers.include?(other_band)
-  end
-
-
   # 相互フォロー(友達)の関係にあるBandを返す
   def friends
     following & followers

@@ -5,7 +5,7 @@ FactoryBot.define do
     photo { Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec/fixtures/post-photo.jpeg')) }
     audio { nil }
     media_pass { nil }
-    description { "投稿テストです。投稿テストです。投稿テストです。投稿テストです。投稿テストです。投稿テストです。"}
+    description { "test"}
     association :band
 
     # 音声ファイル投稿
@@ -21,7 +21,7 @@ FactoryBot.define do
       format { "youtube" }
       photo { nil }
       audio { nil }
-      media_pass { "1a2B34cdEF" }
+      media_pass { "Test1" }
     end
 
     # news投稿

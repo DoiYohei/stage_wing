@@ -2,62 +2,70 @@ require 'rails_helper'
 
 RSpec.describe Band, type: :model do
   describe "validation" do
-    let(:band) { build(:band) }
-    subject { band } 
-    describe ":name" do
-      context "when present" do
-        before { band.name = "test" }
-        it { is_expected.to be_valid }
-      end
-      context "when not present" do
-        before { band.name = nil }
-        it { is_expected.to be_invalid }
-      end
-    end
     describe ":email" do
       context "when correct format" do
-        before { band.email = "test1@example.com" }
-        it { is_expected.to be_valid }
-        before { band.email = "T.e_s-t@example.com" }
-        it { is_expected.to be_valid }
-        before { band.email = "test@example.ne.jp" }
-        it { is_expected.to be_valid }
+        let(:band1) { build(:band, email: "test1@example.com") }
+        let(:band2) { build(:band, email: "T.e_s-t@example.com") }
+        let(:band3) { build(:band, email: "test@example.ne.jp") }
+        it "is valid" do
+          expect(band1).to be_valid
+          expect(band2).to be_valid
+          expect(band3).to be_valid
+        end
       end
       context "when incorrect format" do
-        before { band.email = ".test@example.com" }
-        it { is_expected.to be_invalid }
-        before { band.email = "test-@example.com" }
-        it { is_expected.to be_invalid }
-        before { band.email = "test.com" }
-        it { is_expected.to be_invalid }
+        let(:band1) { build(:band, email: "test@example") }
+        let(:band2) { build(:band, email: "test@example.ne-jp") }
+        let(:band3) { build(:band, email: "test.com") }
+        it "is invalid" do
+          expect(band1).to be_invalid
+          expect(band2).to be_invalid
+          expect(band3).to be_invalid
+        end
       end
     end
     describe ":website" do
       context "when correct format" do
-        before { band.website = "http://example.com" }
-        it { is_expected.to be_valid }
+        let(:band1) { build(:band, website: "http://example1.com") }
+        let(:band2) { build(:band, website: "http://www.example.com") }
+        let(:band3) { build(:band, website: "http://example@#$&*()-_+~:;',?=test.com") }
+        it "is valid" do
+          expect(band1).to be_valid
+          expect(band2).to be_valid
+          expect(band3).to be_valid
+        end
       end
       context "when incorrect format" do
-        before { band.website = "javascript:alert('XSS');//http://example.com" }
-        it { is_expected.to be_invalid }
-        before { band.website = "http://example.com/?<script>alert(document.domain);</script>" }
-        it { is_expected.to be_invalid }
-        before { band.website = "http://example.com/\"onmouseover=\"alert(1)\"" }
-        it { is_expected.to be_invalid }
+        let(:band1) { build(:band, website: "javascript:alert('XSS');//http://example.com") }
+        let(:band2) { build(:band, website: "http://example.com/?<script>alert(document.domain);</script>") }
+        let(:band3) { build(:band, website: "http://example.com/\"onmouseover=\"alert(1)\"") }
+        it "is invalid" do
+          expect(band1).to be_invalid
+          expect(band2).to be_invalid
+          expect(band3).to be_invalid
+        end
       end
     end
     describe ":twitter" do
       context "when correct format" do
-        before { band.twitter = "http://example.com" }
-        it { is_expected.to be_valid }
+        let(:band1) { build(:band, twitter: "http://example1.com") }
+        let(:band2) { build(:band, twitter: "http://www.example.com") }
+        let(:band3) { build(:band, twitter: "http://example@#$&*()-_+~:;',?=test.com") }
+        it "is valid" do
+          expect(band1).to be_valid
+          expect(band2).to be_valid
+          expect(band3).to be_valid
+        end
       end
       context "when incorrect format" do
-        before { band.twitter = "javascript:alert('XSS');//http://example.com" }
-        it { is_expected.to be_invalid }
-        before { band.twitter = "http://example.com/?<script>alert(document.domain);</script>" }
-        it { is_expected.to be_invalid }
-        before { band.twitter = "http://example.com/\"onmouseover=\"alert(1)\"" }
-        it { is_expected.to be_invalid }
+        let(:band1) { build(:band, twitter: "javascript:alert('XSS');//http://example.com") }
+        let(:band2) { build(:band, twitter: "http://example.com/?<script>alert(document.domain);</script>") }
+        let(:band3) { build(:band, twitter: "http://example.com/\"onmouseover=\"alert(1)\"") }
+        it "is invalid" do
+          expect(band1).to be_invalid
+          expect(band2).to be_invalid
+          expect(band3).to be_invalid
+        end
       end
     end
   end
