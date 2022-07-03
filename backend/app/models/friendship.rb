@@ -1,6 +1,4 @@
 class Friendship < ApplicationRecord
-  validates :follower_id, presence: true
-  validates :followed_id, presence: true
   validates_uniqueness_of :follower_id, scope: :followed_id
 
   belongs_to :follower, class_name: "Band"

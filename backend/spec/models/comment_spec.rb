@@ -1,30 +1,33 @@
 require 'rails_helper'
 
 RSpec.describe Comment, type: :model do
-  let(:band) { create(:band) }
-  let(:event) { create(:event, owner: band) }
-  it "is valid with band, event and content" do
-    comment = build(:comment, band: band, event: event)
-    expect(comment).to be_valid
+  describe "validation" do
+    context ":content" do
+      it { is_expected.to validate_presence_of :content}
+      it { is_expected.to validate_length_of(:content).is_at_most(1000) }
+    end
   end
-  it "is a valid reply with band, event parent and content" do
-    comment = create(:comment, band: band, event: event)
-    reply = build(:comment, band: band, event: event, parent: comment)
-    expect(reply).to be_valid
-  end
-  it "is invalid without band" do
-    comment = build(:comment, band: nil, event: event)
-    comment.valid?
-    expect(comment.errors[:band]).to include("must exist")  
-  end
-  it "is invalid without event" do
-    comment = build(:comment, band: band, event: nil)
-    comment.valid?
-    expect(comment.errors[:event]).to include("must exist")  
-  end
-  it "is invalid without content" do
-    comment = build(:comment, content: nil, band: band, event: event)
-    comment.valid?
-    expect(comment.errors[:content]).to include("can't be blank")  
+  
+  describe "include UserValidator" do
+    let(:band) { create(:band) }
+    let(:audience) { create(:audience) }
+    let(:event) { create(:event, owner: band) }
+    subject { build(:comment, event: event, **params) }
+    context "when both :band and :audience are present" do
+      let(:params) { { band: band, audience: audience } }
+      it { is_expected.to be_invalid }
+    end
+    context "when :band is present and :audience is not present" do
+      let(:params) { { band: band, audience: nil } }
+      it { is_expected.to be_valid }
+    end
+    context "when :band is not present and :audience is present" do
+      let(:params) { { band: nil, audience: audience } }
+      it { is_expected.to be_valid }
+    end
+    context "when both :band and :audience are not present" do
+      let(:params) { { band: nil, audience: nil } }
+      it { is_expected.to be_invalid }
+    end
   end
 end

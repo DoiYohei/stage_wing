@@ -2,57 +2,30 @@ require 'rails_helper'
 
 RSpec.describe Event, type: :model do
   describe "validation" do
-    let(:band) { create(:band) }
-    subject(:event) { build(:event, owner: band, **params) }
-    describe ":name" do
-      context "when present" do
-        let(:params) { { name: "test" } }
-        it { is_expected.to be_valid }
-      end
-      context "when not present" do
-        let(:params) { { name: nil } }
-        it { is_expected.to be_invalid }
-      end
+    context ":name" do
+      it { is_expected.to validate_presence_of :name }
+      it { is_expected.to validate_length_of(:name).is_at_most(50) }
     end
-    describe ":place" do
-      context "when present" do
-        let(:params) { { place: "test" } }
-        it { is_expected.to be_valid }
-      end
-      context "when not present" do
-        let(:params) { { place: nil } }
-        it { is_expected.to be_invalid }
-      end
+    context ":place" do
+      it { is_expected.to validate_presence_of :place }
+      it { is_expected.to validate_length_of(:place).is_at_most(50) }
     end
-    describe ":open_at" do
-      context "when present" do
-        let(:params) { { open_at: Time.now } }
-        it { is_expected.to be_valid }
-      end
-      context "when not present" do
-        let(:params) { { open_at: nil } }
-        it { is_expected.to be_invalid }
-      end
+    context ":content" do
+      it { is_expected.to validate_length_of(:content).is_at_most(1000) }
     end
-    describe ":start_at" do
-      context "when present" do
-        let(:params) { { start_at: Time.now } }
-        it { is_expected.to be_valid }
-      end
-      context "when not present" do
-        let(:params) { { start_at: nil } }
-        it { is_expected.to be_invalid }
-      end
+    context ":unregistered_performers" do
+      it { is_expected.to validate_length_of(:unregistered_performers).is_at_most(1000) }
     end
-    describe ":reservation" do
-      context "when present" do
-        let(:params) { { reservation: true } }
-        it { is_expected.to be_valid }
-      end
-      context "when not present" do
-        let(:params) { { reservation: nil } }
-        it { is_expected.to be_invalid }
-      end
+    context ":open_at" do
+      it { is_expected.to validate_presence_of :open_at }
+    end
+    context ":start_at" do
+      it { is_expected.to validate_presence_of :start_at }
+    end
+    context ":reservation" do
+      it { is_expected.to allow_value(true).for(:reservation) }
+      it { is_expected.to allow_value(false).for(:reservation) }
+      it { is_expected.not_to allow_value(nil).for(:reservation) }
     end
   end
 end

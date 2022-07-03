@@ -2,31 +2,16 @@ require 'rails_helper'
 
 RSpec.describe Post, type: :model do
   describe "validation" do
-    let(:band) { create(:band) }
-    subject(:post) { build(:post, band: band, **params) }
-    describe ":format" do
-      context "when present" do
-        let(:params) { { format: "photo" } }
-        it { is_expected.to be_valid }
-      end
-      context "when not present" do
-        let(:params) { { format: nil } }
-        it { is_expected.to be_invalid }
-      end
+    context ":format" do
+      it { is_expected.to validate_presence_of :format }
     end
-    describe ":media_pass" do
-      context "when not present" do
-        let(:params) { { media_pass: nil } }
-        it { is_expected.to be_valid }
-      end
-      context "when correct format" do
-        let(:params) { { media_pass: "Test1" } }
-        it { is_expected.to be_valid }
-      end
-      context "when incorrect format" do
-        let(:params) { { media_pass: "test-1" } }
-        it { is_expected.to be_invalid }
-      end
+    context ":description" do
+      it { is_expected.to validate_length_of(:description).is_at_most(500) }
+    end
+    context ":media_pass" do
+      it { is_expected.to allow_value(nil).for(:media_pass) }
+      it { is_expected.to allow_value("Test1").for(:media_pass) }
+      it { is_expected.not_to allow_value("test-1", "テスト").for(:media_pass) }
     end
   end
 end

@@ -1,7 +1,5 @@
 class BandRoom < ApplicationRecord
-  validates :band, presence: true
-  validates :room, presence: true
-  validates_uniqueness_of :room_id, scope: :band_id
+  validates_uniqueness_of :room, scope: :band
 
   belongs_to :band
   belongs_to :room

@@ -17,8 +17,7 @@ class EventsController < ApplicationController
 
   def show
     @event = Event.find(params[:id])
-    @all_comments = @event.comments
-    @parent_comments = @all_comments.select { |n| n.parent_id == nil }
+    @comments = @event.comments
     if current_audience
       @ticket = @event.tickets.find_by(audience_id: current_audience.id)
     end
