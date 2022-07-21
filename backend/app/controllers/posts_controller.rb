@@ -1,7 +1,7 @@
 class PostsController < ApplicationController
   before_action :authenticate_band!
-  before_action :set_post, only: %i(update destroy)
-  
+  before_action :set_post, only: %i[update destroy]
+
   def create
     @post = current_band.posts.build(post_params)
     if @post.save

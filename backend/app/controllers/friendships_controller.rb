@@ -1,7 +1,7 @@
 class FriendshipsController < ApplicationController
   before_action :authenticate_band!
   before_action :set_other_band, except: :index
-  
+
   def index
     if current_band == Band.find(params[:band_id])
       @friends = current_band.friends
@@ -13,11 +13,11 @@ class FriendshipsController < ApplicationController
   end
 
   def create
-    if !current_band.following?(@band) 
+    if current_band.following?(@band)
+      head :bad_request
+    else
       current_band.follow(@band)
       head :created
-    else
-      head :bad_request
     end
   end
 

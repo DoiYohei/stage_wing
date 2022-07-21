@@ -1,10 +1,11 @@
 class EventsController < ApplicationController
-  before_action :authenticate_band!, except: %i(index show)
-  before_action :set_event, only: %i(edit update destroy)
+  before_action :authenticate_band!, except: %i[index show]
+  before_action :set_event, only: %i[edit update destroy]
 
   def create
     @event = current_band.created_events.build(event_params)
     if @event.save
+      # Event作成後に続けてLineupを作成するため、idを返す
       render json: { id: @event.id }, status: :created
     else
       head :unprocessable_entity
@@ -18,9 +19,7 @@ class EventsController < ApplicationController
   def show
     @event = Event.find(params[:id])
     @comments = @event.comments
-    if current_audience
-      @ticket = @event.tickets.find_by(audience_id: current_audience.id)
-    end
+    @ticket = @event.tickets.find_by(audience_id: current_audience.id) if current_audience
   end
 
   def edit
@@ -50,6 +49,7 @@ class EventsController < ApplicationController
   end
 
   def event_params
-    params.require(:event).permit(:name, :flyer, :place, :ticket_price, :open_at, :start_at, :content, :unregistered_performers, :reservation)
+    params.require(:event).permit(:name, :flyer, :place, :ticket_price, :open_at, :start_at, :content,
+                                  :unregistered_performers, :reservation)
   end
 end

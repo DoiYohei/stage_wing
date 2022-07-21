@@ -1,9 +1,10 @@
 class LineupsController < ApplicationController
   before_action :authenticate_band!
   before_action :set_event
-  before_action :set_lineup, only: %i(update destroy)
+  before_action :set_lineup, only: %i[update destroy]
 
-  def index # Lineups編集時に使用
+  def index
+    # Lineups編集時に使用
     @bands = Band.all
     @lineups = @event.lineups
   end
@@ -24,7 +25,7 @@ class LineupsController < ApplicationController
       head :unprocessable_entity
     end
   end
-  
+
   def destroy
     if @lineup.destroy
       head :ok

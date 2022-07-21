@@ -3,7 +3,7 @@ module UserValidator
 
   included do
     validates :band_or_audience, presence: true
-    
+
     belongs_to :band, optional: true
     belongs_to :audience, optional: true
   end

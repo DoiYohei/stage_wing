@@ -10,11 +10,11 @@ module ApplicationCable
     private
 
     def find_verified_band(params)
-      uid = params["uid"]
-      token = params["access-token"]
-      client = params["client"]
+      uid = params['uid']
+      token = params['access-token']
+      client = params['client']
       band = Band.find_by(email: uid)
-      if band && band.valid_token?(token, client)
+      if band&.valid_token?(token, client)
         band
       else
         reject_unauthorized_connection

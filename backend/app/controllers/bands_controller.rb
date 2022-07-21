@@ -1,5 +1,5 @@
 class BandsController < ApplicationController
-  before_action :accessible_by_owner, only: %i(edit tickets)
+  before_action :accessible_by_owner, only: %i[edit tickets]
 
   def index
     @bands = Band.all.order(:name)
@@ -13,9 +13,7 @@ class BandsController < ApplicationController
       @friend_status = current_band.friend_status(@band)
       @rooms = current_band.fetch_rooms
     end
-    if current_member
-      @favorite_ids = current_member.likes.pluck(:post_id)
-    end
+    @favorite_ids = current_member.likes.pluck(:post_id) if current_member
   end
 
   def edit
@@ -30,8 +28,6 @@ class BandsController < ApplicationController
   private
 
   def accessible_by_owner
-    if current_band != Band.find(params[:id])
-      head :unauthorized
-    end
+    head :unauthorized if current_band != Band.find(params[:id])
   end
 end

@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :comment, aliases: [:parent] do
-    content { "test" }
+    content { 'test' }
     association :band, :event, :parent
   end
 end
