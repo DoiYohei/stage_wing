@@ -1,26 +1,19 @@
 require 'rails_helper'
 
 RSpec.describe Post, type: :model do
-  let(:band) { create(:band) }
-  it "is valid with a format, photo, description" do
-    post = build(:post, band: band)
-    expect(post).to be_valid
-  end
-  it "is valid with a format, audio, description" do
-    post = build(:post, :audio_post, band: band)
-    expect(post).to be_valid
-  end
-  it "is valid with a format, media_pass, description" do
-    post = build(:post, :media_pass_post, band: band)
-    expect(post).to be_valid
-  end
-  it "is valid with a format, description" do
-    post = build(:post, :news_post, band: band)
-    expect(post).to be_valid
-  end
-  it "is invalid without a format" do
-    post = build(:post, format: nil, band: band)
-    post.valid?
-    expect(post.errors[:format]).to include("can't be blank")
+  describe 'validation' do
+    context ':format' do
+      it { is_expected.to validate_presence_of :format }
+    end
+
+    context ':description' do
+      it { is_expected.to validate_length_of(:description).is_at_most(500) }
+    end
+
+    context ':media_pass' do
+      it { is_expected.to allow_value(nil).for(:media_pass) }
+      it { is_expected.to allow_value('Test1').for(:media_pass) }
+      it { is_expected.not_to allow_value('test-1', 'テスト').for(:media_pass) }
+    end
   end
 end

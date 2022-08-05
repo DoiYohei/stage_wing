@@ -3,7 +3,7 @@ require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../config/environment', __dir__)
 # Prevent database truncation if the environment is production
-abort("The Rails environment is running in production mode!") if Rails.env.production?
+abort('The Rails environment is running in production mode!') if Rails.env.production?
 require 'rspec/rails'
 # Add additional requires below this line. Rails is not loaded until this point!
 
@@ -63,13 +63,17 @@ RSpec.configure do |config|
   # config.filter_gems_from_backtrace("gem name")
 
   # テスト終了後、アップロードされたファイルを削除する
-  config.after(:all) do
-    if Rails.env.test?
-      FileUtils.rm_rf(Dir["#{Rails.root}/public/uploads_#{Rails.env}/"])
-    end
+  config.after(:suite) do
+    FileUtils.rm_rf(Dir[Rails.root.join("public/uploads_#{Rails.env}/")]) if Rails.env.test?
   end
 
   config.include FactoryBot::Syntax::Methods
-
   config.include ActiveJob::TestHelper
+
+  Shoulda::Matchers.configure do |c|
+    c.integrate do |with|
+      with.test_framework :rspec
+      with.library :rails
+    end
+  end
 end

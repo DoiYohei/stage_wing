@@ -1,4 +1,5 @@
-json.extract! @event, :id, :name, :place, :open_at, :start_at, :ticket_price, :content, :unregistered_performers, :reservation
+json.extract! @event, :id, :name, :place, :open_at, :start_at, :ticket_price, :content, :unregistered_performers,
+              :reservation
 
 if @event.owner
   json.owner do
@@ -6,9 +7,7 @@ if @event.owner
   end
 end
 
-if @event.flyer
-  json.flyer @event.flyer.url
-end
+json.flyer @event.flyer.url if @event.flyer
 
 if @event.performers
   json.performers do
@@ -19,33 +18,32 @@ end
 json.ticket @ticket
 
 json.comments do
-  json.array! @parent_comments do |comment|
-    json.extract! comment, :id, :content, :created_at, :parent_id
+  parent_comments = @comments.select { |c| c.parent_id.nil? }
+  json.array! parent_comments do |parent|
+    json.extract! parent, :id, :content, :created_at, :parent_id
     json.commenter do
-      if comment.band
-        json.extract! comment.band, :id, :name, :image
-        json.user_type "bands"
+      if parent.band
+        json.extract! parent.band, :id, :name, :image
+        json.user_type 'bands'
       else
-        json.extract! comment.audience, :id, :name, :image
-        json.user_type "audiences"
+        json.extract! parent.audience, :id, :name, :image
+        json.user_type 'audiences'
       end
     end
     json.replies do
-      replies = @all_comments.select { |a| a.parent_id == comment.id }
+      replies = @comments.select { |c| c.parent_id == parent.id }
       json.array! replies do |reply|
         json.extract! reply, :id, :content, :created_at, :parent_id
         json.commenter do
           if reply.band
             json.extract! reply.band, :id, :name, :image
-            json.user_type "bands"
+            json.user_type 'bands'
           else
             json.extract! reply.audience, :id, :name, :image
-            json.user_type "audiences"
+            json.user_type 'audiences'
           end
         end
       end
     end
   end
 end
-
-

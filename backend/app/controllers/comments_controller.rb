@@ -2,6 +2,7 @@ class CommentsController < ApplicationController
   before_action :authenticate_member!
 
   def create
+    Event.find(comment_params[:event_id])
     comment = current_member.comments.build(comment_params)
     if comment.save
       head :created

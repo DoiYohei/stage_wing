@@ -10,11 +10,9 @@ class ImageUploader < CarrierWave::Uploader::Base
   # Override the directory where uploaded files will be stored.
   # This is a sensible default for uploaders that are meant to be mounted:
   def cache_dir
-    if Rails.env.test?
-      "uploads_#{Rails.env}/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}/tmp"
-    end
+    "uploads_#{Rails.env}/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}/tmp" if Rails.env.test?
   end
-  
+
   def store_dir
     if Rails.env.test?
       "uploads_#{Rails.env}/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
@@ -43,11 +41,11 @@ class ImageUploader < CarrierWave::Uploader::Base
   # Add an allowlist of extensions which are allowed to be uploaded.
   # For images you might use something like this:
   def extension_allowlist
-    %w(jpg jpeg gif png)
+    %w[jpg jpeg gif png]
   end
 
   def size_range
-    1..10.megabytes
+    1..(10.megabytes)
   end
 
   # Override the filename of the uploaded files:

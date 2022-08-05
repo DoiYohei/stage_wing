@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Band < ActiveRecord::Base
+class Band < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable, :recoverable, :rememberable, :validatable
@@ -8,16 +8,19 @@ class Band < ActiveRecord::Base
 
   validates :name, presence: true, length: { maximum: 50 }
   validates :profile, length: { maximum: 1000 }
-  validates :website, :twitter, format: { with: /\A#{URI::regexp(%w(http https))}\z/ }, allow_blank: true
+  validates :website, :twitter, format: { with: /\A#{URI::DEFAULT_PARSER.make_regexp(%w[http https])}\z/ },
+                                allow_blank: true
 
   mount_uploader :image, ImageUploader
-  
-  has_many :created_events, class_name: "Event", foreign_key: "owner_id", dependent: :nullify
+
+  has_many :created_events, class_name: 'Event', foreign_key: 'owner_id', inverse_of: 'owner', dependent: :nullify
   has_many :posts, dependent: :destroy
-  has_many :performings, class_name: "Lineup", foreign_key: "performer_id", dependent: :destroy
+  has_many :performings, class_name: 'Lineup', foreign_key: 'performer_id', inverse_of: 'performer', dependent: :destroy
   has_many :performing_events, through: :performings, source: :event
-  has_many :active_friendships, class_name: "Friendship", foreign_key: "follower_id", dependent: :destroy
-  has_many :passive_friendships, class_name: "Friendship", foreign_key: "followed_id", dependent: :destroy
+  has_many :active_friendships, class_name: 'Friendship', foreign_key: 'follower_id', inverse_of: 'follower',
+                                dependent: :destroy
+  has_many :passive_friendships, class_name: 'Friendship', foreign_key: 'followed_id', inverse_of: 'followed',
+                                 dependent: :destroy
   has_many :following, through: :active_friendships, source: :followed
   has_many :followers, through: :passive_friendships, source: :follower
   has_many :likes, dependent: :destroy
@@ -25,9 +28,9 @@ class Band < ActiveRecord::Base
   has_many :comments, dependent: :destroy
   has_many :messages, dependent: :destroy
   has_many :band_rooms, dependent: :destroy
-  has_many :rooms, through: :band_rooms
+  has_many :rooms, through: :band_rooms, dependent: :destroy
   has_many :tickets, dependent: :destroy
-  
+
   # Bandをフォローする
   def follow(other_band)
     following << other_band
@@ -42,12 +45,6 @@ class Band < ActiveRecord::Base
   def following?(other_band)
     following.include?(other_band)
   end
-
-  # フォローされていたらtrueを返す
-  def followed_by?(other_band)
-    followers.include?(other_band)
-  end
-
 
   # 相互フォロー(友達)の関係にあるBandを返す
   def friends
@@ -67,13 +64,11 @@ class Band < ActiveRecord::Base
   # 自分と対象のBandとの関係を返す
   def friend_status(other_band)
     if friends.include?(other_band)
-      "friend"
+      'friend'
     elsif inviting.include?(other_band)
-      "inviting"
+      'inviting'
     elsif inviters.include?(other_band)
-      "invited"
-    else
-      nil
+      'invited'
     end
   end
 
@@ -87,11 +82,11 @@ class Band < ActiveRecord::Base
       friend_room_ids = f.band_rooms.map(&:room_id)
       chat_room_id = friend_room_ids & my_room_ids
       chat_rooms.push({
-        id: chat_room_id[0],
-        friend_id: f.id,
-        friend_name: f.name,
-        friend_img: f.image.url,
-      })
+                        id: chat_room_id[0],
+                        friend_id: f.id,
+                        friend_name: f.name,
+                        friend_img: f.image.url
+                      })
     end
     chat_rooms
   end

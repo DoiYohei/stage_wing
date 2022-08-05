@@ -6,9 +6,7 @@ json.posts do
     json.band do
       json.extract! @band, :id, :name, :image
     end
-    if @favorite_ids
-      json.favorite @favorite_ids.include?(post.id)
-    end
+    json.favorite @favorite_ids.include?(post.id) if @favorite_ids
   end
 end
 

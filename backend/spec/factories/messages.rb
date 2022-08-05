@@ -1,7 +1,6 @@
 FactoryBot.define do
   factory :message do
-    association :band
-    association :room
-    content { "MyText" }
+    association :band, :room
+    content { 'test' }
   end
 end

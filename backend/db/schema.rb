@@ -53,11 +53,6 @@ ActiveRecord::Schema.define(version: 2022_01_20_133218) do
     t.datetime "reset_password_sent_at"
     t.boolean "allow_password_change", default: false
     t.datetime "remember_created_at"
-    t.integer "sign_in_count", default: 0, null: false
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
-    t.string "current_sign_in_ip"
-    t.string "last_sign_in_ip"
     t.string "confirmation_token"
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
@@ -103,7 +98,7 @@ ActiveRecord::Schema.define(version: 2022_01_20_133218) do
     t.text "unregistered_performers"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.boolean "reservation", null: false
+    t.boolean "reservation", default: false, null: false
     t.index ["owner_id"], name: "index_events_on_owner_id"
   end
 

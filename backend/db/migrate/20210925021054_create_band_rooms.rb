@@ -7,6 +7,6 @@ class CreateBandRooms < ActiveRecord::Migration[6.1]
       t.timestamps
     end
 
-    add_index :band_rooms, %i(room_id band_id), unique: true
+    add_index :band_rooms, %i[room_id band_id], unique: true
   end
 end

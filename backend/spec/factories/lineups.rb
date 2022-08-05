@@ -1,6 +1,5 @@
 FactoryBot.define do
   factory :lineup do
-    association :event
-    association :performer
+    association :event, :performer
   end
 end

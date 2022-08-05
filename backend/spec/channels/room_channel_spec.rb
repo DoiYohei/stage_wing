@@ -4,51 +4,60 @@ RSpec.describe RoomChannel, type: :channel do
   let(:band) { create(:band) }
   let(:room) { create(:room) }
 
-  describe "subscribe" do
-    context "with a room_id" do
+  describe '#subscribed' do
+    subject { subscription }
+
+    context 'with a room_id' do
       before { subscribe(room: room.id) }
-      it "is successful" do
-        expect(subscription).to be_confirmed
-      end
+
+      it { is_expected.to be_confirmed }
     end
-    context "without a room_id" do
+
+    context 'without a room_id' do
       before { subscribe(room: nil) }
-      it "is rejected" do
-        expect(subscription).to be_rejected
-      end
+
+      it { is_expected.to be_rejected }
     end
   end
 
-  describe "a message sent by a client" do
+  describe '#speak' do
     before do
       stub_connection(current_band: band)
       subscribe(room: room.id)
     end
-    context "with a content" do
-      let(:message) { build(:message) }
-      it "is saved in the messages table" do
-        expect {
+
+    context 'when new message has a content' do
+      let(:message) { build(:message, band: band, room: room, content: 'test') }
+
+      it 'creates new message' do
+        expect do
           perform(:speak, { message: message.content })
-        }.to change(Message, :count).by(1)
+        end
+          .to change(Message, :count).by(1)
       end
-      it "is broadcast to the connected channel" do
-        expect {
+
+      it 'broadcasts new message to the connected channel' do
+        expect do
           perform_enqueued_jobs do
             perform(:speak, { message: message.content })
           end
-        }.to have_broadcasted_to("room_channel_#{room.id}").with{ |data|
-          expect(data["content"]).to eq("MyText")
-          expect(data["created_at"]).to_not eq(nil)
-          expect(data["band_id"]).to eq(band.id)
-        }
+        end
+          .to(have_broadcasted_to("room_channel_#{room.id}").with do |data|
+            expect(data['content']).to eq('test')
+            expect(data['created_at']).not_to be_nil
+            expect(data['band_id']).to eq(band.id)
+          end)
       end
     end
-    context "without a content" do
-      let(:message) { build(:message, content: nil) }
-      it "isn't saved in the messages table" do
-        expect {
+
+    context "when new message hasn't a content" do
+      let(:message) { build(:message, band: band, room: room, content: nil) }
+
+      it "dosen't creat and broadcact new message" do
+        expect do
           perform(:speak, { message: message.content })
-        }.to raise_error(ActiveRecord::RecordInvalid)
+        end
+          .to raise_error(ActiveRecord::RecordInvalid)
       end
     end
   end

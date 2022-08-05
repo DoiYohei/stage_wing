@@ -1,13 +1,13 @@
 class LikesController < ApplicationController
   before_action :authenticate_member!
-  before_action :set_post, except: :index
 
   def index
     @posts = current_member.liked_posts.newest
   end
 
   def create
-    like = current_member.likes.build(post_id: @post.id)
+    post = Post.find(params[:post_id])
+    like = current_member.likes.build(post_id: post.id)
     if like.save
       head :created
     else
@@ -16,21 +16,11 @@ class LikesController < ApplicationController
   end
 
   def destroy
-    if current_member.is_a?(Band)
-      like = Like.find_by!(band: current_band, post_id: @post.id)
-    else
-      like = Like.find_by!(audience: current_audience, post_id: @post.id)
-    end
+    like = current_member.likes.find_by!(post_id: params[:post_id])
     if like.destroy
       head :ok
     else
       head :bad_request
     end
-  end
-
-  private
-
-  def set_post
-    @post = Post.find(params[:post_id])
   end
 end

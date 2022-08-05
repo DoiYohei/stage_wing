@@ -1,32 +1,32 @@
 FactoryBot.define do
   factory :post do
     # 画像ファイル投稿
-    format { "photo" }
-    photo { Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec/fixtures/post-photo.jpeg')) }
+    format { 'photo' }
+    photo { Rack::Test::UploadedFile.new(Rails.root.join('spec/fixtures/test_img.jpg')) }
     audio { nil }
     media_pass { nil }
-    description { "投稿テストです。投稿テストです。投稿テストです。投稿テストです。投稿テストです。投稿テストです。"}
+    description { 'test' }
     association :band
 
     # 音声ファイル投稿
     trait :audio_post do
-      format { "audio" }
+      format { 'audio' }
       photo { nil }
-      audio { Rack::Test::UploadedFile.new(File.join(Rails.root, 'spec/fixtures/post-audio.wav')) }
+      audio { Rack::Test::UploadedFile.new(Rails.root.join('spec/fixtures/test_audio.mp3')) }
       media_pass { nil }
     end
 
     # YouTube埋め込み投稿
     trait :media_pass_post do
-      format { "youtube" }
+      format { 'youtube' }
       photo { nil }
       audio { nil }
-      media_pass { "1a2B34cdEF" }
+      media_pass { 'Test1' }
     end
 
     # news投稿
     trait :news_post do
-      format { "news" }
+      format { 'news' }
       photo { nil }
       audio { nil }
       media_pass { nil }
