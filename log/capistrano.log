@@ -1,0 +1,260 @@
+# Logfile created on 2022-09-13 21:35:44 +0900 by logger.rb/v1.4.3
+  INFO ---------------------------------------------------------------------------
+  INFO START 2022-09-13 21:35:44 +0900 cap production deploy
+  INFO ---------------------------------------------------------------------------
+ DEBUG [271beaee] Running [ -d $HOME/.rbenv/versions/3.0.0 ] as panda@35.74.53.91
+ DEBUG [271beaee] Command: [ -d $HOME/.rbenv/versions/3.0.0 ]
+ DEBUG [271beaee] Finished in 0.625 seconds with exit status 0 (successful).
+  INFO [62abb2ee] Running /usr/bin/env mkdir -p /tmp as panda@35.74.53.91
+ DEBUG [62abb2ee] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /tmp )
+  INFO [62abb2ee] Finished in 0.394 seconds with exit status 0 (successful).
+ DEBUG Uploading /tmp/git-ssh-745bd8457b166036a72c.sh 0.0%
+  INFO Uploading /tmp/git-ssh-745bd8457b166036a72c.sh 100.0%
+  INFO [7e4ca5a1] Running /usr/bin/env chmod 700 /tmp/git-ssh-745bd8457b166036a72c.sh as panda@35.74.53.91
+ DEBUG [7e4ca5a1] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env chmod 700 /tmp/git-ssh-745bd8457b166036a72c.sh )
+  INFO [7e4ca5a1] Finished in 0.401 seconds with exit status 0 (successful).
+  INFO [17b81879] Running /usr/bin/env git ls-remote git@github.com:DoiYohei/stage_wing.git HEAD as panda@35.74.53.91
+ DEBUG [17b81879] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" GIT_ASKPASS="/bin/echo" GIT_SSH="/tmp/git-ssh-745bd8457b166036a72c.sh" ; /usr/bin/env git ls-remote git@github.com:DoiYohei/stage_wing.git HEAD )
+ DEBUG [17b81879] 	c8adf6e6c2da1b05eb4b84c504980ea63a0130ad	HEAD
+  INFO [17b81879] Finished in 2.431 seconds with exit status 0 (successful).
+  INFO [c5b89a10] Running /usr/bin/env mkdir -p /var/www/stage_wing/shared /var/www/stage_wing/releases as panda@35.74.53.91
+ DEBUG [c5b89a10] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /var/www/stage_wing/shared /var/www/stage_wing/releases )
+  INFO [c5b89a10] Finished in 0.440 seconds with exit status 0 (successful).
+  INFO [34da6bfc] Running /usr/bin/env mkdir -p /var/www/stage_wing/shared/backend/log /var/www/stage_wing/shared/backend/tmp/pids /var/www/stage_wing/shared/backend/tmp/cache /var/www/stage_wing/shared/backend/tmp/sockets /var/www/stage_wing/shared/banckend/node_modules /var/www/stage_wing/shared/public/assets as panda@35.74.53.91
+ DEBUG [34da6bfc] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /var/www/stage_wing/shared/backend/log /var/www/stage_wing/shared/backend/tmp/pids /var/www/stage_wing/shared/backend/tmp/cache /var/www/stage_wing/shared/backend/tmp/sockets /var/www/stage_wing/shared/banckend/node_modules /var/www/stage_wing/shared/public/assets )
+  INFO [34da6bfc] Finished in 0.395 seconds with exit status 0 (successful).
+  INFO [d7c71c5c] Running /usr/bin/env mkdir -p /var/www/stage_wing/shared/backend/config as panda@35.74.53.91
+ DEBUG [d7c71c5c] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /var/www/stage_wing/shared/backend/config )
+  INFO [d7c71c5c] Finished in 0.432 seconds with exit status 0 (successful).
+ DEBUG [506c8100] Running [ -f /var/www/stage_wing/shared/backend/config/master.key ] as panda@35.74.53.91
+ DEBUG [506c8100] Command: [ -f /var/www/stage_wing/shared/backend/config/master.key ]
+ DEBUG [506c8100] Finished in 0.393 seconds with exit status 1 (failed).
+ ERROR linked file /var/www/stage_wing/shared/backend/config/master.key does not exist on 35.74.53.91
+  INFO ---------------------------------------------------------------------------
+  INFO START 2022-09-13 21:36:54 +0900 cap production puma:config
+  INFO ---------------------------------------------------------------------------
+ DEBUG [fdda13f6] Running [ -d $HOME/.rbenv/versions/3.0.0 ] as panda@35.74.53.91
+ DEBUG [fdda13f6] Command: [ -d $HOME/.rbenv/versions/3.0.0 ]
+ DEBUG [fdda13f6] Finished in 0.560 seconds with exit status 0 (successful).
+ DEBUG Uploading /var/www/stage_wing/shared/puma.rb 0.0%
+  INFO Uploading /var/www/stage_wing/shared/puma.rb 100.0%
+  INFO ---------------------------------------------------------------------------
+  INFO START 2022-09-13 21:37:08 +0900 cap production puma:systemd:config puma:systemd:enable
+  INFO ---------------------------------------------------------------------------
+ DEBUG [2134eac5] Running [ -d $HOME/.rbenv/versions/3.0.0 ] as panda@35.74.53.91
+ DEBUG [2134eac5] Command: [ -d $HOME/.rbenv/versions/3.0.0 ]
+ DEBUG [2134eac5] Finished in 0.575 seconds with exit status 0 (successful).
+ DEBUG [4677c2a9] Running /usr/bin/env echo $HOME/.rbenv/bin/rbenv exec bundle as panda@35.74.53.91
+ DEBUG [4677c2a9] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env echo $HOME/.rbenv/bin/rbenv exec bundle )
+ DEBUG [4677c2a9] 	/home/panda/.rbenv/bin/rbenv exec bundle
+ DEBUG [4677c2a9] Finished in 0.431 seconds with exit status 0 (successful).
+ DEBUG Uploading /tmp/puma_stage_wing_production.service 0.0%
+  INFO Uploading /tmp/puma_stage_wing_production.service 100.0%
+  INFO [29a5aee5] Running /usr/bin/env sudo mv /tmp/puma_stage_wing_production.service /etc/systemd/system/ as panda@35.74.53.91
+ DEBUG [29a5aee5] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env sudo mv /tmp/puma_stage_wing_production.service /etc/systemd/system/ )
+  INFO [29a5aee5] Finished in 0.409 seconds with exit status 0 (successful).
+  INFO [1d04d8ed] Running /usr/bin/env sudo /bin/systemctl daemon-reload as panda@35.74.53.91
+ DEBUG [1d04d8ed] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env sudo /bin/systemctl daemon-reload )
+  INFO [1d04d8ed] Finished in 0.543 seconds with exit status 0 (successful).
+  INFO [936511b8] Running /usr/bin/env sudo /bin/systemctl enable puma_stage_wing_production as panda@35.74.53.91
+ DEBUG [936511b8] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env sudo /bin/systemctl enable puma_stage_wing_production )
+  INFO [936511b8] Finished in 0.506 seconds with exit status 0 (successful).
+  INFO ---------------------------------------------------------------------------
+  INFO START 2022-09-13 21:39:26 +0900 cap production deploy
+  INFO ---------------------------------------------------------------------------
+ DEBUG [1c4a4d33] Running [ -d $HOME/.rbenv/versions/3.0.0 ] as panda@35.74.53.91
+ DEBUG [1c4a4d33] Command: [ -d $HOME/.rbenv/versions/3.0.0 ]
+ DEBUG [1c4a4d33] Finished in 0.561 seconds with exit status 0 (successful).
+  INFO [311824a1] Running /usr/bin/env mkdir -p /tmp as panda@35.74.53.91
+ DEBUG [311824a1] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /tmp )
+  INFO [311824a1] Finished in 0.436 seconds with exit status 0 (successful).
+ DEBUG Uploading /tmp/git-ssh-407b8505eaf62c428e39.sh 0.0%
+  INFO Uploading /tmp/git-ssh-407b8505eaf62c428e39.sh 100.0%
+  INFO [a2db199f] Running /usr/bin/env chmod 700 /tmp/git-ssh-407b8505eaf62c428e39.sh as panda@35.74.53.91
+ DEBUG [a2db199f] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env chmod 700 /tmp/git-ssh-407b8505eaf62c428e39.sh )
+  INFO [a2db199f] Finished in 0.397 seconds with exit status 0 (successful).
+  INFO [53eefdaa] Running /usr/bin/env git ls-remote git@github.com:DoiYohei/stage_wing.git HEAD as panda@35.74.53.91
+ DEBUG [53eefdaa] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" GIT_ASKPASS="/bin/echo" GIT_SSH="/tmp/git-ssh-407b8505eaf62c428e39.sh" ; /usr/bin/env git ls-remote git@github.com:DoiYohei/stage_wing.git HEAD )
+ DEBUG [53eefdaa] 	c8adf6e6c2da1b05eb4b84c504980ea63a0130ad	HEAD
+  INFO [53eefdaa] Finished in 2.456 seconds with exit status 0 (successful).
+  INFO [93a50b57] Running /usr/bin/env mkdir -p /var/www/stage_wing/shared /var/www/stage_wing/releases as panda@35.74.53.91
+ DEBUG [93a50b57] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /var/www/stage_wing/shared /var/www/stage_wing/releases )
+  INFO [93a50b57] Finished in 0.431 seconds with exit status 0 (successful).
+  INFO [a8ee3220] Running /usr/bin/env mkdir -p /var/www/stage_wing/shared/backend/log /var/www/stage_wing/shared/backend/tmp/pids /var/www/stage_wing/shared/backend/tmp/cache /var/www/stage_wing/shared/backend/tmp/sockets /var/www/stage_wing/shared/banckend/node_modules /var/www/stage_wing/shared/public/assets as panda@35.74.53.91
+ DEBUG [a8ee3220] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /var/www/stage_wing/shared/backend/log /var/www/stage_wing/shared/backend/tmp/pids /var/www/stage_wing/shared/backend/tmp/cache /var/www/stage_wing/shared/backend/tmp/sockets /var/www/stage_wing/shared/banckend/node_modules /var/www/stage_wing/shared/public/assets )
+  INFO [a8ee3220] Finished in 0.382 seconds with exit status 0 (successful).
+  INFO [73abe2f1] Running /usr/bin/env mkdir -p /var/www/stage_wing/shared/backend/config as panda@35.74.53.91
+ DEBUG [73abe2f1] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /var/www/stage_wing/shared/backend/config )
+  INFO [73abe2f1] Finished in 0.429 seconds with exit status 0 (successful).
+ DEBUG [88ca364a] Running [ -f /var/www/stage_wing/shared/backend/config/master.key ] as panda@35.74.53.91
+ DEBUG [88ca364a] Command: [ -f /var/www/stage_wing/shared/backend/config/master.key ]
+ DEBUG [88ca364a] Finished in 0.387 seconds with exit status 1 (failed).
+ ERROR linked file /var/www/stage_wing/shared/backend/config/master.key does not exist on 35.74.53.91
+  INFO ---------------------------------------------------------------------------
+  INFO START 2022-09-13 21:43:17 +0900 cap production deploy
+  INFO ---------------------------------------------------------------------------
+ DEBUG [e0109009] Running [ -d $HOME/.rbenv/versions/3.0.0 ] as panda@35.74.53.91
+ DEBUG [e0109009] Command: [ -d $HOME/.rbenv/versions/3.0.0 ]
+ DEBUG [e0109009] Finished in 0.553 seconds with exit status 0 (successful).
+  INFO [9fbc70be] Running /usr/bin/env mkdir -p /tmp as panda@35.74.53.91
+ DEBUG [9fbc70be] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /tmp )
+  INFO [9fbc70be] Finished in 0.432 seconds with exit status 0 (successful).
+ DEBUG Uploading /tmp/git-ssh-0dee9baba82c3e0241e0.sh 0.0%
+  INFO Uploading /tmp/git-ssh-0dee9baba82c3e0241e0.sh 100.0%
+  INFO [4ef4eed7] Running /usr/bin/env chmod 700 /tmp/git-ssh-0dee9baba82c3e0241e0.sh as panda@35.74.53.91
+ DEBUG [4ef4eed7] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env chmod 700 /tmp/git-ssh-0dee9baba82c3e0241e0.sh )
+  INFO [4ef4eed7] Finished in 0.391 seconds with exit status 0 (successful).
+  INFO [6bbab9d4] Running /usr/bin/env git ls-remote git@github.com:DoiYohei/stage_wing.git HEAD as panda@35.74.53.91
+ DEBUG [6bbab9d4] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" GIT_ASKPASS="/bin/echo" GIT_SSH="/tmp/git-ssh-0dee9baba82c3e0241e0.sh" ; /usr/bin/env git ls-remote git@github.com:DoiYohei/stage_wing.git HEAD )
+ DEBUG [6bbab9d4] 	c8adf6e6c2da1b05eb4b84c504980ea63a0130ad	HEAD
+  INFO [6bbab9d4] Finished in 2.426 seconds with exit status 0 (successful).
+  INFO [e6adb6b5] Running /usr/bin/env mkdir -p /var/www/stage_wing/shared /var/www/stage_wing/releases as panda@35.74.53.91
+ DEBUG [e6adb6b5] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /var/www/stage_wing/shared /var/www/stage_wing/releases )
+  INFO [e6adb6b5] Finished in 0.430 seconds with exit status 0 (successful).
+  INFO [170e543a] Running /usr/bin/env mkdir -p /var/www/stage_wing/shared/backend/log /var/www/stage_wing/shared/backend/tmp/pids /var/www/stage_wing/shared/backend/tmp/cache /var/www/stage_wing/shared/backend/tmp/sockets /var/www/stage_wing/shared/banckend/node_modules /var/www/stage_wing/shared/public/assets as panda@35.74.53.91
+ DEBUG [170e543a] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /var/www/stage_wing/shared/backend/log /var/www/stage_wing/shared/backend/tmp/pids /var/www/stage_wing/shared/backend/tmp/cache /var/www/stage_wing/shared/backend/tmp/sockets /var/www/stage_wing/shared/banckend/node_modules /var/www/stage_wing/shared/public/assets )
+  INFO [170e543a] Finished in 0.396 seconds with exit status 0 (successful).
+  INFO [4a13b9ce] Running /usr/bin/env mkdir -p /var/www/stage_wing/shared/backend/config as panda@35.74.53.91
+ DEBUG [4a13b9ce] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /var/www/stage_wing/shared/backend/config )
+  INFO [4a13b9ce] Finished in 0.430 seconds with exit status 0 (successful).
+ DEBUG [1bab4214] Running [ -f /var/www/stage_wing/shared/backend/config/master.key ] as panda@35.74.53.91
+ DEBUG [1bab4214] Command: [ -f /var/www/stage_wing/shared/backend/config/master.key ]
+ DEBUG [1bab4214] Finished in 0.387 seconds with exit status 0 (successful).
+ DEBUG [3c52cc3a] Running [ -f /var/www/stage_wing/shared/puma.rb ] as panda@35.74.53.91
+ DEBUG [3c52cc3a] Command: [ -f /var/www/stage_wing/shared/puma.rb ]
+ DEBUG [3c52cc3a] Finished in 0.429 seconds with exit status 0 (successful).
+ DEBUG [26b09960] Running [ -f /var/www/stage_wing/current/REVISION ] as panda@35.74.53.91
+ DEBUG [26b09960] Command: [ -f /var/www/stage_wing/current/REVISION ]
+ DEBUG [26b09960] Finished in 0.389 seconds with exit status 1 (failed).
+ DEBUG [175e277e] Running [ -f /var/www/stage_wing/repo/HEAD ] as panda@35.74.53.91
+ DEBUG [175e277e] Command: [ -f /var/www/stage_wing/repo/HEAD ]
+ DEBUG [175e277e] Finished in 0.426 seconds with exit status 0 (successful).
+  INFO The repository mirror is at /var/www/stage_wing/repo
+ DEBUG [a0774cf9] Running if test ! -d /var/www/stage_wing/repo; then echo "Directory does not exist '/var/www/stage_wing/repo'" 1>&2; false; fi as panda@35.74.53.91
+ DEBUG [a0774cf9] Command: if test ! -d /var/www/stage_wing/repo; then echo "Directory does not exist '/var/www/stage_wing/repo'" 1>&2; false; fi
+ DEBUG [a0774cf9] Finished in 0.385 seconds with exit status 0 (successful).
+  INFO [7f42845c] Running /usr/bin/env git remote set-url origin git@github.com:DoiYohei/stage_wing.git as panda@35.74.53.91
+ DEBUG [7f42845c] Command: cd /var/www/stage_wing/repo && ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" GIT_ASKPASS="/bin/echo" GIT_SSH="/tmp/git-ssh-0dee9baba82c3e0241e0.sh" ; /usr/bin/env git remote set-url origin git@github.com:DoiYohei/stage_wing.git )
+  INFO [7f42845c] Finished in 0.438 seconds with exit status 0 (successful).
+  INFO [f67702bf] Running /usr/bin/env git remote update --prune as panda@35.74.53.91
+ DEBUG [f67702bf] Command: cd /var/www/stage_wing/repo && ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" GIT_ASKPASS="/bin/echo" GIT_SSH="/tmp/git-ssh-0dee9baba82c3e0241e0.sh" ; /usr/bin/env git remote update --prune )
+  INFO [f67702bf] Finished in 2.471 seconds with exit status 0 (successful).
+ DEBUG [dbe85b01] Running if test ! -d /var/www/stage_wing/repo; then echo "Directory does not exist '/var/www/stage_wing/repo'" 1>&2; false; fi as panda@35.74.53.91
+ DEBUG [dbe85b01] Command: if test ! -d /var/www/stage_wing/repo; then echo "Directory does not exist '/var/www/stage_wing/repo'" 1>&2; false; fi
+ DEBUG [dbe85b01] Finished in 0.433 seconds with exit status 0 (successful).
+  INFO [0e5b2945] Running /usr/bin/env mkdir -p /var/www/stage_wing/releases/20220913124324 as panda@35.74.53.91
+ DEBUG [0e5b2945] Command: cd /var/www/stage_wing/repo && ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" GIT_ASKPASS="/bin/echo" GIT_SSH="/tmp/git-ssh-0dee9baba82c3e0241e0.sh" ; /usr/bin/env mkdir -p /var/www/stage_wing/releases/20220913124324 )
+  INFO [0e5b2945] Finished in 0.392 seconds with exit status 0 (successful).
+  INFO [0b3f282d] Running /usr/bin/env git archive master | /usr/bin/env tar -x -f - -C /var/www/stage_wing/releases/20220913124324 as panda@35.74.53.91
+ DEBUG [0b3f282d] Command: cd /var/www/stage_wing/repo && ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" GIT_ASKPASS="/bin/echo" GIT_SSH="/tmp/git-ssh-0dee9baba82c3e0241e0.sh" ; /usr/bin/env git archive master | /usr/bin/env tar -x -f - -C /var/www/stage_wing/releases/20220913124324 )
+  INFO [0b3f282d] Finished in 0.470 seconds with exit status 0 (successful).
+ DEBUG [f61993cf] Running if test ! -d /var/www/stage_wing/repo; then echo "Directory does not exist '/var/www/stage_wing/repo'" 1>&2; false; fi as panda@35.74.53.91
+ DEBUG [f61993cf] Command: if test ! -d /var/www/stage_wing/repo; then echo "Directory does not exist '/var/www/stage_wing/repo'" 1>&2; false; fi
+ DEBUG [f61993cf] Finished in 0.390 seconds with exit status 0 (successful).
+ DEBUG [897a594e] Running /usr/bin/env git rev-list --max-count=1 master as panda@35.74.53.91
+ DEBUG [897a594e] Command: cd /var/www/stage_wing/repo && ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" GIT_ASKPASS="/bin/echo" GIT_SSH="/tmp/git-ssh-0dee9baba82c3e0241e0.sh" ; /usr/bin/env git rev-list --max-count=1 master )
+ DEBUG [897a594e] 	c8adf6e6c2da1b05eb4b84c504980ea63a0130ad
+ DEBUG [897a594e] Finished in 0.434 seconds with exit status 0 (successful).
+ DEBUG [0ff1d080] Running if test ! -d /var/www/stage_wing/releases/20220913124324; then echo "Directory does not exist '/var/www/stage_wing/releases/20220913124324'" 1>&2; false; fi as panda@35.74.53.91
+ DEBUG [0ff1d080] Command: if test ! -d /var/www/stage_wing/releases/20220913124324; then echo "Directory does not exist '/var/www/stage_wing/releases/20220913124324'" 1>&2; false; fi
+ DEBUG [0ff1d080] Finished in 0.396 seconds with exit status 0 (successful).
+  INFO [f29fe338] Running /usr/bin/env echo "c8adf6e6c2da1b05eb4b84c504980ea63a0130ad" > REVISION as panda@35.74.53.91
+ DEBUG [f29fe338] Command: cd /var/www/stage_wing/releases/20220913124324 && ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env echo "c8adf6e6c2da1b05eb4b84c504980ea63a0130ad" > REVISION )
+  INFO [f29fe338] Finished in 0.438 seconds with exit status 0 (successful).
+  INFO [991f0891] Running /usr/bin/env mkdir -p /var/www/stage_wing/releases/20220913124324/backend/config as panda@35.74.53.91
+ DEBUG [991f0891] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /var/www/stage_wing/releases/20220913124324/backend/config )
+  INFO [991f0891] Finished in 0.397 seconds with exit status 0 (successful).
+ DEBUG [124fc7b7] Running [ -L /var/www/stage_wing/releases/20220913124324/backend/config/master.key ] as panda@35.74.53.91
+ DEBUG [124fc7b7] Command: [ -L /var/www/stage_wing/releases/20220913124324/backend/config/master.key ]
+ DEBUG [124fc7b7] Finished in 0.434 seconds with exit status 1 (failed).
+ DEBUG [b5debb4b] Running [ -f /var/www/stage_wing/releases/20220913124324/backend/config/master.key ] as panda@35.74.53.91
+ DEBUG [b5debb4b] Command: [ -f /var/www/stage_wing/releases/20220913124324/backend/config/master.key ]
+ DEBUG [b5debb4b] Finished in 0.398 seconds with exit status 1 (failed).
+  INFO [d6be1114] Running /usr/bin/env ln -s /var/www/stage_wing/shared/backend/config/master.key /var/www/stage_wing/releases/20220913124324/backend/config/master.key as panda@35.74.53.91
+ DEBUG [d6be1114] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env ln -s /var/www/stage_wing/shared/backend/config/master.key /var/www/stage_wing/releases/20220913124324/backend/config/master.key )
+  INFO [d6be1114] Finished in 0.435 seconds with exit status 0 (successful).
+  INFO [2dd915d7] Running /usr/bin/env mkdir -p /var/www/stage_wing/releases/20220913124324/backend /var/www/stage_wing/releases/20220913124324/backend/tmp /var/www/stage_wing/releases/20220913124324/banckend /var/www/stage_wing/releases/20220913124324/public as panda@35.74.53.91
+ DEBUG [2dd915d7] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env mkdir -p /var/www/stage_wing/releases/20220913124324/backend /var/www/stage_wing/releases/20220913124324/backend/tmp /var/www/stage_wing/releases/20220913124324/banckend /var/www/stage_wing/releases/20220913124324/public )
+  INFO [2dd915d7] Finished in 0.393 seconds with exit status 0 (successful).
+ DEBUG [edef0044] Running [ -L /var/www/stage_wing/releases/20220913124324/backend/log ] as panda@35.74.53.91
+ DEBUG [edef0044] Command: [ -L /var/www/stage_wing/releases/20220913124324/backend/log ]
+ DEBUG [edef0044] Finished in 0.442 seconds with exit status 1 (failed).
+ DEBUG [c1e62ea8] Running [ -d /var/www/stage_wing/releases/20220913124324/backend/log ] as panda@35.74.53.91
+ DEBUG [c1e62ea8] Command: [ -d /var/www/stage_wing/releases/20220913124324/backend/log ]
+ DEBUG [c1e62ea8] Finished in 0.400 seconds with exit status 0 (successful).
+  INFO [1ab00b20] Running /usr/bin/env rm -rf /var/www/stage_wing/releases/20220913124324/backend/log as panda@35.74.53.91
+ DEBUG [1ab00b20] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env rm -rf /var/www/stage_wing/releases/20220913124324/backend/log )
+  INFO [1ab00b20] Finished in 0.436 seconds with exit status 0 (successful).
+  INFO [f6d5a4cb] Running /usr/bin/env ln -s /var/www/stage_wing/shared/backend/log /var/www/stage_wing/releases/20220913124324/backend/log as panda@35.74.53.91
+ DEBUG [f6d5a4cb] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env ln -s /var/www/stage_wing/shared/backend/log /var/www/stage_wing/releases/20220913124324/backend/log )
+  INFO [f6d5a4cb] Finished in 0.387 seconds with exit status 0 (successful).
+ DEBUG [ccf60fc6] Running [ -L /var/www/stage_wing/releases/20220913124324/backend/tmp/pids ] as panda@35.74.53.91
+ DEBUG [ccf60fc6] Command: [ -L /var/www/stage_wing/releases/20220913124324/backend/tmp/pids ]
+ DEBUG [ccf60fc6] Finished in 0.432 seconds with exit status 1 (failed).
+ DEBUG [1968103a] Running [ -d /var/www/stage_wing/releases/20220913124324/backend/tmp/pids ] as panda@35.74.53.91
+ DEBUG [1968103a] Command: [ -d /var/www/stage_wing/releases/20220913124324/backend/tmp/pids ]
+ DEBUG [1968103a] Finished in 0.397 seconds with exit status 0 (successful).
+  INFO [bbf3f7a4] Running /usr/bin/env rm -rf /var/www/stage_wing/releases/20220913124324/backend/tmp/pids as panda@35.74.53.91
+ DEBUG [bbf3f7a4] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env rm -rf /var/www/stage_wing/releases/20220913124324/backend/tmp/pids )
+  INFO [bbf3f7a4] Finished in 0.435 seconds with exit status 0 (successful).
+  INFO [2f4e09ef] Running /usr/bin/env ln -s /var/www/stage_wing/shared/backend/tmp/pids /var/www/stage_wing/releases/20220913124324/backend/tmp/pids as panda@35.74.53.91
+ DEBUG [2f4e09ef] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env ln -s /var/www/stage_wing/shared/backend/tmp/pids /var/www/stage_wing/releases/20220913124324/backend/tmp/pids )
+  INFO [2f4e09ef] Finished in 0.397 seconds with exit status 0 (successful).
+ DEBUG [3239a444] Running [ -L /var/www/stage_wing/releases/20220913124324/backend/tmp/cache ] as panda@35.74.53.91
+ DEBUG [3239a444] Command: [ -L /var/www/stage_wing/releases/20220913124324/backend/tmp/cache ]
+ DEBUG [3239a444] Finished in 0.435 seconds with exit status 1 (failed).
+ DEBUG [e7c5c0ae] Running [ -d /var/www/stage_wing/releases/20220913124324/backend/tmp/cache ] as panda@35.74.53.91
+ DEBUG [e7c5c0ae] Command: [ -d /var/www/stage_wing/releases/20220913124324/backend/tmp/cache ]
+ DEBUG [e7c5c0ae] Finished in 0.395 seconds with exit status 1 (failed).
+  INFO [95e888f5] Running /usr/bin/env ln -s /var/www/stage_wing/shared/backend/tmp/cache /var/www/stage_wing/releases/20220913124324/backend/tmp/cache as panda@35.74.53.91
+ DEBUG [95e888f5] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env ln -s /var/www/stage_wing/shared/backend/tmp/cache /var/www/stage_wing/releases/20220913124324/backend/tmp/cache )
+  INFO [95e888f5] Finished in 0.434 seconds with exit status 0 (successful).
+ DEBUG [8616d3d5] Running [ -L /var/www/stage_wing/releases/20220913124324/backend/tmp/sockets ] as panda@35.74.53.91
+ DEBUG [8616d3d5] Command: [ -L /var/www/stage_wing/releases/20220913124324/backend/tmp/sockets ]
+ DEBUG [8616d3d5] Finished in 0.395 seconds with exit status 1 (failed).
+ DEBUG [168451ce] Running [ -d /var/www/stage_wing/releases/20220913124324/backend/tmp/sockets ] as panda@35.74.53.91
+ DEBUG [168451ce] Command: [ -d /var/www/stage_wing/releases/20220913124324/backend/tmp/sockets ]
+ DEBUG [168451ce] Finished in 0.431 seconds with exit status 1 (failed).
+  INFO [4a0fb22d] Running /usr/bin/env ln -s /var/www/stage_wing/shared/backend/tmp/sockets /var/www/stage_wing/releases/20220913124324/backend/tmp/sockets as panda@35.74.53.91
+ DEBUG [4a0fb22d] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env ln -s /var/www/stage_wing/shared/backend/tmp/sockets /var/www/stage_wing/releases/20220913124324/backend/tmp/sockets )
+  INFO [4a0fb22d] Finished in 0.390 seconds with exit status 0 (successful).
+ DEBUG [83e1b188] Running [ -L /var/www/stage_wing/releases/20220913124324/banckend/node_modules ] as panda@35.74.53.91
+ DEBUG [83e1b188] Command: [ -L /var/www/stage_wing/releases/20220913124324/banckend/node_modules ]
+ DEBUG [83e1b188] Finished in 0.679 seconds with exit status 1 (failed).
+ DEBUG [9477f73c] Running [ -d /var/www/stage_wing/releases/20220913124324/banckend/node_modules ] as panda@35.74.53.91
+ DEBUG [9477f73c] Command: [ -d /var/www/stage_wing/releases/20220913124324/banckend/node_modules ]
+ DEBUG [9477f73c] Finished in 0.396 seconds with exit status 1 (failed).
+  INFO [c00457a9] Running /usr/bin/env ln -s /var/www/stage_wing/shared/banckend/node_modules /var/www/stage_wing/releases/20220913124324/banckend/node_modules as panda@35.74.53.91
+ DEBUG [c00457a9] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env ln -s /var/www/stage_wing/shared/banckend/node_modules /var/www/stage_wing/releases/20220913124324/banckend/node_modules )
+  INFO [c00457a9] Finished in 0.433 seconds with exit status 0 (successful).
+ DEBUG [7445f7ab] Running [ -L /var/www/stage_wing/releases/20220913124324/public/assets ] as panda@35.74.53.91
+ DEBUG [7445f7ab] Command: [ -L /var/www/stage_wing/releases/20220913124324/public/assets ]
+ DEBUG [7445f7ab] Finished in 0.384 seconds with exit status 1 (failed).
+ DEBUG [b22524eb] Running [ -d /var/www/stage_wing/releases/20220913124324/public/assets ] as panda@35.74.53.91
+ DEBUG [b22524eb] Command: [ -d /var/www/stage_wing/releases/20220913124324/public/assets ]
+ DEBUG [b22524eb] Finished in 0.433 seconds with exit status 1 (failed).
+  INFO [0b9a0de0] Running /usr/bin/env ln -s /var/www/stage_wing/shared/public/assets /var/www/stage_wing/releases/20220913124324/public/assets as panda@35.74.53.91
+ DEBUG [0b9a0de0] Command: ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; /usr/bin/env ln -s /var/www/stage_wing/shared/public/assets /var/www/stage_wing/releases/20220913124324/public/assets )
+  INFO [0b9a0de0] Finished in 0.393 seconds with exit status 0 (successful).
+ DEBUG [e306369f] Running if test ! -d /var/www/stage_wing/releases/20220913124324; then echo "Directory does not exist '/var/www/stage_wing/releases/20220913124324'" 1>&2; false; fi as panda@35.74.53.91
+ DEBUG [e306369f] Command: if test ! -d /var/www/stage_wing/releases/20220913124324; then echo "Directory does not exist '/var/www/stage_wing/releases/20220913124324'" 1>&2; false; fi
+ DEBUG [e306369f] Finished in 0.431 seconds with exit status 0 (successful).
+  INFO [f0e2f208] Running $HOME/.rbenv/bin/rbenv exec bundle config --local deployment true as panda@35.74.53.91
+ DEBUG [f0e2f208] Command: cd /var/www/stage_wing/releases/20220913124324 && ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; $HOME/.rbenv/bin/rbenv exec bundle config --local deployment true )
+  INFO [f0e2f208] Finished in 0.585 seconds with exit status 0 (successful).
+  INFO [798ac889] Running $HOME/.rbenv/bin/rbenv exec bundle config --local path /var/www/stage_wing/shared/bundle as panda@35.74.53.91
+ DEBUG [798ac889] Command: cd /var/www/stage_wing/releases/20220913124324 && ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; $HOME/.rbenv/bin/rbenv exec bundle config --local path /var/www/stage_wing/shared/bundle )
+  INFO [798ac889] Finished in 0.624 seconds with exit status 0 (successful).
+  INFO [805f4383] Running $HOME/.rbenv/bin/rbenv exec bundle config --local without development:test as panda@35.74.53.91
+ DEBUG [805f4383] Command: cd /var/www/stage_wing/releases/20220913124324 && ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; $HOME/.rbenv/bin/rbenv exec bundle config --local without development:test )
+  INFO [805f4383] Finished in 0.580 seconds with exit status 0 (successful).
+ DEBUG [b5163ab2] Running if test ! -d /var/www/stage_wing/releases/20220913124324; then echo "Directory does not exist '/var/www/stage_wing/releases/20220913124324'" 1>&2; false; fi as panda@35.74.53.91
+ DEBUG [b5163ab2] Command: if test ! -d /var/www/stage_wing/releases/20220913124324; then echo "Directory does not exist '/var/www/stage_wing/releases/20220913124324'" 1>&2; false; fi
+ DEBUG [b5163ab2] Finished in 0.429 seconds with exit status 0 (successful).
+ DEBUG [8b670b40] Running $HOME/.rbenv/bin/rbenv exec bundle check as panda@35.74.53.91
+ DEBUG [8b670b40] Command: cd /var/www/stage_wing/releases/20220913124324 && ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; $HOME/.rbenv/bin/rbenv exec bundle check )
+ DEBUG [8b670b40] 	Could not locate Gemfile
+ DEBUG [8b670b40] Finished in 0.607 seconds with exit status 10 (failed).
+  INFO [6cc2362b] Running $HOME/.rbenv/bin/rbenv exec bundle install --jobs 4 --quiet as panda@35.74.53.91
+ DEBUG [6cc2362b] Command: cd /var/www/stage_wing/releases/20220913124324 && ( export RBENV_ROOT="$HOME/.rbenv" RBENV_VERSION="3.0.0" ; $HOME/.rbenv/bin/rbenv exec bundle install --jobs 4 --quiet )
+ DEBUG [6cc2362b] 	Could not locate Gemfile
