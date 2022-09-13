@@ -52,5 +52,6 @@ test:
 production:
   <<: *default
   database: stage_wing_production
-  username: stage_wing
-  password: <%= ENV['STAGE_WING_DATABASE_PASSWORD'] %>
+  username: root
+  password: <%= Rails.application.credentials.db[:password] %>
+  host: <%= Rails.application.credentials.db[:hostname] %>
