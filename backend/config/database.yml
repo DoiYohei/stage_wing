@@ -13,8 +13,9 @@ default: &default
   adapter: mysql2
   encoding: utf8mb4
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: db
   username: root
-  password:
+  password: <%= ENV['MYSQL_ROOT_PASSWORD'] %>
   socket: /tmp/mysql.sock
 
 development:
@@ -51,5 +52,6 @@ test:
 production:
   <<: *default
   database: stage_wing_production
-  username: stage_wing
-  password: <%= ENV['STAGE_WING_DATABASE_PASSWORD'] %>
+  username: root
+  password: <%= Rails.application.credentials.db[:password] %>
+  host: <%= Rails.application.credentials.db[:hostname] %>
