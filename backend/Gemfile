@@ -54,3 +54,4 @@ gem 'carrierwave'
 gem 'devise'
 gem 'devise_token_auth'
 gem 'mini_magick'
+gem "fog-aws", "~> 3.15"
