@@ -7,6 +7,7 @@ CarrierWave.configure do |config|
       region: 'ap-northeast-1'
     }
     config.fog_directory = 'stage-wing-upload'
+    config.asset_host = 'https://static.stage-wing.work'
   else
     config.asset_host = 'http://localhost:3000'
   end
