@@ -13,6 +13,8 @@ Rails.application.routes.draw do
     token_validations: 'auth/audiences/token_validations'
   }
 
+  mount ActionCable.server => '/cable'
+
   scope format: 'json' do
     resources :events do
       get :edit, on: :member
