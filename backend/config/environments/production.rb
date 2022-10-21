@@ -113,5 +113,5 @@ Rails.application.configure do
 
   ActionCable.server.config.disable_request_forgery_protection = true
   config.action_cable.allowed_request_origins = ['http://stage-wing.com']
-  config.action_cable.url = 'wss://stage-wing.work/cable'
+  config.action_cable.url = 'ws://stage-wing.work/cable'
 end
