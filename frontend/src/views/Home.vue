@@ -2,7 +2,7 @@
   <v-container fluid class="pa-0 fill-height">
     <v-row class="fill-height">
       <v-col cols="9" class="pa-0 fill-height">
-        <v-img src="@/assets/img/home.jpg" class="fill-height" />
+        <v-img :src="homeImage" class="fill-height" />
       </v-col>
       <v-col>
         <v-card flat>
@@ -79,6 +79,7 @@ export default {
   },
   data() {
     return {
+      homeImage: require("@/assets/img/home.jpg"),
       cardItems: [
         {
           text: "EVENT",
