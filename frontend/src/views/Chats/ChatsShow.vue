@@ -142,7 +142,7 @@ export default {
         this.partner = res.data.partner;
         const params = `uid=${this.token["uid"]}&access-token=${this.token["access-token"]}&client=${this.token["client"]}`;
         this.$cable.connection.connect(
-          `ws://${process.env.VUE_APP_WS}/cable?${params}`
+          `wss://${process.env.VUE_APP_WS}/cable?${params}`
         );
         this.$cable.subscribe({ channel: "RoomChannel", room: this.roomId });
         this.scrollToEnd();
