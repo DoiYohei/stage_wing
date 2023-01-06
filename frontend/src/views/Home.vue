@@ -1,8 +1,8 @@
 <template>
   <v-container fluid class="pa-0 fill-height">
     <v-row class="fill-height">
-      <v-col cols="9" class="pa-0 fill-height">
-        <v-img :src="homeImage" class="fill-height" />
+      <v-col cols="12" md="8" xl="9" class="pa-0" :class="fillHeightOrNot">
+        <v-img :src="homeImage" :class="fillHeightOrNot" />
       </v-col>
       <v-col>
         <v-card flat>
@@ -14,11 +14,7 @@
                 :to="item.path"
               >
                 <v-list-item-content>
-                  <v-card-title
-                    v-text="item.text"
-                    :class="textStyle"
-                    class="reflect-return"
-                  />
+                  <v-card-title v-text="item.text" :class="textStyle" />
                 </v-list-item-content>
               </v-list-item>
               <template v-if="token">
@@ -92,11 +88,11 @@ export default {
       ],
       authItems: [
         {
-          text: "SIGN UP\n(BAND)",
+          text: "SIGN UP",
           path: "/signup/bands",
         },
         {
-          text: "SIGN UP\n(AUDIENCE)",
+          text: "SIGN UP",
           path: "/signup/audiences",
         },
         {
@@ -104,8 +100,6 @@ export default {
           path: "/login",
         },
       ],
-      textStyle: "text-h2 font-weight-black",
-      logoutDialog: false,
       errorDialog: false,
       errorMessage: "",
     };
@@ -126,6 +120,19 @@ export default {
       set(newValue) {
         this.$emit("input", newValue);
       },
+    },
+    textStyle() {
+      const weight = "font-weight-black";
+      if (this.$vuetify.breakpoint.lgAndUp) {
+        return weight + " text-h2";
+      } else if (this.$vuetify.breakpoint.md) {
+        return weight + " text-h3";
+      } else return weight + " text-4 justify-center";
+    },
+    fillHeightOrNot() {
+      if (this.$vuetify.breakpoint.mdAndUp) {
+        return "fill-height";
+      } else return "";
     },
   },
   methods: {

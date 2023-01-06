@@ -1,6 +1,9 @@
 <template>
   <v-app>
-    <TheAppHeader v-if="!isHome" v-model="drawer" />
+    <TheAppHeader
+      v-if="!isHome || $vuetify.breakpoint.smAndDown"
+      v-model="drawer"
+    />
     <TheAppNavigationDrawer v-model="drawer" />
     <v-main><router-view v-model="drawer" /></v-main>
     <TheAppFooter v-if="!isHome" />

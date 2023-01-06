@@ -95,10 +95,20 @@ export default {
         this.$emit("input", newValue);
       },
     },
+    isXsDisplay() {
+      return this.$vuetify.breakpoint.xs;
+    },
   },
   watch: {
     token() {
       this.fetchList();
+    },
+    isXsDisplay(value) {
+      if (value) {
+        this.unshiftEventAndBand();
+      } else {
+        this.contents.splice(0, 2);
+      }
     },
   },
   methods: {
@@ -235,6 +245,25 @@ export default {
           },
         ];
       }
+      if (this.isXsDisplay) {
+        this.unshiftEventAndBand();
+      }
+    },
+    unshiftEventAndBand() {
+      this.contents.unshift(
+        {
+          text: "EVENT",
+          link: {
+            name: "EventsIndex",
+          },
+        },
+        {
+          text: "BAND",
+          link: {
+            name: "BandsIndex",
+          },
+        }
+      );
     },
   },
 };
