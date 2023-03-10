@@ -14,7 +14,9 @@
                 :to="item.path"
               >
                 <v-list-item-content>
-                  <v-card-title v-text="item.text" :class="textStyle" />
+                  <v-card-title :class="textStyle">
+                    {{ item.text }}
+                  </v-card-title>
                 </v-list-item-content>
               </v-list-item>
               <template v-if="token">
@@ -89,17 +91,14 @@ export default {
       authItems: [
         {
           text: "SIGN UP",
-          path: "/signup/bands",
-        },
-        {
-          text: "SIGN UP",
-          path: "/signup/audiences",
+          path: "/signup",
         },
         {
           text: "LOG IN",
           path: "/login",
         },
       ],
+      logoutDialog: false,
       errorDialog: false,
       errorMessage: "",
     };

@@ -13,7 +13,7 @@
       <v-list-item
         v-for="(content, index) in contents"
         :key="index"
-        :to="content.link"
+        :to="content.path"
       >
         <v-list-item-content>
           <v-list-item-title v-text="content.text" />
@@ -134,114 +134,61 @@ export default {
         this.contents = [
           {
             text: "マイページ",
-            link: {
-              name: "BandsShow",
-              params: {
-                id: this.bandId,
-              },
-            },
+            path: `/bands/${this.bandId}`,
           },
           {
             text: "新規Event作成",
-            link: {
-              name: "EventsNew",
-            },
+            path: "/events/new",
           },
           {
             text: "新規Post作成",
-            link: {
-              name: "PostsNew",
-            },
+            path: "/posts/new",
           },
           {
             text: "Friendリスト",
-            link: {
-              name: "BandsFriends",
-              params: {
-                id: this.bandId,
-              },
-            },
+            path: `/bands/${this.bandId}/friends`,
           },
           {
             text: "チャット",
-            link: {
-              name: "ChatsIndex",
-              params: {
-                id: this.bandId,
-              },
-            },
+            path: `/bands/${this.bandId}/chats`,
           },
           {
             text: "チケット取り置き状況",
-            link: {
-              name: "BandsTickets",
-              params: {
-                id: this.bandId,
-              },
-            },
+            path: `/bands/${this.bandId}/tickets`,
           },
           {
             text: "お気に入り",
-            link: {
-              name: "LikesIndex",
-            },
+            path: "/likes",
           },
           {
             text: "アカウント編集",
-            link: {
-              name: "BandsEdit",
-              params: {
-                id: this.bandId,
-              },
-            },
+            path: `/bands/${this.bandId}/edit`,
           },
         ];
       } else if (this.audienceId) {
         this.contents = [
           {
             text: "取り置きしているチケット",
-            link: {
-              name: "AudiencesTickets",
-              params: {
-                id: this.audienceId,
-              },
-            },
+            path: `/audiences/${this.audienceId}/tickets`,
           },
           {
             text: "お気に入り",
-            link: {
-              name: "LikesIndex",
-            },
+            path: "/likes",
           },
           {
             text: "アカウント編集",
-            link: {
-              name: "AudiencesEdit",
-              params: {
-                id: this.audienceId,
-              },
-            },
+            path: `/audiences/${this.audienceId}/edit`,
           },
         ];
       } else {
         this.contents = [
           {
-            text: "アカウント作成 (アーティスト)",
-            link: {
-              name: "SignupBands",
-            },
-          },
-          {
-            text: "アカウント作成 (一般の方)",
-            link: {
-              name: "SignupAudiences",
-            },
+            text: "アカウント作成",
+            path: "/signup",
           },
           {
             text: "ログイン",
-            link: {
-              name: "Login",
-            },
+            path: "/login",
           },
         ];
       }
@@ -253,15 +200,11 @@ export default {
       this.contents.unshift(
         {
           text: "EVENT",
-          link: {
-            name: "EventsIndex",
-          },
+          path: "/events",
         },
         {
           text: "BAND",
-          link: {
-            name: "BandsIndex",
-          },
+          path: "/bands",
         }
       );
     },
