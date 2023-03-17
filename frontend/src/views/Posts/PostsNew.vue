@@ -1,16 +1,6 @@
 <template>
   <v-container>
-    <v-row>
-      <v-col>
-        <v-card color="#121212" flat>
-          <v-card-title class="pb-0">
-            <v-spacer />
-            新規 Post 作成
-            <v-spacer />
-          </v-card-title>
-        </v-card>
-      </v-col>
-    </v-row>
+    <CardPageTitle title="新規 Post 作成" />
     <v-row>
       <v-col
         xl="4"
@@ -26,83 +16,23 @@
           <v-col>
             <ValidationObserver v-slot="{ handleSubmit }">
               <v-card-text>
-                <ValidationProvider
-                  name="投稿の種類"
-                  rules="required"
-                  v-slot="{ errors }"
-                >
-                  <v-select
-                    v-model="format"
-                    :error-messages="errors"
-                    :items="choises"
-                    placeholder="投稿の種類を選択してください"
-                    outlined
-                  />
-                </ValidationProvider>
-                <ValidationProvider
-                  v-if="isFile"
-                  :name="format === 'photo' ? '画像' : '音源'"
-                  :rules="fileRules"
-                  v-slot="{ errors }"
-                >
-                  <v-file-input
-                    v-model="file"
-                    @change="fetchUrl"
-                    :error-messages="errors"
-                    placeholder="ファイルを選択してください"
-                    chips
-                  />
-                  <v-img v-if="showPhoto" :src="url" />
-                  <VuetifyAudio v-if="showAudio" :file="url" class="black" />
-                </ValidationProvider>
-                <v-text-field
+                <InputPostSelect v-model="format" />
+                <InputPostFile v-if="isFile" v-model="file" :format="format" />
+                <InputPostEmbedCode
                   v-if="isMediaPass"
                   v-model="embedCode"
-                  :hint="hintText"
-                  placeholder='例) <iframe width="500" height="500" 〜'
-                  clearable
-                  dense
-                  outlined
-                  persistent-hint
-                  single-line
+                  :format="format"
+                  :mediaPass="mediaPass"
+                  :isValidMediaPass="isValidMediaPass"
                 />
-                <iframe
-                  v-if="showSoundcloud"
-                  :src="`https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${mediaPass}`"
-                  width="100%"
-                  height="166"
-                  scrolling="no"
-                  frameborder="no"
-                />
-                <v-card>
-                  <youtube
-                    v-if="showYoutube"
-                    :video-id="mediaPass"
-                    fitParent
-                    resize
-                  />
-                </v-card>
-                <v-alert :value="mediaPassError" type="error" dense outlined>
-                  コンテンツが見つかりません
-                </v-alert>
               </v-card-text>
               <v-card-text class="pt-0">
-                <ValidationProvider
-                  name="キャプション"
-                  rules="max:500"
-                  v-slot="{ errors }"
-                >
-                  <v-textarea
-                    v-model="description"
-                    :error-messages="errors"
-                    label="キャプション"
-                    auto-grow
-                    outlined
-                  />
-                </ValidationProvider>
-                <v-alert :value="createError" type="error" dense outlined>
-                  投稿できませんでした
-                </v-alert>
+                <InputTextarea
+                  v-model="description"
+                  max="500"
+                  label="キャプション"
+                />
+                <AlertError :value="isError" text="投稿できませんでした" />
                 <ButtonSubmitForms
                   @submit-forms="handleSubmit(createPost)"
                   class="px-0"
@@ -120,34 +50,34 @@
 
 <script>
 import { mapGetters } from "vuex";
-import { ValidationProvider, ValidationObserver } from "vee-validate";
-import VuetifyAudio from "vuetify-audio";
+import { ValidationObserver } from "vee-validate";
+import CardPageTitle from "@/components/Cards/CardPageTitle";
+import InputPostSelect from "@/components/Inputs/InputPostSelect";
+import InputPostFile from "@/components/Inputs/InputPostFile";
+import InputPostEmbedCode from "@/components/Inputs/InputPostEmbedCode";
+import InputTextarea from "@/components/Inputs/InputTextarea";
+import AlertError from "@/components/Alerts/AlertError";
 import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
 
 export default {
   components: {
-    ValidationProvider,
     ValidationObserver,
-    VuetifyAudio,
+    CardPageTitle,
+    InputPostSelect,
+    InputPostFile,
+    InputPostEmbedCode,
+    InputTextarea,
+    AlertError,
     ButtonSubmitForms,
   },
   data() {
     return {
       format: "",
-      choises: [
-        { text: "画像", value: "photo" },
-        { text: "音源", value: "audio" },
-        { text: "SoundCloud", value: "soundcloud" },
-        { text: "YouTube", value: "youtube" },
-        { text: "News", value: "news" },
-      ],
       file: null,
-      url: "",
       embedCode: "",
       mediaPass: "",
-      mediaPassError: false,
       description: "",
-      createError: false,
+      isError: false,
     };
   },
   computed: {
@@ -158,41 +88,19 @@ export default {
     isMediaPass() {
       return this.format === "soundcloud" || this.format === "youtube";
     },
-    showPhoto() {
-      return this.url && this.format === "photo";
-    },
-    showAudio() {
-      return this.url && this.format === "audio";
-    },
-    showSoundcloud() {
-      return this.isValidMediaPass && this.format === "soundcloud";
-    },
-    showYoutube() {
-      return this.isValidMediaPass && this.format === "youtube";
-    },
     isValidMediaPass() {
-      const alphaNum = /^[A-Za-z0-9]+$/;
-      return alphaNum.test(this.mediaPass);
-    },
-    fileRules() {
-      if (this.format === "photo") {
-        return "ext:jpg,jpeg,gif,png|required|size:10000";
-      } else return "ext:wav,mp3|required|size:10000";
-    },
-    hintText() {
+      let validation;
       if (this.format === "soundcloud") {
-        return "投稿したい曲の「share」をクリック、「Embed」を選択して表示された「Code」欄 ( <iframe width= 〜 ) をコピーして貼り付けてください。";
+        validation = /^[0-9]+$/;
       } else if (this.format === "youtube") {
-        return "投稿したい動画の「共有」をクリック、「埋め込む」を選択して表示されたコード ( <iframe width= 〜 ></iframe> ) をコピーして貼り付けてください。";
-      } else {
-        return "";
-      }
+        validation = /^[A-Za-z0-9]+$/;
+      } else return undefined;
+      return validation.test(this.mediaPass);
     },
   },
   watch: {
     format() {
       this.file = null;
-      this.url = "";
       this.embedCode = "";
     },
     embedCode(value) {
@@ -201,38 +109,20 @@ export default {
         const end = this.embedCode.indexOf("&color=");
         if (start !== -1 && end !== -1) {
           this.mediaPass = this.embedCode.slice(start + 8, end);
-        }
-      }
-      if (this.format === "youtube" && value) {
+        } else this.mediaPass = "";
+      } else if (this.format === "youtube" && value) {
         const start = this.embedCode.indexOf("/embed/");
         const end = this.embedCode.indexOf('" title=');
-        this.mediaPass = this.embedCode.slice(start + 7, end);
-      }
-      if (!value) this.mediaPass = "";
-      if (!this.isValidMediaPass) {
-        this.mediaPassError = true;
-      } else this.mediaPassError = false;
+        if (start !== -1 && end !== -1) {
+          this.mediaPass = this.embedCode.slice(start + 7, end);
+        } else this.mediaPass = "";
+      } else this.mediaPass = "";
     },
   },
   methods: {
-    fetchUrl(file) {
-      if (file !== undefined && file !== null) {
-        if (file.name.lastIndexOf(".") <= 0) {
-          return;
-        } else {
-          const fr = new FileReader();
-          fr.readAsDataURL(file);
-          fr.addEventListener("load", () => {
-            this.url = fr.result;
-          });
-        }
-      } else {
-        this.url = "";
-      }
-    },
     async createPost() {
       if (this.isMediaPass && !this.isValidMediaPass) {
-        return (this.mediaPassError = true);
+        return (this.isError = true);
       } else {
         try {
           const formData = new FormData();
@@ -247,7 +137,7 @@ export default {
           await this.$axios.post(`/posts`, formData, this.headers);
           this.$router.replace(`/bands/${this.bandId}`);
         } catch (error) {
-          if (error.response) this.createError = true;
+          if (error.response) this.isError = true;
         }
       }
     },
