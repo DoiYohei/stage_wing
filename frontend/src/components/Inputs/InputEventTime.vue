@@ -1,49 +1,48 @@
 <template>
-  <v-card-actions>
+  <v-card height="66" width="50%" color="#121212" flat>
     <v-menu
       ref="menu"
       v-model="menu"
       :close-on-content-click="false"
-      :return-value.sync="dateInput"
+      :return-value.sync="time"
       transition="scale-transition"
-      min-width="auto"
+      max-width="290px"
+      min-width="290px"
       offset-y
     >
       <template v-slot:activator="{ on, attrs }">
         <v-text-field
-          :value="formattedDate"
-          @click:clear="dateInput = ''"
-          label="開催日を指定"
-          clearable
-          dense
-          hide-details
-          outlined
+          v-model="time"
+          :label="label"
           readonly
           v-bind="attrs"
           v-on="on"
         />
       </template>
-      <v-date-picker
-        v-model="dateInput"
-        color="grey lighten-1"
-        no-title
-        scrollable
+      <v-time-picker
+        v-if="menu"
+        v-model="time"
+        color="#1E1E1E"
+        format="24hr"
+        full-width
       >
         <v-spacer />
-        <v-btn @click="$refs.menu.save(dateInput)" color="grey darken-3">
-          OK
-        </v-btn>
+        <v-btn @click="$refs.menu.save(time)" color="grey darken-3">OK</v-btn>
         <v-btn @click="menu = false" color="grey darken-3">キャンセル</v-btn>
         <v-spacer />
-      </v-date-picker>
+      </v-time-picker>
     </v-menu>
-  </v-card-actions>
+  </v-card>
 </template>
 
 <script>
 export default {
   props: {
     value: {
+      type: String,
+      require: true,
+    },
+    label: {
       type: String,
       require: true,
     },
@@ -54,16 +53,13 @@ export default {
     };
   },
   computed: {
-    dateInput: {
+    time: {
       get() {
         return this.value;
       },
       set(newValue) {
         this.$emit("input", newValue);
       },
-    },
-    formattedDate() {
-      return this.value ? this.$dayjs(this.value).format("YYYY年MM月DD日") : "";
     },
   },
 };

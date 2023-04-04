@@ -16,7 +16,7 @@
           class="d-flex flex-sm-column align-sm-start align-center flex-wrap"
         >
           <v-card-subtitle class="pb-sm-0">
-            {{ $dayjs(event.open_at).format("YYYY MMM DD") }}
+            {{ $dayjs(event.date).format("YYYY年MM月DD日") }}
           </v-card-subtitle>
           <v-card-subtitle class="text-subtitle-1 pt-sm-0">
             {{ event.name }}

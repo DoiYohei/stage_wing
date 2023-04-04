@@ -24,7 +24,7 @@
             <v-expansion-panel-header>
               <v-card flat>
                 <v-card-subtitle class="text-left py-0">
-                  {{ $dayjs(event.open_at).format("YYYY MMM DD") }}
+                  {{ $dayjs(event.date).format("YYYY年MM月DD日") }}
                 </v-card-subtitle>
                 <v-card-title class="py-0">
                   <router-link :to="`/events/${event.id}`" class="pr-2">
@@ -73,7 +73,7 @@ export default {
   data() {
     return {
       futureEvents: [],
-      pastEvents: [],
+      allEvents: [],
       showPast: false,
     };
   },
@@ -84,12 +84,13 @@ export default {
         `/bands/${this.id}/tickets`,
         this.headers
       );
+      this.allEvents = res.data;
+
+      // 今日開催のEventはfutureEventsに含める
       const now = new Date();
-      this.futureEvents = res.data.filter((event) => {
-        return now.getTime() <= new Date(event.open_at).getTime();
-      });
-      this.pastEvents = res.data.filter((event) => {
-        return now.getTime() >= new Date(event.open_at).getTime();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      this.futureEvents = this.allEvents.filter((event) => {
+        return today.getTime() <= new Date(event.date).getTime();
       });
     } catch (error) {
       if (error.response) this.$router.replace("/");
@@ -98,7 +99,7 @@ export default {
   computed: {
     ...mapGetters(["bandId", "headers"]),
     displayEvents() {
-      return this.showPast ? this.pastEvents : this.futureEvents;
+      return this.showPast ? this.allEvents : this.futureEvents;
     },
     audienceImage() {
       return (image) => {

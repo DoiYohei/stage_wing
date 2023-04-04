@@ -1,5 +1,5 @@
 class BandsController < ApplicationController
-  before_action :accessible_by_owner, only: %i[edit tickets]
+  before_action :pass_account_owner, only: %i[edit tickets]
 
   def index
     @bands = Band.all.order(:name)
@@ -27,7 +27,7 @@ class BandsController < ApplicationController
 
   private
 
-  def accessible_by_owner
-    head :unauthorized if current_band != Band.find(params[:id])
+  def pass_account_owner
+    head :forbidden if current_band != Band.find(params[:id])
   end
 end

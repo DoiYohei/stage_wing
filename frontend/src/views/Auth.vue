@@ -107,9 +107,6 @@ export default {
         if (this.$route.name === "Signup") {
           formData.append("name", this.band.name);
           formData.append("image", this.band.inputImage);
-          formData.append("profile", this.band.profile);
-          formData.append("website", this.band.website);
-          formData.append("twitter", this.band.twitter);
           res = await this.$axios.post("/bands", formData);
         } else {
           res = await this.$axios.post("/bands/sign_in", formData);

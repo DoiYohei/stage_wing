@@ -17,11 +17,21 @@
               <v-tab-item>
                 <TheEventsDetail
                   :event="event"
-                  :lineups="lineups"
+                  :lineupToShow="lineupToShow"
                   @delete-event="deleteEvent"
                   @post-ticket="postTicket"
                   @delete-ticket="deleteTicket"
+                  @open-lineup-dialog="openLineupDialog"
                 />
+                <DialogLineupForm
+                  v-model="lineup"
+                  :dialog="lineupDialog"
+                  @select-submit="patchLineup"
+                  @select-clear="closeLineupDialog"
+                >
+                  <template #submit-text>更新する</template>
+                  <template #clear-text>キャンセル</template>
+                </DialogLineupForm>
                 <DialogShowText v-model="isError">
                   {{ errorText }}
                 </DialogShowText>
@@ -58,6 +68,7 @@
 <script>
 import { mapGetters } from "vuex";
 import TheEventsDetail from "@/components/TheEvents/TheEventsDetail";
+import DialogLineupForm from "@/components/Dialogs/DialogLineupForm";
 import DialogShowText from "@/components/Dialogs/DialogShowText";
 import FormComment from "@/components/Forms/FormComment";
 import TheEventsComment from "@/components/TheEvents/TheEventsComment";
@@ -65,6 +76,7 @@ import TheEventsComment from "@/components/TheEvents/TheEventsComment";
 export default {
   components: {
     TheEventsDetail,
+    DialogLineupForm,
     DialogShowText,
     FormComment,
     TheEventsComment,
@@ -73,44 +85,55 @@ export default {
   data() {
     return {
       event: {},
-      lineups: [],
+      lineupToShow: [],
+      originalLineup: [],
+      noIdLineup: [],
+      lineup: {
+        newLineup: [],
+        newNoIdLineup: [],
+      },
       tab: 0,
       newComment: "",
+      lineupDialog: false,
       isError: false,
       errorText: "",
     };
   },
   async created() {
+    // Lineup作成処理後このページに遷移してくる
+    // Lineup作成でエラーがあった場合、このページでメッセージを表示
+    this.showError(
+      this.$route.query.lineupCreateError,
+      "Lineup作成に失敗しました。"
+    );
+
     try {
+      // Event情報取得
       // ユーザーがAudienceの場合はTicket取り置き状況も取得
       const audienceToken = this.audienceId ? this.headers : null;
       const res = await this.$axios.get(`/events/${this.id}`, audienceToken);
       this.event = res.data;
 
-      // 取得したLineupのデータを表示用に整形
-      for (let performer of this.event.performers) {
-        this.lineups.push({
-          text: performer.name,
-          to: `/bands/${performer.id}`,
+      // 取得したEventのLineupを編集フォーム用に整形
+      if (this.event.unregistered_performers) {
+        this.noIdLineup = this.event.unregistered_performers.split("*/");
+      }
+      this.lineup.newNoIdLineup = [...this.noIdLineup];
+      this.originalLineup = this.event.performers;
+      this.lineup.newLineup = [...this.originalLineup];
+
+      // Lineupを表示用に整形
+      for (let originalBand of this.originalLineup) {
+        this.lineupToShow.push({
+          text: originalBand.name,
+          to: `/bands/${originalBand.id}`,
         });
       }
-      if (this.event.unregistered_performers) {
-        const unregisters = this.event.unregistered_performers.split("*/");
-        for (let unregister of unregisters) {
-          this.lineups.push({ text: unregister });
+      if (this.noIdLineup) {
+        for (let noIdBand of this.noIdLineup) {
+          this.lineupToShow.push({ text: noIdBand });
         }
       }
-
-      // Lineup作成or更新でエラーがあった場合、メッセージを表示
-      const query = this.$route.query;
-      this.showError(
-        query.lineupCreateError,
-        "Lineupに登録できないBandがありました。"
-      );
-      this.showError(
-        query.lineupUpdateError,
-        "Lineupに更新できないBandがありました。"
-      );
     } catch (error) {
       if (error.response) this.$router.replace("/errors/not_found");
     }
@@ -125,13 +148,20 @@ export default {
   },
   watch: {
     isError(newValue) {
+      if (!newValue && this.lineupDialog) this.updatePage();
       if (!newValue) {
         this.errorText = "";
-        if (this.$router.query) this.$router.replace({ query: {} });
+        this.$router.push({ query: {} });
       }
     },
   },
   methods: {
+    showError(error, text) {
+      if (error) {
+        this.isError = true;
+        this.errorText = text;
+      }
+    },
     async deleteEvent() {
       try {
         await this.$axios.delete(`/events/${this.id}`, this.headers);
@@ -193,14 +223,78 @@ export default {
         );
       }
     },
-    showError(error, text) {
-      if (error) {
-        this.isError = true;
-        this.errorText = text;
+    async patchLineup() {
+      try {
+        // 本サービスに登録されていないBandは、Eventsテーブルで更新する
+        const eventFormData = new FormData();
+        eventFormData.append(
+          "event[unregistered_performers]",
+          this.lineup.newNoIdLineup.join("*/")
+        );
+        await this.$axios.patch(
+          `/events/${this.id}`,
+          eventFormData,
+          this.headers
+        );
+
+        // 本サービスに登録されているBandは、Lineupテーブルで更新する
+        // 新しいLineupで元のLineupにいないBandはPOSTする
+        const lineupToPost = this.lineup.newLineup.filter((newBand) => {
+          return (
+            this.originalLineup.filter((originalBand) => {
+              return newBand.id === originalBand.id;
+            }).length === 0
+          );
+        });
+        if (lineupToPost) {
+          for (let bandToPost of lineupToPost) {
+            const lineupFormData = new FormData();
+            lineupFormData.append("lineup[event_id]", this.id);
+            lineupFormData.append("lineup[performer_id]", bandToPost.id);
+            await this.$axios.post(
+              `/events/${this.id}/lineups`,
+              lineupFormData,
+              this.headers
+            );
+          }
+        }
+        // 元のLineupで新しいLineupにいないBandはDELETEする
+        const lineupToDelete = this.originalLineup.filter((originalBand) => {
+          return (
+            this.lineup.newLineup.filter((newBand) => {
+              return originalBand.id === newBand.id;
+            }).length === 0
+          );
+        });
+        if (lineupToDelete) {
+          for (let bandToDelete of lineupToDelete) {
+            const lineupFormData = new FormData();
+            lineupFormData.append("lineup[event_id]", this.id);
+            lineupFormData.append("lineup[performer_id]", bandToDelete.id);
+            await this.$axios.delete(`/events/${this.id}/lineups`, {
+              headers: this.token,
+              data: lineupFormData,
+            });
+          }
+        }
+        this.updatePage();
+      } catch (error) {
+        this.showError(error.response, "Lineup更新に失敗しました。");
       }
     },
     updatePage() {
-      this.$router.go({ path: this.$router.currentRoute.path, force: true });
+      this.$router.go({
+        path: this.$router.currentRoute.path,
+        force: true,
+      });
+    },
+    closeLineupDialog() {
+      this.lineup.newLineup = [...this.originalLineup];
+      this.lineup.newNoIdLineup = [...this.noIdLineup];
+      this.lineupDialog = false;
+    },
+    openLineupDialog() {
+      this.lineupDialog = true;
     },
   },
 };

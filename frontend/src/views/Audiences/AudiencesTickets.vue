@@ -60,7 +60,7 @@ export default {
       table_headers: [
         {
           text: "Date",
-          value: "event.open_at",
+          value: "event.date",
         },
         {
           text: "Event",
@@ -78,7 +78,7 @@ export default {
       ],
       displayTickets: [],
       futureTickets: [],
-      pastTickets: [],
+      allTickets: [],
       selectedTicket: {},
       showPast: false,
       dialog: false,
@@ -92,12 +92,13 @@ export default {
         `/audiences/${this.id}/tickets`,
         this.headers
       );
+      this.allTickets = res.data;
+
+      // 今日開催のEventのTicketはfutureTicketsに含める
       const now = new Date();
-      this.futureTickets = res.data.filter((ticket) => {
-        return now.getTime() <= new Date(ticket.event.open_at).getTime();
-      });
-      this.pastTickets = res.data.filter((ticket) => {
-        return now.getTime() >= new Date(ticket.event.open_at).getTime();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      this.futureEvents = this.allTickets.filter((ticket) => {
+        return today.getTime() <= new Date(ticket.event.date).getTime();
       });
       this.setDisplayTickets();
     } catch (error) {
@@ -120,16 +121,16 @@ export default {
   methods: {
     setDisplayTickets() {
       if (this.showPast) {
-        for (let ticket of this.pastTickets) {
-          ticket.event.open_at = this.$dayjs(ticket.event.open_at).format(
-            "YYYY MMM DD"
+        for (let ticket of this.allTickets) {
+          ticket.event.date = this.$dayjs(ticket.event.date).format(
+            "YYYY年MM月DD日"
           );
           this.displayTickets.push(ticket);
         }
       } else {
         for (let ticket of this.futureTickets) {
-          ticket.event.open_at = this.$dayjs(ticket.event.open_at).format(
-            "YYYY MMM DD"
+          ticket.event.date = this.$dayjs(ticket.event.date).format(
+            "YYYY年MM月DD日"
           );
           this.displayTickets.push(ticket);
         }

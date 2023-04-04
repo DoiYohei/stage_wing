@@ -69,7 +69,6 @@ export default {
       tab: 0,
       showPast: false,
       futureEvents: [],
-      pastEvents: [],
       isError: false,
       errorText: "",
     };
@@ -91,7 +90,7 @@ export default {
       return this.bandId === this.band.id;
     },
     displayEvents() {
-      return this.showPast ? this.pastEvents : this.futureEvents;
+      return this.showPast ? this.band.events : this.futureEvents;
     },
   },
   methods: {
@@ -100,12 +99,16 @@ export default {
         const res = await this.$axios.get(`/bands/${this.id}`, this.headers);
         this.band = res.data;
         this.friendStatus = res.data.friend_status;
+
+        // 今日開催のEventはfutureEventsに含める
         const now = new Date();
-        this.futureEvents = res.data.events.filter((event) => {
-          return now.getTime() <= new Date(event.open_at).getTime();
-        });
-        this.pastEvents = res.data.events.filter((event) => {
-          return now.getTime() >= new Date(event.open_at).getTime();
+        const today = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate()
+        );
+        this.futureEvents = this.band.events.filter((event) => {
+          return today.getTime() <= new Date(event.date).getTime();
         });
       } catch (error) {
         if (error.response) this.$router.replace("/errors/not_found");

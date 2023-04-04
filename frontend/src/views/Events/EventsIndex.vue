@@ -17,13 +17,13 @@
         <v-expand-transition>
           <v-col v-show="show">
             <v-card flat class="d-flex flex-wrap" v-show="show">
+              <CardActionsEventDateSearch v-model="dateInput" />
               <v-card flat max-width="37%">
                 <CardActionsEventSort
                   v-model="select"
                   @sort-order="moldDisplay"
                 />
               </v-card>
-              <CardActionsEventDateSearch v-model="dateInput" />
               <CardActionsEventPastSelect v-model="showPast" />
             </v-card>
           </v-col>
@@ -35,11 +35,11 @@
             <v-col>
               <CardActionsEventNameSearch v-model="keywordInput" />
               <v-card flat class="mt-3">
+                <CardActionsEventDateSearch v-model="dateInput" />
                 <CardActionsEventSort
                   v-model="select"
                   @sort-order="moldDisplay"
                 />
-                <CardActionsEventDateSearch v-model="dateInput" class="mt-3" />
                 <CardActionsEventPastSelect v-model="showPast" />
               </v-card>
             </v-col>
@@ -96,7 +96,7 @@ export default {
   data() {
     return {
       futureEvents: [],
-      pastEvents: [],
+      allEvents: [],
       keywordInput: "",
       dateInput: "",
       select: { key: 1, value: "開催が早い順" },
@@ -107,12 +107,13 @@ export default {
   },
   async created() {
     const res = await this.$axios.get("/events");
+    this.allEvents = res.data.events;
+
+    // 今日開催のEventはfutureEventsに含める
     const now = new Date();
-    this.futureEvents = res.data.events.filter((event) => {
-      return now.getTime() <= new Date(event.open_at).getTime();
-    });
-    this.pastEvents = res.data.events.filter((event) => {
-      return now.getTime() >= new Date(event.open_at).getTime();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    this.futureEvents = this.allEvents.filter((event) => {
+      return today.getTime() <= new Date(event.date).getTime();
     });
     this.moldDisplay();
   },
@@ -125,20 +126,17 @@ export default {
         return "";
       }
     },
-    date() {
-      return this.dateInput ? this.dateInput : "";
-    },
     filteredEvents() {
       let events = [];
       if (this.showPast) {
-        events = this.pastEvents;
+        events = this.allEvents;
       } else {
         events = this.futureEvents;
       }
       return events.filter((event) => {
         return (
           event.name.toLowerCase().includes(this.keyword) &&
-          event.open_at.includes(this.date)
+          event.date.includes(this.dateInput)
         );
       });
     },
@@ -149,13 +147,9 @@ export default {
   methods: {
     moldDisplay() {
       if (this.select.key === 1) {
-        this.filteredEvents.sort(
-          (a, b) => new Date(a.open_at) - new Date(b.open_at)
-        );
+        this.filteredEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
       } else {
-        this.filteredEvents.sort(
-          (a, b) => new Date(b.open_at) - new Date(a.open_at)
-        );
+        this.filteredEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
       }
       this.$page.rowsPerPage = this.rowsPerPage;
       this.$page.displayContents = this.filteredEvents;

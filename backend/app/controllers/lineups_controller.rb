@@ -1,13 +1,6 @@
 class LineupsController < ApplicationController
   before_action :authenticate_band!
-  before_action :set_event
-  before_action :set_lineup, only: %i[update destroy]
-
-  def index
-    # Lineups編集時に使用
-    @bands = Band.all
-    @lineups = @event.lineups
-  end
+  before_action :pass_event_owner
 
   def create
     lineup = Lineup.new(lineup_params)
@@ -18,16 +11,9 @@ class LineupsController < ApplicationController
     end
   end
 
-  def update
-    if @lineup.update(lineup_params)
-      head :ok
-    else
-      head :unprocessable_entity
-    end
-  end
-
   def destroy
-    if @lineup.destroy
+    lineup = Lineup.find_by!(lineup_params)
+    if lineup.destroy
       head :ok
     else
       head :bad_request
@@ -36,12 +22,10 @@ class LineupsController < ApplicationController
 
   private
 
-  def set_event
-    @event = current_band.created_events.find(params[:event_id])
-  end
-
-  def set_lineup
-    @lineup = Lineup.find(params[:id])
+  def pass_event_owner
+    current_band.created_events.find(params[:event_id])
+  rescue ActiveRecord::RecordNotFound
+    head :forbidden
   end
 
   def lineup_params

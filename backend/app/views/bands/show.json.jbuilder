@@ -11,7 +11,7 @@ json.posts do
 end
 
 json.events do
-  json.array! @events, :id, :name, :flyer, :open_at
+  json.array! @events, :id, :name, :flyer, :date
 end
 
 json.friend_status @friend_status

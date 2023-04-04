@@ -1,110 +1,138 @@
 <template>
-  <FormEvent v-model="event" :is-error="isError" @submit-forms="postEvent">
-    <template #page-title>新規 Event 作成</template>
-    <template #error-text>
-      {{ errorText }}
-    </template>
-    <template #lineup>
-      <v-col class="pt-0 pb-6">
-        <v-card color="#313131">
-          <v-card-subtitle class="text-left text-subtitle-1">
-            Lineup
-          </v-card-subtitle>
-          <FormLineup v-model="lineup" />
-        </v-card>
-      </v-col>
-    </template>
-    <template #btn-text>投稿する</template>
-  </FormEvent>
+  <v-container>
+    <CardPageTitle title="新規 Event 作成" />
+    <FormEvent
+      v-model="event"
+      @submit-forms="postEvent"
+      :is-error="isEventError"
+      submit-text="投稿"
+    >
+      <template #lineup>
+        <v-textarea
+          v-model="allLineup"
+          @click.stop="lineupDialog = true"
+          background-color="grey darken-4"
+          label="Lineup"
+          rows="1"
+          auto-grow
+          outlined
+          readonly
+        />
+        <DialogLineupForm
+          v-model="lineup"
+          :dialog="lineupDialog"
+          @select-submit="pushLineup"
+          @select-clear="clearLineup"
+        >
+          <template #submit-text>決定</template>
+          <template #clear-text>削除</template>
+        </DialogLineupForm>
+      </template>
+    </FormEvent>
+  </v-container>
 </template>
 
 <script>
 import { mapGetters } from "vuex";
+import CardPageTitle from "@/components/Cards/CardPageTitle";
 import FormEvent from "@/components/Forms/FormEvent";
-import FormLineup from "@/components/Forms/FormLineup";
+import DialogLineupForm from "@/components/Dialogs/DialogLineupForm";
 
 export default {
   components: {
+    CardPageTitle,
     FormEvent,
-    FormLineup,
+    DialogLineupForm,
   },
   data() {
     return {
       event: {
+        fllyer: "",
         name: "",
         place: "",
-        ticket_price: null,
+        ticket_price: "",
+        date: "",
         open_at: "",
         start_at: "",
         content: "",
         reservation: false,
       },
       lineup: {
-        performers: [],
-        unregisteredBands: [],
-        registeredBands: [],
+        newLineup: [],
+        newNoIdLineup: [],
       },
-      isError: false,
-      errorText: "",
+      isEventError: false,
+      allLineup: [],
+      lineupDialog: false,
     };
-  },
-  async created() {
-    // 出演者の入力時に検索機能を使うため、本サービスに登録されているBand一覧を取得
-    const res = await this.$axios.get("/bands");
-    this.lineup.registeredBands = res.data.bands;
   },
   computed: {
     ...mapGetters(["headers"]),
   },
   methods: {
+    pushLineup() {
+      let allLineupArray = [];
+      if (this.lineup.newLineup) {
+        for (let newBand of this.lineup.newLineup) {
+          allLineupArray.push(newBand.name);
+        }
+      }
+      if (this.lineup.newNoIdLineup) {
+        allLineupArray.push(...this.lineup.newNoIdLineup);
+      }
+      if (allLineupArray) {
+        if (allLineupArray.length > 1) {
+          this.allLineup = allLineupArray.join(" / ");
+        }
+        if (allLineupArray.length === 1) {
+          this.allLineup = allLineupArray[0];
+        }
+      }
+      this.lineupDialog = false;
+    },
+    clearLineup() {
+      this.lineup.newLineup = [];
+      this.lineup.newNoIdLineup = [];
+      this.allLineup = [];
+      this.lineupDialog = false;
+    },
     async postEvent(flyer) {
-      let eventId = null;
+      let eventId;
 
       // 新規Eventを投稿
       try {
-        const unregisteredPerformers = this.lineup.unregisteredBands.join("*/");
-        if (unregisteredPerformers.length > 1000) {
-          throw { overLength: true };
-        } else {
-          const eventFormData = new FormData();
-          eventFormData.append("event[name]", this.event.name);
-          eventFormData.append("event[place]", this.event.place);
-          eventFormData.append("event[ticket_price]", this.event.ticket_price);
-          eventFormData.append("event[open_at]", this.event.open_at);
-          eventFormData.append("event[start_at]", this.event.start_at);
-          eventFormData.append("event[content]", this.event.content);
-          eventFormData.append("event[reservation]", this.event.reservation);
-          eventFormData.append(
-            "event[unregistered_performers]",
-            unregisteredPerformers
-          );
-          if (flyer) eventFormData.append("event[flyer]", flyer);
-          const eventRes = await this.$axios.post(
-            "/events",
-            eventFormData,
-            this.headers
-          );
-          eventId = eventRes.data.id;
-        }
+        const eventFormData = new FormData();
+        eventFormData.append("event[name]", this.event.name);
+        eventFormData.append("event[place]", this.event.place);
+        eventFormData.append("event[ticket_price]", this.event.ticket_price);
+        eventFormData.append("event[date]", this.event.date);
+        eventFormData.append("event[open_at]", this.event.open_at);
+        eventFormData.append("event[start_at]", this.event.start_at);
+        eventFormData.append("event[content]", this.event.content);
+        eventFormData.append("event[reservation]", this.event.reservation);
+        eventFormData.append(
+          "event[unregistered_performers]",
+          this.lineup.newNoIdLineup.join("*/")
+        );
+        if (flyer) eventFormData.append("event[flyer]", flyer);
+        const eventRes = await this.$axios.post(
+          "/events",
+          eventFormData,
+          this.headers
+        );
+        eventId = eventRes.data.id;
       } catch (error) {
-        this.isError = true;
-        if (error.response) {
-          this.errorText = "Eventの投稿ができませんでした。";
-        }
-        if (error.overLength) {
-          this.errorText =
-            "「本サイトに登録されていないBand」の総文字数が多いため投稿できません。「本サイトに登録されていないBand」の総文字数を800字程度に収めてください。";
-        }
+        if (error.response) this.isEventError = true;
       }
 
       // 投稿したEventのLineupを登録
-      if (!this.isError) {
+      if (!this.isEvnetError) {
         try {
-          if (this.lineup.performers) {
-            for (let performer of this.lineup.performers) {
+          if (this.lineup.newLineup) {
+            for (let newBand of this.lineup.newLineup) {
               let lineupFormData = new FormData();
               lineupFormData.append("lineup[event_id]", eventId);
-              lineupFormData.append("lineup[performer_id]", performer.id);
+              lineupFormData.append("lineup[performer_id]", newBand.id);
               await this.$axios.post(
                 `/events/${eventId}/lineups`,
                 lineupFormData,

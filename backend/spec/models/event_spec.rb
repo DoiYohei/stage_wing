@@ -8,7 +8,6 @@ RSpec.describe Event, type: :model do
     end
 
     context ':place' do
-      it { is_expected.to validate_presence_of :place }
       it { is_expected.to validate_length_of(:place).is_at_most(50) }
     end
 
@@ -20,12 +19,8 @@ RSpec.describe Event, type: :model do
       it { is_expected.to validate_length_of(:unregistered_performers).is_at_most(1000) }
     end
 
-    context ':open_at' do
-      it { is_expected.to validate_presence_of :open_at }
-    end
-
-    context ':start_at' do
-      it { is_expected.to validate_presence_of :start_at }
+    context ':date' do
+      it { is_expected.to validate_presence_of :date }
     end
 
     context ':reservation' do

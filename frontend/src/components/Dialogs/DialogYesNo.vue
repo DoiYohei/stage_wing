@@ -1,6 +1,6 @@
 <template>
   <v-card outlined class="text-center py-8">
-    <v-card-text v-text="dialogText" class="white--text" />
+    <v-card-text class="white--text">{{ dialogText }}</v-card-text>
     <v-card-actions class="d-flex justify-center py-0">
       <v-btn @click="selectExcution" color="grey darken-3" class="mx-2">
         はい
