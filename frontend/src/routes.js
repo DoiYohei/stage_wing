@@ -2,13 +2,10 @@ import Vue from "vue";
 import Router from "vue-router";
 import store from "@/store";
 import Home from "@/views/Home";
-import SignupBands from "@/views/Auth/SignupBands";
-import SignupAudiences from "@/views/Auth/SignupAudiences";
-import Login from "@/views/Auth/Login";
+import Auth from "@/views/Auth";
 import EventsIndex from "@/views/Events/EventsIndex";
 import EventsShow from "@/views/Events/EventsShow";
 import EventsEdit from "@/views/Events/EventsEdit";
-import EventsLineupsEdit from "@/views/Events/EventsLineupsEdit";
 import EventsNew from "@/views/Events/EventsNew";
 import BandsIndex from "@/views/Bands/BandsIndex";
 import BandsShow from "@/views/Bands/BandsShow";
@@ -39,17 +36,9 @@ export default new Router({
       component: Home,
     },
     {
-      path: "/signup/bands",
-      name: "SignupBands",
-      component: SignupBands,
-      beforeEnter(to, from, next) {
-        next(redirectWithToken());
-      },
-    },
-    {
-      path: "/signup/audiences",
-      name: "SignupAudiences",
-      component: SignupAudiences,
+      path: "/signup",
+      name: "Signup",
+      component: Auth,
       beforeEnter(to, from, next) {
         next(redirectWithToken());
       },
@@ -57,7 +46,7 @@ export default new Router({
     {
       path: "/login",
       name: "Login",
-      component: Login,
+      component: Auth,
       beforeEnter(to, from, next) {
         next(redirectWithToken());
       },
@@ -85,12 +74,6 @@ export default new Router({
       path: "/events/:id/edit",
       name: "EventsEdit",
       component: EventsEdit,
-      props: true,
-    },
-    {
-      path: "/events/:id/lineup/edit",
-      name: "EventsLineupsEdit",
-      component: EventsLineupsEdit,
       props: true,
     },
     {

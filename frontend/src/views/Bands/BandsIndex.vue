@@ -2,51 +2,40 @@
   <v-container fluid>
     <v-row>
       <v-col
-        cols="12"
-        xl="2"
-        lg="3"
-        :class="$vuetify.breakpoint.mdAndDown ? 'pa-0' : 'mt-3'"
+        :cols="serchCols"
+        class="pa-0 pt-lg-6 pr-lg-3 pl-lg-4 pr-xl-1 pl-xl-6"
       >
-        <v-card :outlined="$vuetify.breakpoint.mdAndDown">
-          <v-col
-            lg="12"
-            sm="6"
-            :class="$vuetify.breakpoint.mdAndDown ? 'py-0' : 'pt-0'"
-          >
-            <v-card-actions class="pt-0">
-              <v-text-field
-                v-model="keywordInput"
-                placeholder="Band名を入力してください"
-                prepend-inner-icon="mdi-magnify"
-                clearable
-                hide-details
-              />
-            </v-card-actions>
+        <v-card color="grey darken-4" flat>
+          <v-col lg="12" sm="6" class="py-0 py-lg-3 px-2 px-sm-3 px-lg-3">
+            <SearchInputName v-model="keyword" label="Band" />
           </v-col>
         </v-card>
       </v-col>
-      <v-col>
+      <v-col class="px-1 px-sm-3 pl-lg-0 pl-xl-2">
         <v-card color="#121212" flat class="d-flex flex-wrap">
           <v-col
-            v-for="(band, index) in displayBands"
+            v-for="(band, index) in bandsForShow"
             :key="index"
-            cols="6"
-            xl="2"
-            md="3"
-            sm="4"
+            :cols="bandCols"
           >
             <v-card :to="`/bands/${band.id}`">
               <v-img :src="bandImage(band.image.url)" aspect-ratio="1.37" />
-              <v-card-subtitle>
+              <v-card-subtitle
+                class="text-subtitle-1 font-weight-black text-truncate"
+              >
                 {{ band.name }}
               </v-card-subtitle>
             </v-card>
           </v-col>
         </v-card>
         <v-col>
-          <PaginationBlocks @chage-page="moldDisplay" />
+          <PaginationBlocks
+            v-model="page"
+            :contents="filteredBands"
+            :rows="rows"
+          />
         </v-col>
-        <v-col v-if="!displayBands.length">
+        <v-col v-if="!bandsForShow.length">
           <v-card color="#121212" flat>
             <v-card-text class="text-center">
               該当するアーティストがいません
@@ -59,54 +48,64 @@
 </template>
 
 <script>
+import SearchInputName from "@/components/SearchInputs/SearchInputName";
 import PaginationBlocks from "@/components/PaginationBlocks";
+import { narrowDownNames } from "@/utils/searches";
+import { sliceContentsForShow } from "@/utils/pagination";
+import { respondCols } from "@/utils/grids";
+import { bandImage } from "@/utils/images";
+
 export default {
   components: {
+    SearchInputName,
     PaginationBlocks,
   },
   data() {
     return {
       allBands: [],
-      keywordInput: "",
-      displayBands: [],
+      keyword: "",
+      bandsForShow: [],
+      page: 1,
     };
   },
   async created() {
     const res = await this.$axios.get("/bands");
     this.allBands = res.data.bands;
-    this.moldDisplay();
+    this.sliceBandsForShow();
   },
   computed: {
-    filteredBands() {
-      if (!this.keywordInput) {
-        return this.allBands;
-      } else {
-        const keyword = this.keywordInput.toLowerCase().trim();
-        return this.allBands.filter((band) => {
-          return band.name.toLowerCase().includes(keyword);
-        });
-      }
+    serchCols() {
+      return respondCols(this.$vuetify.breakpoint, 2, 3, 12, 12, 12);
     },
-    rowsPerPage() {
+    bandCols() {
+      return respondCols(this.$vuetify.breakpoint, 2, 3, 3, 4, 6);
+    },
+    filteredBands() {
+      return narrowDownNames(this.keyword, this.allBands);
+    },
+    rows() {
       return this.$vuetify.breakpoint.smAndDown ? 10 : 30;
     },
     bandImage() {
-      return (image) => {
-        return image ? image : require("@/assets/img/no-band-img.jpg");
-      };
-    },
-  },
-  methods: {
-    moldDisplay() {
-      this.$page.rowsPerPage = this.rowsPerPage;
-      this.$page.displayContents = this.filteredBands;
-      this.displayBands = this.$page.displayContents;
+      return (image) => bandImage(image);
     },
   },
   watch: {
     filteredBands() {
-      this.$page.current = 1;
-      this.moldDisplay();
+      this.page = 1;
+      this.sliceBandsForShow();
+    },
+    page() {
+      this.sliceBandsForShow();
+    },
+  },
+  methods: {
+    sliceBandsForShow() {
+      this.bandsForShow = sliceContentsForShow(
+        this.filteredBands,
+        this.page,
+        this.rows
+      );
     },
   },
 };

@@ -18,7 +18,9 @@ Rails.application.routes.draw do
   scope format: 'json' do
     resources :events do
       get :edit, on: :member
-      resources :lineups, except: :show
+      resources :lineups, only: :create do
+        delete :destroy, on: :collection
+      end
     end
     resources :comments, only: %i[create destroy]
     resources :tickets, only: %i[create destroy]

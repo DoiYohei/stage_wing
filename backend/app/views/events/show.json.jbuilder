@@ -1,5 +1,4 @@
-json.extract! @event, :id, :name, :place, :open_at, :start_at, :ticket_price, :content, :unregistered_performers,
-              :reservation
+json.extract! @event, :id, :name, :place, :date, :open_at, :start_at, :ticket_price, :content, :unregistered_performers, :reservation
 
 if @event.owner
   json.owner do
@@ -15,10 +14,14 @@ if @event.performers
   end
 end
 
-json.ticket @ticket
+if current_audience
+  ticket = @event.tickets.find_by(audience_id: current_audience.id)
+  json.ticket ticket
+end
 
 json.comments do
-  parent_comments = @comments.select { |c| c.parent_id.nil? }
+  all_comments = @event.comments
+  parent_comments = all_comments.select { |c| c.parent_id.nil? }
   json.array! parent_comments do |parent|
     json.extract! parent, :id, :content, :created_at, :parent_id
     json.commenter do
@@ -31,7 +34,7 @@ json.comments do
       end
     end
     json.replies do
-      replies = @comments.select { |c| c.parent_id == parent.id }
+      replies = all_comments.select { |c| c.parent_id == parent.id }
       json.array! replies do |reply|
         json.extract! reply, :id, :content, :created_at, :parent_id
         json.commenter do

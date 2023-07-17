@@ -7,5 +7,5 @@ json.messages do
 end
 
 json.partner do
-  json.extract! @partner, :id, :name, :image
+  json.extract! @band_room.band, :id, :name, :image
 end

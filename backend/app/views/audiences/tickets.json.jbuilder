@@ -1,9 +1,8 @@
 json.array! @tickets do |ticket|
-  json.extract! ticket, :id
-  json.event do
-    json.extract! ticket.event, :id, :name, :open_at
-  end
-  json.band do
-    json.extract! ticket.band, :id, :name
-  end
+  json.ticket_id ticket.id
+  json.event_id ticket.event.id
+  json.event_name ticket.event.name
+  json.date ticket.event.date
+  json.band_id ticket.band.id
+  json.band_name ticket.band.name
 end

@@ -1,11 +1,8 @@
 <template>
   <v-card color="#121212" flat>
     <v-col>
-      <v-btn v-if="isMyPage" to="/posts/new" light fab right bottom fixed>
-        <v-icon dark>mdi-plus</v-icon>
-      </v-btn>
       <CardPost
-        v-for="(post, index) in displayPosts"
+        v-for="(post, index) in postsForShow"
         :key="index"
         :post="post"
         @delete-post="deletePost"
@@ -13,8 +10,9 @@
         @change-like="changeLike"
       />
       <v-col>
-        <PaginationBlocks @change-page="moldDisplay" />
+        <PaginationBlocks v-model="page" :contents="posts" :rows="rows" />
       </v-col>
+      <ButtonToNew v-if="isMyPage" pass="/posts/new" />
     </v-col>
   </v-card>
 </template>
@@ -22,11 +20,14 @@
 <script>
 import CardPost from "@/components/Cards/CardPost";
 import PaginationBlocks from "@/components/PaginationBlocks";
+import ButtonToNew from "@/components/Buttons/ButtonToNew";
+import { sliceContentsForShow } from "@/utils/pagination";
 
 export default {
   components: {
     CardPost,
     PaginationBlocks,
+    ButtonToNew,
   },
   props: {
     posts: {
@@ -40,22 +41,26 @@ export default {
   },
   data() {
     return {
-      displayPosts: [],
+      postsForShow: [],
+      page: 1,
+      rows: 5,
     };
   },
   created() {
-    this.moldDisplay();
+    this.slicePostsForShow();
   },
   watch: {
-    posts() {
-      this.moldDisplay();
+    page() {
+      this.slicePostsForShow();
     },
   },
   methods: {
-    moldDisplay() {
-      this.$page.rowsPerPage = 5;
-      this.$page.displayContents = this.posts;
-      this.displayPosts = this.$page.displayContents;
+    slicePostsForShow() {
+      this.postsForShow = sliceContentsForShow(
+        this.posts,
+        this.page,
+        this.rows
+      );
     },
     deletePost(postId) {
       this.$emit("delete-post", postId);

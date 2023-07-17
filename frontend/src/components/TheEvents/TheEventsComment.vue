@@ -24,12 +24,11 @@
           <v-col class="py-0">
             <FormComment
               v-model="newReply"
+              btn-text="返信"
               label="返信コメント"
               @submit-form="replyComment"
               class="px-0 pb-0"
-            >
-              返信
-            </FormComment>
+            />
           </v-col>
         </div>
       </v-expand-transition>
@@ -62,8 +61,8 @@ export default {
     replyComment() {
       this.$emit("post-comment", this.newReply, this.comment.id);
     },
-    deleteComment() {
-      this.$emit("delete-comment", this.comment.id);
+    deleteComment(commentId) {
+      this.$emit("delete-comment", commentId);
     },
   },
 };

@@ -2,34 +2,35 @@
   <v-container>
     <v-row>
       <v-col>
-        <v-card color="#121212" flat class="text-center">
+        <v-card
+          color="#121212"
+          flat
+          :class="$vuetify.breakpoint.mdAndUp ? `text-center` : `text-left`"
+        >
           <v-card-subtitle>
             チャットをするユーザーを選んでください。（
             チャットは「Friend」のユーザーとのみ可能です。）
           </v-card-subtitle>
-          <v-card-actions v-if="rooms">
-            <v-spacer />
-            <v-list color="#121212">
+          <v-col v-if="rooms" :cols="cols" :offset="offset">
+            <v-list class="text-left text-truncate">
               <v-list-item-group>
                 <v-list-item
                   v-for="(room, index) in rooms"
                   :key="index"
                   @click="startChat(room.id, room.friend_id)"
                 >
-                  <ListItemAvatar :image="room.friend_img" />
+                  <v-list-item-avatar>
+                    <v-img :src="avatar(room.friend_img)" />
+                  </v-list-item-avatar>
                   <v-list-item-content>
                     <v-list-item-title>
                       {{ room.friend_name }}
                     </v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
-                <DialogShowText v-model="isError">
-                  {{ errorText }}
-                </DialogShowText>
               </v-list-item-group>
             </v-list>
-            <v-spacer />
-          </v-card-actions>
+          </v-col>
           <v-card-text v-if="!rooms" class="white--text mt-6">
             Friend がいません。
           </v-card-text>
@@ -40,58 +41,51 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import ListItemAvatar from "@/components/ListItemAvatar";
-import DialogShowText from "@/components/Dialogs/DialogShowText";
+import { mapGetters, mapActions } from "vuex";
+import { respondCols } from "@/utils/grids";
+import { bandImage } from "@/utils/images";
+import { goHome } from "@/utils/routers";
+import { fetchRooms, goToChatShow } from "@/utils/chats";
 
 export default {
-  components: {
-    ListItemAvatar,
-    DialogShowText,
-  },
   props: ["id"],
   data() {
     return {
       rooms: null,
-      isError: false,
-      errorText: "",
     };
   },
   async created() {
     try {
-      if (Number(this.id) !== this.bandId) throw { response: "status 401" };
-      const res = await this.$axios.get(
-        `/bands/${this.id}/rooms`,
-        this.headers
-      );
+      if (Number(this.id) !== this.bandId) goHome();
+      const res = await fetchRooms();
       if (res.data[0]) this.rooms = res.data;
     } catch (error) {
-      if (error.response) this.$router.replace("/");
+      if (error.response) goHome();
     }
   },
   computed: {
-    ...mapGetters(["bandId", "headers"]),
+    ...mapGetters(["bandId"]),
+    cols() {
+      return respondCols(this.$vuetify.breakpoint, 4, 6, 8, 10, 12);
+    },
+    offset() {
+      return respondCols(this.$vuetify.breakpoint, 4, 3, 2, 1, 0);
+    },
+    avatar() {
+      return (image) => bandImage(image);
+    },
   },
   methods: {
-    async startChat(roomId, friendId) {
+    async startChat(roomId, partnerId) {
       try {
-        if (!roomId) {
-          const formData = new FormData();
-          formData.append("band_room[band_id]", friendId);
-          const res = await this.$axios.post("/rooms", formData, this.headers);
-          roomId = res.data;
-        }
-        this.$router.push({
-          path: `/bands/${this.id}/chats/${roomId}`,
-          query: { partnerId: friendId },
-        });
+        goToChatShow(roomId, partnerId);
       } catch (error) {
         if (error.response) {
-          this.isError = true;
-          this.errorText = "チャットを開始できません。";
+          this.showError("チャットを開始できません。");
         }
       }
     },
+    ...mapActions(["showError"]),
   },
 };
 </script>

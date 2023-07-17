@@ -45,5 +45,7 @@ module StageWing
                        helper_specs: false,
                        routing_specs: false
     end
+
+    config.action_controller.action_on_unpermitted_parameters = :raise
   end
 end

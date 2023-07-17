@@ -1,109 +1,113 @@
 <template>
-  <v-container>
+  <v-container :fluid="$vuetify.breakpoint.lgAndDown">
+    <CardPageTitle title="チケット取り置き状況" />
     <v-row>
       <v-card color="#121212" flat>
         <v-col>
-          <CardActionsEventPastSelect v-model="showPast" />
-          <v-card-text v-if="!displayEvents.length" class="px-3">
+          <SearchInputPastEvent v-model="showPast" color="#121212" />
+          <v-card-text v-if="!eventsForShow.length" class="px-3">
             出演予定のイベントはありません
           </v-card-text>
         </v-col>
       </v-card>
     </v-row>
     <v-row>
-      <v-col
-        v-for="(event, index) in displayEvents"
-        :key="index"
-        xl="3"
-        lg="4"
-        sm="6"
-        cols="12"
-      >
-        <v-expansion-panels v-model="event.id">
-          <v-expansion-panel>
-            <v-expansion-panel-header>
-              <v-card flat>
-                <v-card-subtitle class="text-left py-0">
-                  {{ $dayjs(event.open_at).format("YYYY MMM DD") }}
-                </v-card-subtitle>
-                <v-card-title class="py-0">
-                  <router-link :to="`/events/${event.id}`" class="pr-2">
-                    {{ event.name }}
-                  </router-link>
-                  ({{ event.audiences.length }})
-                </v-card-title>
-              </v-card>
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
-              <v-simple-table>
-                <tbody>
-                  <tr
-                    v-for="(audience, index) in event.audiences"
-                    :key="index"
-                    class="text-left"
-                  >
-                    <td>{{ index + 1 }}.</td>
-                    <td>
-                      <v-avatar size="24" class="mr-2">
-                        <v-img :src="audienceImage(audience.image.url)" />
-                      </v-avatar>
-                      {{ audience.name }}
-                    </td>
-                  </tr>
-                </tbody>
-              </v-simple-table>
-              <v-divider />
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-        </v-expansion-panels>
+      <v-col v-for="(event, index) in eventsForShow" :key="index" :cols="cols">
+        <v-card>
+          <v-card-subtitle class="text-left pb-0">
+            {{ $dayjs(event.date).format("YYYY年MM月DD日") }}
+          </v-card-subtitle>
+          <v-card flat class="d-flex align-center pb-2">
+            <v-card :to="`/events/${event.id}`" max-width="75%" flat>
+              <v-card-subtitle
+                class="text-h6 white--text pr-0 py-0 overflow-ellipsis"
+                >{{ event.name }}
+              </v-card-subtitle>
+            </v-card>
+            <v-card-title class="pl-2 pr-0 py-0">
+              ({{ event.audiences.length }})
+            </v-card-title>
+            <v-spacer />
+            <v-card-actions v-if="event.audiences.length" class="py-0 px-1">
+              <v-btn icon @click="event.show = !event.show">
+                <v-icon>
+                  {{ event.show ? "mdi-chevron-up" : "mdi-chevron-down" }}
+                </v-icon>
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+          <v-expand-transition>
+            <v-list v-show="event.show" class="pt-0 px-8">
+              <template v-for="(audience, index) in event.audiences">
+                <v-list-item :key="index" class="pa-0">
+                  <v-list-item-content class="pb-0">
+                    {{ index + 1 }}.
+                    <CardAvatar
+                      :avatar="audience"
+                      max-width="175"
+                      userType="audiences"
+                      size="20"
+                      class="ml-4"
+                    />
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider :key="audience.id" />
+              </template>
+            </v-list>
+          </v-expand-transition>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
+import CardPageTitle from "@/components/Cards/CardPageTitle";
+import SearchInputPastEvent from "@/components/SearchInputs/SearchInputPastEvent";
+import CardAvatar from "@/components/Cards/CardAvatar";
 import { mapGetters } from "vuex";
-import CardActionsEventPastSelect from "@/components/CardActions/CardActionsEventPastSelect";
+import { respondCols } from "@/utils/grids";
+import { audienceImage } from "@/utils/images";
+import { goHome } from "@/utils/routers";
+import { popFutureItems } from "@/utils/searches";
 
 export default {
   components: {
-    CardActionsEventPastSelect,
+    CardPageTitle,
+    SearchInputPastEvent,
+    CardAvatar,
   },
   props: ["id"],
   data() {
     return {
       futureEvents: [],
-      pastEvents: [],
+      allEvents: [],
       showPast: false,
     };
   },
   async created() {
+    if (Number(this.id) !== this.bandId) goHome();
     try {
-      if (Number(this.id) !== this.bandId) throw { response: "status 401" };
       const res = await this.$axios.get(
         `/bands/${this.id}/tickets`,
         this.headers
       );
-      const now = new Date();
-      this.futureEvents = res.data.filter((event) => {
-        return now.getTime() <= new Date(event.open_at).getTime();
-      });
-      this.pastEvents = res.data.filter((event) => {
-        return now.getTime() >= new Date(event.open_at).getTime();
-      });
+      this.allEvents = res.data;
+      this.futureEvents = popFutureItems(this.allEvents);
     } catch (error) {
-      if (error.response) this.$router.replace("/");
+      if (error.response) goHome();
     }
   },
   computed: {
     ...mapGetters(["bandId", "headers"]),
-    displayEvents() {
-      return this.showPast ? this.pastEvents : this.futureEvents;
+    cols() {
+      return respondCols(this.$vuetify.breakpoint, 3, 4, 6, 6, 12);
+    },
+    eventsForShow() {
+      return this.showPast ? this.allEvents : this.futureEvents;
     },
     audienceImage() {
-      return (image) => {
-        return image ? image : require("@/assets/img/no-audience-img.jpeg");
-      };
+      return (image) => audienceImage(image);
     },
   },
 };

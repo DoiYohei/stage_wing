@@ -6,66 +6,56 @@
           <v-img :src="userImage" />
         </v-list-item-avatar>
         <v-list-item-content>
-          <v-list-item-title v-text="token ? userName : '未ログイン'" />
+          <v-list-item-title>
+            {{ token ? userName : "未ログイン" }}
+          </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-divider class="mb-3" />
       <v-list-item
         v-for="(content, index) in contents"
         :key="index"
-        :to="content.link"
+        :to="content.path"
       >
         <v-list-item-content>
-          <v-list-item-title v-text="content.text" />
+          <v-list-item-title>{{ content.text }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <template v-if="token">
-        <v-dialog v-model="logoutDialog" width="45vw">
-          <template #activator="{ on, attrs }">
-            <v-list-item v-bind="attrs" v-on="on">
-              <v-list-item-content>
-                <v-list-item-title>ログアウト</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-          <DialogYesNo
-            dialog-text="ログアウトしますか？"
-            @select-excution="logOut"
-            @close-dialog="closeDialog"
-          />
-        </v-dialog>
-        <v-dialog v-model="deleteDialog" width="45vw">
-          <template #activator="{ on, attrs }">
-            <v-list-item v-bind="attrs" v-on="on">
-              <v-list-item-content>
-                <v-list-item-title>退会する</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-          <DialogYesNo
-            dialog-text="退会しますか？"
-            @select-excution="closeAccount"
-            @close-dialog="closeDialog"
-          />
-        </v-dialog>
-        <DialogShowText v-model="errorDialog">
-          {{ errorMessage }}
-        </DialogShowText>
+        <v-list-item @click.stop="logoutDialog = true">
+          <v-list-item-content>
+            <v-list-item-title>ログアウト</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <DialogYesNo
+          v-model="logoutDialog"
+          question="ログアウトしますか？"
+          @select-excution="logOut"
+          @close-dialog="closeLogoutDialog"
+        />
+        <v-list-item @click.stop="deleteDialog = true">
+          <v-list-item-content>
+            <v-list-item-title>退会する</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <DialogYesNo
+          v-model="deleteDialog"
+          question="退会しますか？"
+          @select-excution="closeAccount"
+          @close-dialog="closeDeleteDialog"
+        />
       </template>
     </v-list>
   </v-navigation-drawer>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { mapActions } from "vuex";
 import DialogYesNo from "@/components/Dialogs/DialogYesNo";
-import DialogShowText from "@/components/Dialogs/DialogShowText";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   components: {
     DialogYesNo,
-    DialogShowText,
   },
   props: {
     value: {
@@ -78,12 +68,10 @@ export default {
       contents: [],
       logoutDialog: false,
       deleteDialog: false,
-      errorDialog: false,
-      errorMessage: "",
     };
   },
   created() {
-    this.fetchList();
+    this.setUpContents();
   },
   computed: {
     ...mapGetters(["bandId", "audienceId", "token", "userName", "userImage"]),
@@ -95,146 +83,112 @@ export default {
         this.$emit("input", newValue);
       },
     },
+    isXsDisplay() {
+      return this.$vuetify.breakpoint.xs;
+    },
   },
   watch: {
     token() {
-      this.fetchList();
+      this.setUpContents();
+    },
+    isXsDisplay(value) {
+      return value ? this.unshiftEventAndBand() : this.contents.splice(0, 2);
     },
   },
   methods: {
     ...mapActions(["logout", "deleteAccount"]),
     async logOut() {
-      const res = await this.logout();
-      this.closeDialog(res);
+      await this.logout();
+      this.closeLogoutDialog();
     },
     async closeAccount() {
-      const res = await this.deleteAccount();
-      this.closeDialog(res);
+      await this.deleteAccount();
+      this.closeDeleteDialog();
     },
-    closeDialog(message) {
+    closeLogoutDialog() {
       this.logoutDialog = false;
-      this.deleteDialog = false;
-      if (message) {
-        this.errorMessage = message;
-        this.errorDialog = true;
-      }
     },
-    fetchList() {
+    closeDeleteDialog() {
+      this.deleteDialog = false;
+    },
+    setUpContents() {
       if (this.bandId) {
         this.contents = [
           {
             text: "マイページ",
-            link: {
-              name: "BandsShow",
-              params: {
-                id: this.bandId,
-              },
-            },
+            path: `/bands/${this.bandId}`,
           },
           {
             text: "新規Event作成",
-            link: {
-              name: "EventsNew",
-            },
+            path: "/events/new",
           },
           {
             text: "新規Post作成",
-            link: {
-              name: "PostsNew",
-            },
+            path: "/posts/new",
           },
           {
             text: "Friendリスト",
-            link: {
-              name: "BandsFriends",
-              params: {
-                id: this.bandId,
-              },
-            },
+            path: `/bands/${this.bandId}/friends`,
           },
           {
             text: "チャット",
-            link: {
-              name: "ChatsIndex",
-              params: {
-                id: this.bandId,
-              },
-            },
+            path: `/bands/${this.bandId}/chats`,
           },
           {
             text: "チケット取り置き状況",
-            link: {
-              name: "BandsTickets",
-              params: {
-                id: this.bandId,
-              },
-            },
+            path: `/bands/${this.bandId}/tickets`,
           },
           {
             text: "お気に入り",
-            link: {
-              name: "LikesIndex",
-            },
+            path: "/likes",
           },
           {
             text: "アカウント編集",
-            link: {
-              name: "BandsEdit",
-              params: {
-                id: this.bandId,
-              },
-            },
+            path: `/bands/${this.bandId}/edit`,
           },
         ];
       } else if (this.audienceId) {
         this.contents = [
           {
             text: "取り置きしているチケット",
-            link: {
-              name: "AudiencesTickets",
-              params: {
-                id: this.audienceId,
-              },
-            },
+            path: `/audiences/${this.audienceId}/tickets`,
           },
           {
             text: "お気に入り",
-            link: {
-              name: "LikesIndex",
-            },
+            path: "/likes",
           },
           {
             text: "アカウント編集",
-            link: {
-              name: "AudiencesEdit",
-              params: {
-                id: this.audienceId,
-              },
-            },
+            path: `/audiences/${this.audienceId}/edit`,
           },
         ];
       } else {
         this.contents = [
           {
-            text: "アカウント作成 (アーティスト)",
-            link: {
-              name: "SignupBands",
-            },
-          },
-          {
-            text: "アカウント作成 (一般の方)",
-            link: {
-              name: "SignupAudiences",
-            },
+            text: "アカウント作成",
+            path: "/signup",
           },
           {
             text: "ログイン",
-            link: {
-              name: "Login",
-            },
+            path: "/login",
           },
         ];
       }
+      if (this.isXsDisplay) {
+        this.unshiftEventAndBand();
+      }
+    },
+    unshiftEventAndBand() {
+      this.contents.unshift(
+        {
+          text: "EVENT",
+          path: "/events",
+        },
+        {
+          text: "BAND",
+          path: "/bands",
+        }
+      );
     },
   },
 };

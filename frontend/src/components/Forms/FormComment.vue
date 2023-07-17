@@ -1,34 +1,37 @@
 <template>
   <v-card-text>
-    <ValidationProvider
-      name="コメント"
-      rules="max: 1000|required"
-      v-slot="{ errors }"
-    >
-      <v-textarea
-        v-model="comment"
-        :error-messages="errorMessage"
-        :label="label"
-        row-height="6"
-        auto-grow
-        dense
-        outlined
-      />
-      <v-card-actions class="pt-0 px-0">
-        <v-spacer />
-        <v-btn @click="submitForm(errors)" color="grey darken-3">
-          <slot />
-        </v-btn>
-      </v-card-actions>
-    </ValidationProvider>
+    <ValidationObserver v-slot="{ handleSubmit }">
+      <ValidationProvider
+        name="コメント"
+        rules="max:1000|required"
+        v-slot="{ errors }"
+      >
+        <v-textarea
+          v-model="comment"
+          :error-messages="errors"
+          :label="label"
+          row-height="6"
+          auto-grow
+          dense
+          outlined
+        />
+        <v-card-actions class="pt-0 px-0">
+          <v-spacer />
+          <v-btn @click="handleSubmit(submitForm)" color="grey darken-3">
+            {{ btnText }}
+          </v-btn>
+        </v-card-actions>
+      </ValidationProvider>
+    </ValidationObserver>
   </v-card-text>
 </template>
 
 <script>
-import { ValidationProvider } from "vee-validate";
+import { ValidationObserver, ValidationProvider } from "vee-validate";
 
 export default {
   components: {
+    ValidationObserver,
     ValidationProvider,
   },
   props: {
@@ -40,11 +43,10 @@ export default {
       type: String,
       require: true,
     },
-  },
-  data() {
-    return {
-      errorMessage: "",
-    };
+    btnText: {
+      type: String,
+      require: true,
+    },
   },
   computed: {
     comment: {
@@ -57,13 +59,8 @@ export default {
     },
   },
   methods: {
-    submitForm(errors) {
-      if (errors.length) {
-        return (this.errorMessage = errors);
-      } else {
-        this.errorMessage = "";
-        this.$emit("submit-form");
-      }
+    submitForm() {
+      this.$emit("submit-form");
     },
   },
 };

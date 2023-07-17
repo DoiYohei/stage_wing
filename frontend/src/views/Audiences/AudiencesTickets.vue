@@ -1,41 +1,43 @@
 <template>
-  <v-container>
+  <v-container :fluid="$vuetify.breakpoint.lgAndDown" class="px-0 px-sm-3">
     <v-row>
-      <v-col xl="8" offset-xl="2">
-        <v-card>
-          <v-card-title class="font-weight-bold pb-0">
+      <v-col :cols="cols" :offset="offset" class="px-0 px-sm-3">
+        <v-card class="pa-4" flat>
+          <v-card-title class="font-weight-bold">
             取り置きしているチケット
           </v-card-title>
-          <CardActionsEventPastSelect v-model="showPast" class="pl-3" />
-          <v-data-table
-            :headers="table_headers"
-            :items="displayTickets"
-            hide-default-footer
-          >
-            <template #[`item.event.name`]="{ item }">
-              <router-link :to="`/events/${item.event.id}`">
-                {{ item.event.name }}
-              </router-link>
-            </template>
-            <template #[`item.band.name`]="{ item }">
-              <router-link :to="`/bands/${item.band.id}`">
-                {{ item.band.name }}
-              </router-link>
-            </template>
-            <template #[`item.delete`]="{ item }">
-              <v-icon @click="openDialog(item)">mdi-delete</v-icon>
-            </template>
-          </v-data-table>
-          <v-dialog v-model="dialog" width="45vw">
+          <v-card flat class="px-2">
+            <SearchInputPastEvent v-model="showPast" />
+            <v-data-table
+              :headers="table_headers"
+              :items="displayTickets"
+              hide-default-footer
+              mobile-breakpoint="960"
+            >
+              <template #[`item.date`]="{ item }">
+                {{ $dayjs(item.date).format("YYYY年MM月DD日") }}
+              </template>
+              <template #[`item.event_name`]="{ item }">
+                <router-link :to="`/events/${item.event_id}`">
+                  {{ item.event_name }}
+                </router-link>
+              </template>
+              <template #[`item.band_name`]="{ item }">
+                <router-link :to="`/bands/${item.band_id}`">
+                  {{ item.band_name }}
+                </router-link>
+              </template>
+              <template #[`item.delete`]="{ item }">
+                <v-icon @click="openDialog(item)">mdi-delete</v-icon>
+              </template>
+            </v-data-table>
             <DialogYesNo
-              :dialog-text="dialogText"
+              v-model="dialog"
+              :question="dialogText"
               @select-excution="deleteTicket"
               @close-dialog="closeDialog"
             />
-          </v-dialog>
-          <DialogShowText v-model="isError">
-            チケットをキャンセルできませんでした。
-          </DialogShowText>
+          </v-card>
         </v-card>
       </v-col>
     </v-row>
@@ -43,16 +45,18 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import CardActionsEventPastSelect from "@/components/CardActions/CardActionsEventPastSelect";
+import SearchInputPastEvent from "@/components/SearchInputs/SearchInputPastEvent";
 import DialogYesNo from "@/components/Dialogs/DialogYesNo";
-import DialogShowText from "@/components/Dialogs/DialogShowText";
+import { mapGetters } from "vuex";
+import { respondCols } from "@/utils/grids";
+import { goHome } from "@/utils/routers";
+import { popFutureItems } from "@/utils/searches";
+import { deleteTicket } from "@/utils/tickets";
 
 export default {
   components: {
-    CardActionsEventPastSelect,
+    SearchInputPastEvent,
     DialogYesNo,
-    DialogShowText,
   },
   props: ["id"],
   data() {
@@ -60,15 +64,15 @@ export default {
       table_headers: [
         {
           text: "Date",
-          value: "event.open_at",
+          value: "date",
         },
         {
           text: "Event",
-          value: "event.name",
+          value: "event_name",
         },
         {
           text: "Band",
-          value: "band.name",
+          value: "band_name",
         },
         {
           text: "",
@@ -76,78 +80,64 @@ export default {
           sortable: false,
         },
       ],
-      displayTickets: [],
       futureTickets: [],
-      pastTickets: [],
+      allTickets: [],
       selectedTicket: {},
       showPast: false,
       dialog: false,
-      isError: false,
     };
   },
   async created() {
+    if (Number(this.id) !== this.audienceId) goHome();
     try {
-      if (Number(this.id) !== this.audienceId) throw { response: "status 401" };
       const res = await this.$axios.get(
         `/audiences/${this.id}/tickets`,
         this.headers
       );
-      const now = new Date();
-      this.futureTickets = res.data.filter((ticket) => {
-        return now.getTime() <= new Date(ticket.event.open_at).getTime();
+
+      // 長いEvent名、Band名を短縮。
+      this.allTickets = res.data.map((ticket) => {
+        ticket.event_name = this.shortenName(ticket.event_name);
+        ticket.band_name = this.shortenName(ticket.band_name);
+        return ticket;
       });
-      this.pastTickets = res.data.filter((ticket) => {
-        return now.getTime() >= new Date(ticket.event.open_at).getTime();
-      });
-      this.setDisplayTickets();
+
+      // 未開催EventのTicketを抽出。
+      this.futureTickets = popFutureItems(this.allTickets);
     } catch (error) {
-      if (error.response) this.$router.replace("/");
+      if (error.response) goHome();
     }
   },
   computed: {
     ...mapGetters(["audienceId", "headers"]),
-    dialogText() {
-      const event = this.selectedTicket.event;
-      return event ? `${event.name}のチケット取り置きをやめますか？` : "";
+    cols() {
+      return respondCols(this.$vuetify.breakpoint, 8, 10, 12, 12, 12);
     },
-  },
-  watch: {
-    showPast() {
-      this.displayTickets = [];
-      this.setDisplayTickets();
+    offset() {
+      return respondCols(this.$vuetify.breakpoint, 2, 1, 0, 0, 0);
+    },
+    displayTickets() {
+      return this.showPast ? this.allTickets : this.futureTickets;
+    },
+    dialogText() {
+      const eventName = this.selectedTicket.event_name;
+      return eventName ? `${eventName}のチケット取り置きをやめますか？` : "";
     },
   },
   methods: {
-    setDisplayTickets() {
-      if (this.showPast) {
-        for (let ticket of this.pastTickets) {
-          ticket.event.open_at = this.$dayjs(ticket.event.open_at).format(
-            "YYYY MMM DD"
-          );
-          this.displayTickets.push(ticket);
-        }
-      } else {
-        for (let ticket of this.futureTickets) {
-          ticket.event.open_at = this.$dayjs(ticket.event.open_at).format(
-            "YYYY MMM DD"
-          );
-          this.displayTickets.push(ticket);
-        }
+    shortenName(name) {
+      let total = 0;
+      let over = 0;
+      for (let i = 0; i < name.length; i++) {
+        total += name[i].match(/[ -~]/) ? 1 : 2;
+        if (total > 42 && !over) over = i;
       }
+      if (total > 42) name = name.slice(0, over) + "...";
+      return name;
     },
-    async deleteTicket() {
-      try {
-        await this.$axios.delete(
-          `/tickets/${this.selectedTicket.id}`,
-          this.headers
-        );
-        this.$router.go({ path: this.$router.currentRoute.path, force: true });
-      } catch (error) {
-        if (error.response) {
-          this.closeDialog();
-          this.isError = true;
-        }
-      }
+    deleteTicket() {
+      deleteTicket(this.selectedTicket.ticket_id);
+      this.closeDialog();
     },
     openDialog(item) {
       this.selectedTicket = item;

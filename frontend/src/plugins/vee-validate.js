@@ -25,7 +25,7 @@ extend("size", size);
 
 localize("ja", ja);
 
-setInteractionMode("eager");
+setInteractionMode("passive");
 
 const VeeValidate = { extend, localize, setInteractionMode };
 

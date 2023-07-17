@@ -1,39 +1,74 @@
 <template>
   <v-container :fluid="$vuetify.breakpoint.lg">
-    <DialogShowText v-model="isError">
-      {{ errorText }}
-    </DialogShowText>
-    <v-row v-if="$vuetify.breakpoint.mdAndDown">
-      <v-col>
-        <v-tabs v-model="tabs" background-color="grey darken-3" fixed-tabs>
-          <template v-for="(friendship, index) in friendships">
+    <v-row v-if="$vuetify.breakpoint.xs">
+      <v-col cols="12">
+        <v-window v-model="tab">
+          <v-window-item>
+            <CardFriendship
+              v-model="tab"
+              :bands="friends"
+              :states="statesOfFriends"
+              :title="titles[0]"
+              @change-friend-state="changeFriendState"
+              @start-chat="startChat"
+            />
+          </v-window-item>
+          <v-window-item>
+            <CardFriendship
+              v-model="tab"
+              :bands="invitees"
+              :states="statesOfInvitees"
+              :title="titles[1]"
+              @change-friend-state="changeFriendState"
+            />
+          </v-window-item>
+          <v-window-item>
+            <CardFriendship
+              v-model="tab"
+              :bands="inviters"
+              :states="statesOfInviters"
+              :title="titles[2]"
+              @change-friend-state="changeFriendState"
+              @start-chat="startChat"
+            />
+          </v-window-item>
+        </v-window>
+      </v-col>
+    </v-row>
+    <v-row v-if="$vuetify.breakpoint.md || $vuetify.breakpoint.sm">
+      <v-col offset-sm="1" sm="10">
+        <v-tabs
+          v-model="tab"
+          active-class="grey darken-1"
+          background-color="grey darken-3"
+          fixed-tabs
+        >
+          <template v-for="(title, index) in titles">
             <v-divider :key="index" v-if="index !== 0" vertical />
-            <v-tab :key="friendship.header">
-              {{ friendship.header }}
-            </v-tab>
+            <v-tab :key="title">{{ title }}</v-tab>
           </template>
         </v-tabs>
-        <v-tabs-items v-model="tabs">
+        <v-tabs-items v-model="tab">
           <v-tab-item>
-            <ListFriendships
+            <CardFriendship
               :bands="friends"
-              :friendship="friendships[0]"
-              @change-friendship="changeFriendship"
+              :states="statesOfFriends"
+              @change-friend-state="changeFriendState"
               @start-chat="startChat"
             />
           </v-tab-item>
           <v-tab-item>
-            <ListFriendships
-              :bands="invitings"
-              :friendship="friendships[1]"
-              @change-friendship="changeFriendship"
+            <CardFriendship
+              :bands="invitees"
+              :states="statesOfInvitees"
+              @change-friend-state="changeFriendState"
             />
           </v-tab-item>
           <v-tab-item>
-            <ListFriendships
+            <CardFriendship
               :bands="inviters"
-              :friendship="friendships[2]"
-              @change-friendship="changeFriendship"
+              :states="statesOfInviters"
+              @change-friend-state="changeFriendState"
               @start-chat="startChat"
             />
           </v-tab-item>
@@ -41,118 +76,114 @@
       </v-col>
     </v-row>
     <v-row v-if="$vuetify.breakpoint.lgAndUp" :dense="$vuetify.breakpoint.lg">
-      <ListFriendships
-        :bands="friends"
-        :friendship="friendships[0]"
-        @change-friendship="changeFriendship"
-        @start-chat="startChat"
-      />
-      <ListFriendships
-        :bands="invitings"
-        :friendship="friendships[1]"
-        @change-friendship="changeFriendship"
-      />
-      <ListFriendships
-        :bands="inviters"
-        :friendship="friendships[2]"
-        @change-friendship="changeFriendship"
-        @start-chat="startChat"
-      />
+      <v-col cols="4">
+        <CardFriendship
+          :bands="friends"
+          :states="statesOfFriends"
+          :title="titles[0]"
+          @change-friend-state="changeFriendState"
+          @start-chat="startChat"
+        />
+      </v-col>
+      <v-col cols="4">
+        <CardFriendship
+          :bands="invitees"
+          :states="statesOfInvitees"
+          :title="titles[1]"
+          @change-friend-state="changeFriendState"
+        />
+      </v-col>
+      <v-col cols="4">
+        <CardFriendship
+          :bands="inviters"
+          :states="statesOfInviters"
+          :title="titles[2]"
+          @change-friend-state="changeFriendState"
+          @start-chat="startChat"
+        />
+      </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import DialogShowText from "@/components/Dialogs/DialogShowText";
-import ListFriendships from "@/components/ListFriendships";
+import CardFriendship from "@/components/Cards/CardFriendship";
+import { mapGetters, mapActions } from "vuex";
+import { goHome } from "@/utils/routers";
+import { fetchRooms, findPartnerRoom, goToChatShow } from "@/utils/chats";
+import { changeFriendship } from "@/utils/friendships";
 
 export default {
   components: {
-    DialogShowText,
-    ListFriendships,
+    CardFriendship,
   },
   props: ["id"],
   data() {
     return {
-      isError: false,
-      errorText: "",
-      tabs: 0,
-      friends: [],
-      invitings: [],
-      inviters: [],
-      friendships: [
-        {
-          header: "Friend",
-          status: "friend",
-          oppositeStatus: "invited",
-        },
-        {
-          header: "Friend申請中",
-          status: "inviting",
-          oppositeStatus: "",
-        },
-        {
-          header: "Friend申請されている",
-          status: "invited",
-          oppositeStatus: "friend",
-        },
-      ],
+      tab: 0,
+      friends: [], // 初期値
+      invitees: [], // 初期値
+      inviters: [], // 初期値
+      statesOfFriends: [], // 現在値
+      statesOfInvitees: [], // 現在値
+      statesOfInviters: [], // 現在値
+      titles: ["FRIEND", "FRIEND申請中", "FRIEND申請されている"],
     };
   },
   async created() {
+    if (Number(this.id) !== this.bandId) goHome();
     try {
-      if (Number(this.id) !== this.bandId) throw { response: "status 401" };
       const res = await this.$axios.get(
         `/bands/${this.id}/friendships`,
         this.headers
       );
       this.friends = res.data.friends;
-      this.invitings = res.data.inviting;
+      this.invitees = res.data.invitees;
       this.inviters = res.data.inviters;
+
+      // ページを更新しない限り、初期表示位置を維持する。
+      // 現在のFriendshipの状態(現在値)を初期値とは別で管理する。
+      for (let n = 0; n < this.friends.length; n++) {
+        this.statesOfFriends.push("friend");
+      }
+      for (let n = 0; n < this.invitees.length; n++) {
+        this.statesOfInvitees.push("inviting");
+      }
+      for (let n = 0; n < this.inviters.length; n++) {
+        this.statesOfInviters.push("invited");
+      }
     } catch (error) {
-      if (error.response) this.$router.replace("/");
+      if (error.response) goHome();
     }
   },
   computed: {
-    ...mapGetters(["bandId", "headers", "token"]),
+    ...mapGetters(["bandId", "headers"]),
   },
   methods: {
-    changeFriendship(isFollowing, formData) {
-      if (isFollowing) {
-        this.$axios.delete("/friendships", {
-          headers: this.token,
-          data: formData,
-        });
-      } else {
-        this.$axios.post("/friendships", formData, this.headers);
+    changeFriendState(band, friendship, index) {
+      changeFriendship(band.id, friendship.isFollowing);
+      if (band.friend_state === "friend") {
+        this.$set(this.statesOfFriends, index, friendship.opposition);
+      }
+      if (band.friend_state === "inviting") {
+        this.$set(this.statesOfInvitees, index, friendship.opposition);
+      }
+      if (band.friend_state === "invited") {
+        this.$set(this.statesOfInviters, index, friendship.opposition);
       }
     },
-    async startChat(bandId) {
+    async startChat(partnerId) {
       try {
-        const res = await this.$axios.get(
-          `/bands/${this.bandId}/rooms`,
-          this.headers
-        );
-        const room = res.data.find((data) => data.friend_id === bandId);
-        let roomId = room.id;
-        if (!roomId) {
-          const formData = new FormData();
-          formData.append("band_room[band_id]", bandId);
-          const res = await this.$axios.post("/rooms", formData, this.headers);
-          roomId = res.data;
-        }
-        this.$router.push({
-          path: `/bands/${this.id}/chats/${roomId}`,
-          query: { partnerId: bandId },
-        });
+        const res = await fetchRooms();
+        const room = findPartnerRoom(res.data, partnerId);
+        goToChatShow(room.id, partnerId);
       } catch (error) {
         if (error.response) {
-          this.isError = true;
-          this.errorText = "チャットを開始できません。";
+          this.showError("チャットを開始できません。");
         }
       }
     },
+    ...mapActions(["showError"]),
   },
 };
 </script>

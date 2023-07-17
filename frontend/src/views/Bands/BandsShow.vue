@@ -1,21 +1,29 @@
 <template>
-  <v-container>
+  <v-container :fluid="$vuetify.breakpoint.lgAndDown">
     <v-row>
-      <v-col>
-        <DialogShowText v-model="isError">
-          {{ errorText }}
-        </DialogShowText>
-        <TheBandsHeader
-          v-model="tab"
-          :band="band"
-          :friend-status="friendStatus"
-          :is-my-page="isMyPage"
-          @start-chat="startChat"
-          @change-friendship="changeFriendship"
-        />
+      <v-col class="pt-0 px-0">
+        <v-card color="#121212" flat class="d-md-flex justify-md-end">
+          <v-card-actions class="px-0 pt-0 pb-1 px-md-2 py-md-4">
+            <v-tabs
+              v-model="tab"
+              :background-color="$vuetify.breakpoint.mdAndUp ? '#121212' : ''"
+              fixed-tabs
+            >
+              <v-tab v-for="content in contents" :key="content">
+                {{ content }}
+              </v-tab>
+            </v-tabs>
+          </v-card-actions>
+        </v-card>
         <v-tabs-items v-model="tab">
           <v-tab-item>
-            <TheBandsBiography :band="band" :is-my-page="isMyPage" />
+            <TheBandsBiography
+              :band="band"
+              :friend-state="friendState"
+              :is-my-page="isMyPage"
+              @start-chat="startChat"
+              @change-friend-state="changeFriendState"
+            />
           </v-tab-item>
           <v-tab-item>
             <TheBandsPosts
@@ -29,13 +37,15 @@
           <v-tab-item>
             <v-card color="#121212" flat>
               <v-col>
-                <CardActionsEventPastSelect v-model="showPast" />
-                <v-card-text v-if="!displayEvents.length" class="px-3">
+                <SearchInputPastEvent v-model="showPast" color="#121212" />
+                <v-card-text v-if="!eventsForShow.length" class="px-3">
                   出演予定のイベントはありません
                 </v-card-text>
               </v-col>
+              <v-col>
+                <CardEvent :events="eventsForShow" />
+              </v-col>
             </v-card>
-            <CardEvents :events="displayEvents" />
           </v-tab-item>
         </v-tabs-items>
       </v-col>
@@ -44,34 +54,34 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import DialogShowText from "@/components/Dialogs/DialogShowText";
-import TheBandsHeader from "@/components/TheBands/TheBandsHeader";
 import TheBandsBiography from "@/components/TheBands/TheBandsBiography";
 import TheBandsPosts from "@/components/TheBands/TheBandsPosts";
-import CardActionsEventPastSelect from "@/components/CardActions/CardActionsEventPastSelect";
-import CardEvents from "@/components/Cards/CardEvents";
+import SearchInputPastEvent from "@/components/SearchInputs/SearchInputPastEvent";
+import CardEvent from "@/components/Cards/CardEvent";
+import { mapGetters, mapActions } from "vuex";
+import { popFutureItems } from "@/utils/searches";
+import { goTo404 } from "@/utils/routers";
+import { fetchRooms, findPartnerRoom, goToChatShow } from "@/utils/chats";
+import { changeFriendship } from "@/utils/friendships";
+import { deletePost, patchPost } from "@/utils/posts";
+import { changeLike } from "@/utils/likes";
 
 export default {
   components: {
-    DialogShowText,
-    TheBandsHeader,
     TheBandsBiography,
     TheBandsPosts,
-    CardActionsEventPastSelect,
-    CardEvents,
+    SearchInputPastEvent,
+    CardEvent,
   },
   props: ["id"],
   data() {
     return {
       band: {},
-      friendStatus: null,
+      friendState: null,
       tab: 0,
+      contents: ["Biography", "Post", "Live"],
       showPast: false,
       futureEvents: [],
-      pastEvents: [],
-      isError: false,
-      errorText: "",
     };
   },
   created() {
@@ -81,17 +91,14 @@ export default {
     $route(to, from) {
       if (to.params.id !== from.params.id) this.fetchBand();
     },
-    isError(newValue) {
-      if (!newValue) this.errorText = "";
-    },
   },
   computed: {
-    ...mapGetters(["bandId", "headers", "token"]),
+    ...mapGetters(["bandId", "headers"]),
     isMyPage() {
       return this.bandId === this.band.id;
     },
-    displayEvents() {
-      return this.showPast ? this.pastEvents : this.futureEvents;
+    eventsForShow() {
+      return this.showPast ? this.band.events : this.futureEvents;
     },
   },
   methods: {
@@ -99,109 +106,37 @@ export default {
       try {
         const res = await this.$axios.get(`/bands/${this.id}`, this.headers);
         this.band = res.data;
-        this.friendStatus = res.data.friend_status;
-        const now = new Date();
-        this.futureEvents = res.data.events.filter((event) => {
-          return now.getTime() <= new Date(event.open_at).getTime();
-        });
-        this.pastEvents = res.data.events.filter((event) => {
-          return now.getTime() >= new Date(event.open_at).getTime();
-        });
+        this.friendState = res.data.friend_state;
+        this.futureEvents = popFutureItems(this.band.events);
       } catch (error) {
-        if (error.response) this.$router.replace("/errors/not_found");
+        if (error.response) goTo404();
       }
     },
     async startChat() {
       try {
-        const res = await this.$axios.get(
-          `/bands/${this.bandId}/rooms`,
-          this.headers
-        );
-        const room = res.data.find(
-          (data) => data.friend_id === Number(this.id)
-        );
-        let roomId = room.id;
-        if (!roomId) {
-          const formData = new FormData();
-          formData.append("band_room[band_id]", this.id);
-          const res = await this.$axios.post("/rooms", formData, this.headers);
-          roomId = res.data;
-        }
-        this.$router.push({
-          path: `/bands/${this.bandId}/chats/${roomId}`,
-          query: { partnerId: this.id },
-        });
+        const res = await fetchRooms();
+        const room = findPartnerRoom(res.data, Number(this.id));
+        goToChatShow(room.id, this.id);
       } catch (error) {
-        this.showError(error.response, "チャットを開始できません。");
-      }
-    },
-    changeFriendship(isFollowing, formData) {
-      if (isFollowing) {
-        this.$axios.delete("/friendships", {
-          headers: this.token,
-          data: formData,
-        });
-        if (this.friendStatus === "friend") {
-          return (this.friendStatus = "invited");
-        } else {
-          return (this.friendStatus = "");
-        }
-      } else {
-        this.$axios.post("/friendships", formData, this.headers);
-        if (this.friendStatus === "invited") {
-          return (this.friendStatus = "friend");
-        } else {
-          return (this.friendStatus = "inviting");
+        if (error.response) {
+          this.showError("チャットを開始できません。");
         }
       }
     },
-    async deletePost(postId) {
-      try {
-        await this.$axios.delete(`/posts/${postId}`, this.headers);
-        this.updatePage();
-      } catch (error) {
-        this.showError(error.response, "投稿を削除できませんでした。");
-      }
+    changeFriendState(band, friendship) {
+      changeFriendship(band.id, friendship.isFollowing);
+      this.friendState = friendship.opposition;
     },
-    async patchPost(postId, postDescription) {
-      try {
-        const formData = new FormData();
-        formData.append("post[description]", postDescription);
-        await this.$axios.patch(`/posts/${postId}`, formData, this.headers);
-        this.updatePage();
-      } catch (error) {
-        this.showError(error.response, "投稿を更新できませんでした。");
-      }
+    deletePost(postId) {
+      deletePost(postId);
+    },
+    patchPost(postId, postDescription) {
+      patchPost(postId, postDescription);
     },
     changeLike(post) {
-      if (!this.token) {
-        return this.$router.push("/errors/unauthorized");
-      } else {
-        const formData = new FormData();
-        formData.append("post_id", post.id);
-        if (post.favorite) {
-          this.$axios.delete("/likes", {
-            headers: this.token,
-            data: formData,
-          });
-          post.favorite = false;
-          post.likes_count -= 1;
-        } else {
-          this.$axios.post("/likes", formData, this.headers);
-          post.favorite = true;
-          post.likes_count += 1;
-        }
-      }
+      changeLike(post);
     },
-    showError(error, text) {
-      if (error) {
-        this.isError = true;
-        this.errorText = text;
-      }
-    },
-    updatePage() {
-      this.$router.go({ path: this.$router.currentRoute.path, force: true });
-    },
+    ...mapActions(["showError"]),
   },
 };
 </script>

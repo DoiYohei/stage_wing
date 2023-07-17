@@ -21,19 +21,19 @@ RSpec.describe 'Bands', type: :request do
     context 'when user is owner of other_band' do
       let(:user) { other_band }
 
-      it { is_expected.to eq 401 }
+      it { is_expected.to eq 403 }
     end
 
     context 'when user is login audience' do
       let(:user) { audience }
 
-      it { is_expected.to eq 401 }
+      it { is_expected.to eq 403 }
     end
 
     context "when user isn't login member" do
       let(:user) { nil }
 
-      it { is_expected.to eq 401 }
+      it { is_expected.to eq 403 }
     end
   end
 
@@ -52,19 +52,19 @@ RSpec.describe 'Bands', type: :request do
     context 'when user is owner of other_band' do
       let(:user) { other_band }
 
-      it { is_expected.to eq 401 }
+      it { is_expected.to eq 403 }
     end
 
     context 'when user is login audience' do
       let(:user) { audience }
 
-      it { is_expected.to eq 401 }
+      it { is_expected.to eq 403 }
     end
 
     context "when user isn't login member" do
       let(:user) { nil }
 
-      it { is_expected.to eq 401 }
+      it { is_expected.to eq 403 }
     end
   end
 end

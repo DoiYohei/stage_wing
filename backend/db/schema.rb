@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_01_20_133218) do
+ActiveRecord::Schema.define(version: 2023_03_31_013456) do
 
   create_table "audiences", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "provider", default: "email", null: false
@@ -90,15 +90,16 @@ ActiveRecord::Schema.define(version: 2022_01_20_133218) do
     t.bigint "owner_id"
     t.string "name", null: false
     t.string "flyer"
-    t.string "place", null: false
-    t.datetime "open_at", null: false
-    t.datetime "start_at", null: false
+    t.string "place"
+    t.time "open_at"
+    t.time "start_at"
     t.integer "ticket_price"
     t.text "content"
     t.text "unregistered_performers"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "reservation", default: false, null: false
+    t.date "date", null: false
     t.index ["owner_id"], name: "index_events_on_owner_id"
   end
 

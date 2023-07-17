@@ -1,75 +1,45 @@
 <template>
   <v-container fluid class="pa-0 fill-height">
     <v-row class="fill-height">
-      <v-col cols="9" class="pa-0 fill-height">
-        <v-img :src="homeImage" class="fill-height" />
+      <v-col cols="12" md="8" xl="9" class="pa-0" :class="fillHeightOrNot">
+        <v-img :src="homeImage" :class="fillHeightOrNot" />
+        <TheHomeSmallList
+          v-if="$vuetify.breakpoint.smAndDown"
+          v-model="drawer"
+          @open-dialog="openDialog"
+          :card-items="cardItems"
+          :text-style="textStyle"
+          class="mx-6 my-1"
+        />
       </v-col>
-      <v-col>
-        <v-card flat>
-          <v-list color="#121212">
-            <v-list-item-group>
-              <v-list-item
-                v-for="(item, index) in cardItems"
-                :key="index"
-                :to="item.path"
-              >
-                <v-list-item-content>
-                  <v-card-title
-                    v-text="item.text"
-                    :class="textStyle"
-                    class="reflect-return"
-                  />
-                </v-list-item-content>
-              </v-list-item>
-              <template v-if="token">
-                <v-list-item>
-                  <v-list-item-content>
-                    <v-card-title @click="drawer = !drawer" :class="textStyle">
-                      MY MENU
-                    </v-card-title>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-content>
-                    <v-dialog v-model="logoutDialog" width="45vw">
-                      <template #activator="{ on, attrs }">
-                        <v-card-title
-                          v-bind="attrs"
-                          v-on="on"
-                          :class="textStyle"
-                        >
-                          LOG OUT
-                        </v-card-title>
-                      </template>
-                      <DialogYesNo
-                        dialog-text="ログアウトしますか？"
-                        @select-excution="logOut"
-                        @close-dialog="closeDialog"
-                      />
-                    </v-dialog>
-                    <DialogShowText v-model="errorDialog">
-                      {{ errorMessage }}
-                    </DialogShowText>
-                  </v-list-item-content>
-                </v-list-item>
-              </template>
-            </v-list-item-group>
-          </v-list>
-        </v-card>
-      </v-col>
+      <TheHomeLargeList
+        v-if="$vuetify.breakpoint.mdAndUp"
+        v-model="drawer"
+        @open-dialog="openDialog"
+        :card-items="cardItems"
+        :text-style="textStyle"
+      />
+      <DialogYesNo
+        v-model="dialog"
+        question="ログアウトしますか？"
+        @select-excution="logOut"
+        @close-dialog="closeDialog"
+      />
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
+import TheHomeSmallList from "@/components/TheHomes/TheHomeSmallList";
+import TheHomeLargeList from "@/components/TheHomes/TheHomeLargeList";
 import DialogYesNo from "@/components/Dialogs/DialogYesNo";
-import DialogShowText from "@/components/Dialogs/DialogShowText";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
   components: {
+    TheHomeSmallList,
+    TheHomeLargeList,
     DialogYesNo,
-    DialogShowText,
   },
   props: {
     value: {
@@ -80,7 +50,7 @@ export default {
   data() {
     return {
       homeImage: require("@/assets/img/home.jpg"),
-      cardItems: [
+      defaultItems: [
         {
           text: "EVENT",
           path: "/events",
@@ -92,30 +62,16 @@ export default {
       ],
       authItems: [
         {
-          text: "SIGN UP\n(BAND)",
-          path: "/signup/bands",
-        },
-        {
-          text: "SIGN UP\n(AUDIENCE)",
-          path: "/signup/audiences",
+          text: "SIGN UP",
+          path: "/signup",
         },
         {
           text: "LOG IN",
           path: "/login",
         },
       ],
-      textStyle: "text-h2 font-weight-black",
-      logoutDialog: false,
-      errorDialog: false,
-      errorMessage: "",
+      dialog: false,
     };
-  },
-  created() {
-    if (!this.token) {
-      for (let authItem of this.authItems) {
-        this.cardItems.push(authItem);
-      }
-    }
   },
   computed: {
     ...mapGetters(["token"]),
@@ -127,20 +83,38 @@ export default {
         this.$emit("input", newValue);
       },
     },
+    cardItems() {
+      if (!this.token) {
+        return [...this.defaultItems, ...this.authItems];
+      } else return this.defaultItems;
+    },
+    textStyle() {
+      const weight = "font-weight-black";
+      const flex = "justify-center";
+      if (this.$vuetify.breakpoint.lgAndUp) {
+        return weight + " text-h2";
+      } else if (this.$vuetify.breakpoint.md) {
+        return weight + " text-h3";
+      } else if (this.$vuetify.breakpoint.sm) {
+        return "text-h4 " + flex;
+      } else return "text-h6 " + flex;
+    },
+    fillHeightOrNot() {
+      return this.$vuetify.breakpoint.mdAndUp ? "fill-height" : "";
+    },
   },
   methods: {
-    ...mapActions(["logout"]),
     async logOut() {
-      const res = await this.logout();
+      await this.logout();
       this.closeDialog();
-      if (res) {
-        this.errorMessage = res;
-        this.errorDialog = true;
-      }
+    },
+    openDialog() {
+      this.dialog = true;
     },
     closeDialog() {
-      this.logoutDialog = false;
+      this.dialog = false;
     },
+    ...mapActions(["logout"]),
   },
 };
 </script>

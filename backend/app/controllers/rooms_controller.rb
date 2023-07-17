@@ -2,11 +2,11 @@ class RoomsController < ApplicationController
   before_action :authenticate_band!
 
   def index
-    if current_band == Band.find(params[:band_id])
+    if current_band == Band.find_by(id: params[:band_id])
       rooms = current_band.fetch_rooms
       render json: rooms
     else
-      head :unauthorized
+      head :forbidden
     end
   end
 
