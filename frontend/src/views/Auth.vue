@@ -9,7 +9,6 @@
               {{ band.cardTitle }}
             </v-card-subtitle>
           </template>
-          <template #btn-text>{{ btnText }}</template>
         </FormAuth>
       </v-col>
       <v-col xl="4">
@@ -19,7 +18,6 @@
               {{ audience.cardTitle }}
             </v-card-subtitle>
           </template>
-          <template #btn-text>{{ btnText }}</template>
         </FormAuth>
       </v-col>
     </v-row>
@@ -33,14 +31,10 @@
             </v-tabs>
             <v-tabs-items v-model="tabs">
               <v-tab-item>
-                <FormAuth v-model="band" @submit-forms="submitBand">
-                  <template #btn-text>{{ btnText }}</template>
-                </FormAuth>
+                <FormAuth v-model="band" @submit-forms="submitBand" />
               </v-tab-item>
               <v-tab-item>
-                <FormAuth v-model="audience" @submit-forms="submitAudience">
-                  <template #btn-text>{{ btnText }}</template>
-                </FormAuth>
+                <FormAuth v-model="audience" @submit-forms="submitAudience" />
               </v-tab-item>
             </v-tabs-items>
           </v-card-text>
@@ -53,6 +47,7 @@
 <script>
 import CardPageTitle from "@/components/Cards/CardPageTitle";
 import FormAuth from "@/components/Forms/FormAuth";
+import { mapActions } from "vuex";
 
 export default {
   components: {
@@ -68,6 +63,8 @@ export default {
         name: "",
         email: "",
         password: "",
+        website: "",
+        twitter: "",
         cardTitle: "アーティストの方",
         nameLabel: "Band Name",
         isError: false,
@@ -93,9 +90,6 @@ export default {
     errorText() {
       return `${this.pageTitle}できませんでした。`;
     },
-    btnText() {
-      return this.$route.name == "Signup" ? "Sign Up" : "Log In";
-    },
   },
   methods: {
     async submitBand() {
@@ -112,10 +106,12 @@ export default {
           res = await this.$axios.post("/bands/sign_in", formData);
         }
         const userType = "bands";
-        this.$store.dispatch("setAuthData", { res, userType });
+        this.setAuthData({ res, userType });
       } catch (error) {
-        if (error.response) this.band.isError = true;
-        this.band.errorMessage = this.errorText;
+        if (error.response) {
+          this.band.isError = true;
+          this.band.errorMessage = this.errorText;
+        }
       }
     },
     async submitAudience() {
@@ -132,12 +128,15 @@ export default {
           res = await this.$axios.post("/audiences/sign_in", formData);
         }
         const userType = "audiences";
-        this.$store.dispatch("setAuthData", { res, userType });
+        this.setAuthData({ res, userType });
       } catch (error) {
-        if (error.response) this.audience.isError = true;
-        this.audience.errorMessage = this.errorText;
+        if (error.response) {
+          this.audience.isError = true;
+          this.audience.errorMessage = this.errorText;
+        }
       }
     },
+    ...mapActions(["setAuthData"]),
   },
 };
 </script>

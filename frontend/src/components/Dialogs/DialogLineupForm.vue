@@ -1,7 +1,7 @@
 <template>
   <v-dialog
     v-model="dialog"
-    max-width="1000px"
+    max-width="1000"
     overlay-color="white"
     overlay-opacity="0.2"
     persistent
@@ -47,10 +47,10 @@
                 color="grey darken-3"
                 :disabled="isOverText"
               >
-                <slot name="submit-text" />
+                {{ textForSubmit }}
               </v-btn>
               <v-btn @click="selectClear" color="grey darken-3">
-                <slot name="clear-text" />
+                {{ textForClear }}
               </v-btn>
               <v-spacer />
             </v-card-actions>
@@ -77,6 +77,14 @@ export default {
     },
     dialog: {
       type: Boolean,
+      require: true,
+    },
+    textForSubmit: {
+      type: String,
+      require: true,
+    },
+    textForClear: {
+      type: String,
       require: true,
     },
   },

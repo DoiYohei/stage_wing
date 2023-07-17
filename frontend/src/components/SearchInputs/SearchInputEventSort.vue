@@ -1,17 +1,19 @@
 <template>
-  <v-card-actions>
-    <v-select
-      v-model="select"
-      @change="sortOrder"
-      :items="sortList"
-      item-text="value"
-      label="並び替え"
-      dense
-      hide-details
-      outlined
-      return-object
-    />
-  </v-card-actions>
+  <v-card color="grey darken-4" max-width="187" flat>
+    <v-card-actions>
+      <v-select
+        v-model="select"
+        @change="sortOrder"
+        :items="sortList"
+        item-text="value"
+        label="並び替え"
+        dense
+        hide-details
+        outlined
+        return-object
+      />
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script>

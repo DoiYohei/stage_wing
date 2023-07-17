@@ -23,9 +23,7 @@ class LineupsController < ApplicationController
   private
 
   def pass_event_owner
-    current_band.created_events.find(params[:event_id])
-  rescue ActiveRecord::RecordNotFound
-    head :forbidden
+    head :forbidden unless current_band.created_events.find_by(id: params[:event_id])
   end
 
   def lineup_params

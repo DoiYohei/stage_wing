@@ -30,7 +30,7 @@ export default {
         { text: "音源", value: "audio" },
         { text: "SoundCloud", value: "soundcloud" },
         { text: "YouTube", value: "youtube" },
-        { text: "News", value: "news" },
+        { text: "テキストのみ", value: "text" },
       ],
     };
   },

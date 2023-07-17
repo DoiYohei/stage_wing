@@ -50,9 +50,9 @@ export default {
       },
     },
     rules() {
-      if (this.format === "photo") {
-        return "ext:jpg,jpeg,gif,png|required|size:10000";
-      } else return "ext:wav,mp3|required|size:10000";
+      return this.format === "photo"
+        ? "ext:jpg,jpeg,gif,png|required|size:10000"
+        : "ext:wav,mp3|required|size:10000";
     },
     showPhoto() {
       return this.fileUrl && this.format === "photo";

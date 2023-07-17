@@ -6,7 +6,9 @@
           <v-img :src="userImage" />
         </v-list-item-avatar>
         <v-list-item-content>
-          <v-list-item-title v-text="token ? userName : '未ログイン'" />
+          <v-list-item-title>
+            {{ token ? userName : "未ログイン" }}
+          </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-divider class="mb-3" />
@@ -16,56 +18,44 @@
         :to="content.path"
       >
         <v-list-item-content>
-          <v-list-item-title v-text="content.text" />
+          <v-list-item-title>{{ content.text }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <template v-if="token">
-        <v-dialog v-model="logoutDialog" width="45vw">
-          <template #activator="{ on, attrs }">
-            <v-list-item v-bind="attrs" v-on="on">
-              <v-list-item-content>
-                <v-list-item-title>ログアウト</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-          <DialogYesNo
-            dialog-text="ログアウトしますか？"
-            @select-excution="logOut"
-            @close-dialog="closeDialog"
-          />
-        </v-dialog>
-        <v-dialog v-model="deleteDialog" width="45vw">
-          <template #activator="{ on, attrs }">
-            <v-list-item v-bind="attrs" v-on="on">
-              <v-list-item-content>
-                <v-list-item-title>退会する</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-          <DialogYesNo
-            dialog-text="退会しますか？"
-            @select-excution="closeAccount"
-            @close-dialog="closeDialog"
-          />
-        </v-dialog>
-        <DialogShowText v-model="errorDialog">
-          {{ errorMessage }}
-        </DialogShowText>
+        <v-list-item @click.stop="logoutDialog = true">
+          <v-list-item-content>
+            <v-list-item-title>ログアウト</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <DialogYesNo
+          v-model="logoutDialog"
+          question="ログアウトしますか？"
+          @select-excution="logOut"
+          @close-dialog="closeLogoutDialog"
+        />
+        <v-list-item @click.stop="deleteDialog = true">
+          <v-list-item-content>
+            <v-list-item-title>退会する</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <DialogYesNo
+          v-model="deleteDialog"
+          question="退会しますか？"
+          @select-excution="closeAccount"
+          @close-dialog="closeDeleteDialog"
+        />
       </template>
     </v-list>
   </v-navigation-drawer>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { mapActions } from "vuex";
 import DialogYesNo from "@/components/Dialogs/DialogYesNo";
-import DialogShowText from "@/components/Dialogs/DialogShowText";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   components: {
     DialogYesNo,
-    DialogShowText,
   },
   props: {
     value: {
@@ -78,12 +68,10 @@ export default {
       contents: [],
       logoutDialog: false,
       deleteDialog: false,
-      errorDialog: false,
-      errorMessage: "",
     };
   },
   created() {
-    this.fetchList();
+    this.setUpContents();
   },
   computed: {
     ...mapGetters(["bandId", "audienceId", "token", "userName", "userImage"]),
@@ -101,35 +89,29 @@ export default {
   },
   watch: {
     token() {
-      this.fetchList();
+      this.setUpContents();
     },
     isXsDisplay(value) {
-      if (value) {
-        this.unshiftEventAndBand();
-      } else {
-        this.contents.splice(0, 2);
-      }
+      return value ? this.unshiftEventAndBand() : this.contents.splice(0, 2);
     },
   },
   methods: {
     ...mapActions(["logout", "deleteAccount"]),
     async logOut() {
-      const res = await this.logout();
-      this.closeDialog(res);
+      await this.logout();
+      this.closeLogoutDialog();
     },
     async closeAccount() {
-      const res = await this.deleteAccount();
-      this.closeDialog(res);
+      await this.deleteAccount();
+      this.closeDeleteDialog();
     },
-    closeDialog(message) {
+    closeLogoutDialog() {
       this.logoutDialog = false;
-      this.deleteDialog = false;
-      if (message) {
-        this.errorMessage = message;
-        this.errorDialog = true;
-      }
     },
-    fetchList() {
+    closeDeleteDialog() {
+      this.deleteDialog = false;
+    },
+    setUpContents() {
       if (this.bandId) {
         this.contents = [
           {

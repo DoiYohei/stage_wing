@@ -8,13 +8,11 @@ import actioncable from "./plugins/actioncable-vue";
 import axios from "./plugins/axios";
 import dayjs from "dayjs";
 import VueYoutube from "vue-youtube";
-import Pagination from "./plugins/pagination";
 
 Vue.config.productionTip = false;
 Vue.prototype.$axios = axios;
 Vue.prototype.$dayjs = dayjs;
 Vue.use(VueYoutube);
-Vue.use(Pagination);
 
 store.dispatch("autoLogin");
 

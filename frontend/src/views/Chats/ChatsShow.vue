@@ -8,6 +8,7 @@
               v-if="partner.image"
               :avatar="partner"
               size="50"
+              userType="bands"
               class="font-weight-bold text-h6"
             />
           </v-card-actions>
@@ -43,7 +44,7 @@
                           </div>
                           <p
                             v-text="message.content"
-                            class="says reflect-return text-left"
+                            class="says text-left reflect-retun"
                           />
                           <p class="time">
                             {{ $dayjs(message.created_at).format("HH:mm") }}
@@ -62,7 +63,7 @@
                           </div>
                           <p
                             v-text="message.content"
-                            class="says reflect-return black--text text-left"
+                            class="says black--text text-left reflect-return"
                           />
                         </div>
                       </v-col>
@@ -87,7 +88,6 @@
                     label="メッセージ"
                     rows="1"
                     auto-grow
-                    autofocus
                     clearable
                   />
                   <v-btn color="grey darken-2" @click="sendMessage(errors)">
@@ -104,9 +104,11 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import CardAvatar from "@/components/Cards/CardAvatar";
 import { ValidationProvider } from "vee-validate";
+import { mapGetters } from "vuex";
+import { goHome, goTo404 } from "@/utils/routers";
+import { bandImage } from "@/utils/images";
 
 export default {
   components: {
@@ -130,25 +132,22 @@ export default {
     },
   },
   async created() {
+    if (Number(this.id) !== this.bandId) goHome();
     try {
-      if (Number(this.id) !== this.bandId) {
-        return this.$router.replace("/");
-      } else {
-        const res = await this.$axios.get(`/rooms/${this.roomId}/messages`, {
-          headers: this.token,
-          params: { band_id: this.$route.query.partnerId },
-        });
-        this.messages = res.data.messages;
-        this.partner = res.data.partner;
-        const params = `uid=${this.token["uid"]}&access-token=${this.token["access-token"]}&client=${this.token["client"]}`;
-        this.$cable.connection.connect(
-          `${process.env.VUE_APP_WS}/cable?${params}`
-        );
-        this.$cable.subscribe({ channel: "RoomChannel", room: this.roomId });
-        this.scrollToEnd();
-      }
+      const res = await this.$axios.get(`/rooms/${this.roomId}/messages`, {
+        headers: this.token,
+        params: { band_id: this.$route.query.partnerId },
+      });
+      this.messages = res.data.messages;
+      this.partner = res.data.partner;
+      const params = `uid=${this.token["uid"]}&access-token=${this.token["access-token"]}&client=${this.token["client"]}`;
+      this.$cable.connection.connect(
+        `${process.env.VUE_APP_WS}/cable?${params}`
+      );
+      this.$cable.subscribe({ channel: "RoomChannel", room: this.roomId });
+      this.scrollToEnd();
     } catch (error) {
-      if (error.response) this.$router.replace("/errors/not_found");
+      if (error.response) goTo404();
     }
   },
   updated() {
@@ -177,9 +176,7 @@ export default {
       };
     },
     bandImage() {
-      return (image) => {
-        return image ? image : require("@/assets/img/no-band-img.jpg");
-      };
+      return (image) => bandImage(image);
     },
   },
   methods: {
@@ -235,9 +232,10 @@ export default {
   margin: 0 5px;
 }
 .says {
-  max-width: 300px;
+  max-width: 60%;
   display: flex;
   flex-wrap: wrap;
+  overflow-wrap: anywhere;
   position: relative;
   padding: 10px;
   border-radius: 12px;

@@ -1,32 +1,18 @@
 <template>
   <v-container>
+    <CardPageTitle title="お気に入り" />
     <v-row>
-      <v-col cols="12" class="pb-0">
-        <v-card flat color="#121212">
-          <v-card-title class="pb-0">
-            <v-spacer />
-            お気に入り
-            <v-spacer />
-          </v-card-title>
-        </v-card>
-      </v-col>
       <v-col>
         <CardPost
-          v-for="(post, index) in displayPosts"
+          v-for="(post, index) in postsForShow"
           :key="index"
           :post="post"
           @delete-post="deletePost"
           @patch-post="patchPost"
           @change-like="changeLike"
         />
-        <DialogShowText v-model="deleteDialog">
-          投稿を削除できませんでした。
-        </DialogShowText>
-        <DialogShowText v-model="patchDialog">
-          投稿を更新できませんでした。
-        </DialogShowText>
         <v-col>
-          <PaginationBlocks @change-page="moldDisplay" />
+          <PaginationBlocks v-model="page" :contents="allPosts" :rows="rows" />
         </v-col>
       </v-col>
     </v-row>
@@ -34,82 +20,62 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import CardPageTitle from "@/components/Cards/CardPageTitle";
 import CardPost from "@/components/Cards/CardPost";
-import DialogShowText from "@/components/Dialogs/DialogShowText";
 import PaginationBlocks from "@/components/PaginationBlocks";
+import { mapGetters } from "vuex";
+import { goHome } from "@/utils/routers";
+import { sliceContentsForShow } from "@/utils/pagination";
+import { deletePost, patchPost } from "@/utils/posts";
+import { changeLike } from "@/utils/likes";
 
 export default {
   components: {
+    CardPageTitle,
     CardPost,
-    DialogShowText,
     PaginationBlocks,
   },
   data() {
     return {
-      displayPosts: [],
-      deleteDialog: false,
-      patchDialog: false,
+      allPosts: [],
+      postsForShow: [],
+      page: 1,
+      rows: 5,
     };
   },
   async created() {
     try {
       const res = await this.$axios.get("/likes", this.headers);
-      this.posts = res.data;
-      this.moldDisplay();
+      this.allPosts = res.data;
+      this.slicePostsForShow();
     } catch (error) {
-      if (error.response) this.$router.replace("/");
+      if (error.response) goHome();
     }
   },
   computed: {
-    ...mapGetters(["bandId", "headers", "token"]),
+    ...mapGetters(["headers"]),
+  },
+  watch: {
+    page() {
+      this.slicePostsForShow();
+    },
   },
   methods: {
-    moldDisplay() {
-      this.$page.rowsPerPage = 5;
-      this.$page.displayContents = this.posts;
-      this.displayPosts = this.$page.displayContents;
+    slicePostsForShow() {
+      this.postsForShow = sliceContentsForShow(
+        this.allPosts,
+        this.page,
+        this.rows
+      );
     },
-    async deletePost(postId) {
-      try {
-        await this.$axios.delete(`/posts/${postId}`, this.headers);
-        this.updatePage();
-      } catch (error) {
-        if (error.response) this.deleteDialog = true;
-      }
+    deletePost(postId) {
+      deletePost(postId);
     },
-    async patchPost(postId, postDescription) {
-      try {
-        const formData = new FormData();
-        formData.append("post[description]", postDescription);
-        await this.$axios.patch(`/posts/${postId}`, formData, this.headers);
-        this.updatePage();
-      } catch (error) {
-        if (error.response) this.patchDialog = true;
-      }
+    patchPost(postId, postDescription) {
+      patchPost(postId, postDescription);
     },
     changeLike(post) {
-      if (!this.token) {
-        return this.$router.push("/errors/auth");
-      } else {
-        const formData = new FormData();
-        formData.append("post_id", post.id);
-        if (post.favorite) {
-          this.$axios.delete("/likes", {
-            headers: this.token,
-            data: formData,
-          });
-          post.favorite = false;
-          post.likes_count -= 1;
-        } else {
-          this.$axios.post("/likes", formData, this.headers);
-          post.favorite = true;
-          post.likes_count += 1;
-        }
-      }
-    },
-    updatePage() {
-      this.$router.go({ path: this.$router.currentRoute.path, force: true });
+      changeLike(post);
     },
   },
 };

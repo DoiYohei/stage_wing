@@ -1,5 +1,5 @@
 class Like < ApplicationRecord
-  include UserValidator
+  include UserPresenceValidatable
 
   validates :post, uniqueness: { scope: %i[band audience] }
 

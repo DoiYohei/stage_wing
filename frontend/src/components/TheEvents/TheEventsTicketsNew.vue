@@ -1,5 +1,10 @@
 <template>
-  <v-dialog v-model="dialog" width="450px">
+  <v-dialog
+    v-model="dialog"
+    overlay-color="white"
+    overlay-opacity="0.2"
+    width="450"
+  >
     <template #activator="{ on, attrs }">
       <v-btn v-bind="attrs" v-on="on" color="grey lighten-2" light small>
         チケットを取り置きする
@@ -11,24 +16,18 @@
           <ValidationObserver v-slot="{ handleSubmit }">
             <v-card-title>チケット取り置き</v-card-title>
             <v-spacer />
-            <v-card-subtitle class="pb-0">
+            <v-card-subtitle class="py-0">
               以下のEventのチケットをお取り置きいたします。
             </v-card-subtitle>
             <v-card-subtitle class="pt-0">
               お目当てのバンドを選択して、完了をクリックしてください。
             </v-card-subtitle>
             <v-spacer />
-            <v-card-text>
-              <div>Event: {{ event.name }}</div>
-              <div>Date: {{ $dayjs(event.open_at).format("YYYY MMM DD") }}</div>
-              <div>
-                Open/Start: {{ $dayjs(event.open_at).format("hh:mm") }}/{{
-                  $dayjs(event.start_at).format("hh:mm")
-                }}
-              </div>
-              <div>Location: {{ event.place }}</div>
-              <div>Price: ¥{{ event.ticket_price }}</div>
-            </v-card-text>
+            <v-card-text class="py-0">Event: {{ event.name }}</v-card-text>
+            <v-card-text class="py-0">{{ date }}</v-card-text>
+            <v-card-text class="py-0">{{ time }}</v-card-text>
+            <v-card-text class="py-0">{{ place }}</v-card-text>
+            <v-card-text class="pt-0">{{ price }}</v-card-text>
             <ValidationProvider
               name="お目当てのバンド"
               rules="required"
@@ -81,6 +80,22 @@ export default {
   props: {
     event: {
       type: Object,
+      require: true,
+    },
+    date: {
+      type: String,
+      require: true,
+    },
+    time: {
+      type: String,
+      require: true,
+    },
+    place: {
+      type: String,
+      require: true,
+    },
+    price: {
+      type: String,
       require: true,
     },
   },

@@ -1,11 +1,11 @@
 <template>
   <v-app-bar color="grey darken-4" app fixed flat>
-    <v-container fluid class="fill-height">
+    <v-container fluid class="fill-height px-0 px-sm-1 px-xl-4">
       <v-toolbar-title>
         <router-link to="/">Stage Wing</router-link>
       </v-toolbar-title>
       <v-spacer />
-      <v-toolbar-items>
+      <v-toolbar-items v-if="$route.path !== '/'">
         <template v-if="$vuetify.breakpoint.smAndUp">
           <v-btn plain large to="/events">Event</v-btn>
           <v-btn plain large to="/bands">Band</v-btn>

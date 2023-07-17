@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container :fluid="$vuetify.breakpoint.lgAndDown">
     <CardPageTitle title="新規 Event 作成" />
     <FormEvent
       v-model="event"
@@ -23,20 +23,21 @@
           :dialog="lineupDialog"
           @select-submit="pushLineup"
           @select-clear="clearLineup"
-        >
-          <template #submit-text>決定</template>
-          <template #clear-text>削除</template>
-        </DialogLineupForm>
+          text-for-submit="決定"
+          text-for-clear="削除"
+        />
       </template>
     </FormEvent>
   </v-container>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import CardPageTitle from "@/components/Cards/CardPageTitle";
 import FormEvent from "@/components/Forms/FormEvent";
 import DialogLineupForm from "@/components/Dialogs/DialogLineupForm";
+import { mapGetters } from "vuex";
+import { postEvent } from "@/utils/events";
+import { postLineup } from "@/utils/lineup";
 
 export default {
   components: {
@@ -62,7 +63,7 @@ export default {
         newNoIdLineup: [],
       },
       isEventError: false,
-      allLineup: [],
+      allLineup: "", // 表示用Lineup
       lineupDialog: false,
     };
   },
@@ -71,6 +72,7 @@ export default {
   },
   methods: {
     pushLineup() {
+      // 入力されたLineupを表示用Lineup(allLineup)に反映させる。
       let allLineupArray = [];
       if (this.lineup.newLineup) {
         for (let newBand of this.lineup.newLineup) {
@@ -97,51 +99,23 @@ export default {
       this.lineupDialog = false;
     },
     async postEvent(flyer) {
-      let eventId;
+      let eventId; // 投稿後にEventのidを入れる。
 
       // 新規Eventを投稿
       try {
-        const eventFormData = new FormData();
-        eventFormData.append("event[name]", this.event.name);
-        eventFormData.append("event[place]", this.event.place);
-        eventFormData.append("event[ticket_price]", this.event.ticket_price);
-        eventFormData.append("event[date]", this.event.date);
-        eventFormData.append("event[open_at]", this.event.open_at);
-        eventFormData.append("event[start_at]", this.event.start_at);
-        eventFormData.append("event[content]", this.event.content);
-        eventFormData.append("event[reservation]", this.event.reservation);
-        eventFormData.append(
-          "event[unregistered_performers]",
-          this.lineup.newNoIdLineup.join("*/")
-        );
-        if (flyer) eventFormData.append("event[flyer]", flyer);
-        const eventRes = await this.$axios.post(
-          "/events",
-          eventFormData,
-          this.headers
-        );
-        eventId = eventRes.data.id;
+        const res = await postEvent(this.event, this.lineup, flyer);
+        eventId = res.data.id;
       } catch (error) {
         if (error.response) this.isEventError = true;
       }
 
-      // 投稿したEventのLineupを登録
-      if (!this.isEvnetError) {
+      // 投稿したEventのLineupを登録。
+      if (!this.isEventError && this.lineup.newLineup) {
         try {
-          if (this.lineup.newLineup) {
-            for (let newBand of this.lineup.newLineup) {
-              let lineupFormData = new FormData();
-              lineupFormData.append("lineup[event_id]", eventId);
-              lineupFormData.append("lineup[performer_id]", newBand.id);
-              await this.$axios.post(
-                `/events/${eventId}/lineups`,
-                lineupFormData,
-                this.headers
-              );
-            }
-          }
+          await postLineup(this.lineup.newLineup, eventId);
           this.$router.replace(`/events/${eventId}`);
         } catch (error) {
+          // Lineup登録時のエラーはEventページ遷移後に表示する。
           if (error.response) {
             this.$router.replace({
               path: `/events/${eventId}`,

@@ -13,6 +13,8 @@ export default new Vuex.Store({
     userId: null,
     userName: null,
     userType: null,
+    isError: false,
+    errorText: "",
   },
   getters,
   mutations,

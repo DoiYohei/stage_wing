@@ -1,24 +1,15 @@
 <template>
-  <v-container>
+  <v-container :fluid="$vuetify.breakpoint.lgAndDown">
     <CardPageTitle title="アカウント編集" />
     <v-row>
-      <v-col
-        xl="4"
-        offset-xl="4"
-        lg="6"
-        offset-lg="3"
-        md="8"
-        offset-md="2"
-        sm="10"
-        offset-sm="1"
-      >
+      <v-col :cols="cols" :offset="offset">
         <v-card>
           <v-col sm="10" offset-sm="1">
             <ValidationObserver v-slot="{ handleSubmit }">
               <v-card-text>
                 <v-card flat class="d-flex align-center">
                   <v-avatar size="50">
-                    <v-img :src="audienceImage" />
+                    <v-img :src="imageForShow" />
                   </v-avatar>
                   <v-card-text class="py-0 pr-0">
                     <InputImage
@@ -28,7 +19,7 @@
                     />
                   </v-card-text>
                 </v-card>
-                <InputName v-model="audience.name" label="Name" max="20" />
+                <InputName v-model="audience.name" label="Name" max="10" />
                 <InputEmail v-model="audience.email" />
                 <AlertError
                   :value="isError"
@@ -36,9 +27,10 @@
                   class="mt-8 mb-0"
                 />
               </v-card-text>
-              <ButtonSubmitForms @submit-forms="handleSubmit(patchAudience)">
-                更新する
-              </ButtonSubmitForms>
+              <ButtonSubmitForms
+                @submit-forms="handleSubmit(patchAudience)"
+                text="更新する"
+              />
             </ValidationObserver>
           </v-col>
         </v-card>
@@ -48,24 +40,27 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { ValidationObserver } from "vee-validate";
 import CardPageTitle from "@/components/Cards/CardPageTitle";
 import InputImage from "@/components/Inputs/InputImage";
 import InputName from "@/components/Inputs/InputName";
 import InputEmail from "@/components/Inputs/InputEmail";
 import AlertError from "@/components/Alerts/AlertError";
 import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
+import { ValidationObserver } from "vee-validate";
+import { mapGetters, mapActions } from "vuex";
+import { respondCols } from "@/utils/grids";
+import { audienceImage } from "@/utils/images";
+import { goHome } from "@/utils/routers";
 
 export default {
   components: {
-    ValidationObserver,
     CardPageTitle,
     InputImage,
     InputName,
     InputEmail,
     AlertError,
     ButtonSubmitForms,
+    ValidationObserver,
   },
   props: ["id"],
   data() {
@@ -77,26 +72,29 @@ export default {
     };
   },
   async created() {
+    if (Number(this.id) !== this.audienceId) goHome();
     try {
-      if (Number(this.id) !== this.audienceId) throw { response: "status 401" };
       const res = await this.$axios.get(
         `/audiences/${this.id}/edit`,
         this.headers
       );
       this.audience = res.data;
     } catch (error) {
-      if (error.response) this.$router.replace("/");
+      if (error.response) goHome();
     }
   },
   computed: {
     ...mapGetters(["audienceId", "headers"]),
-    audienceImage() {
-      return this.imageUrl ? this.imageUrl : this.defaultUrl;
+    cols() {
+      return respondCols(this.$vuetify.breakpoint, 4, 6, 8, 10, 12);
     },
-    defaultUrl() {
-      return this.audience.image
-        ? this.audience.image.url
-        : require("@/assets/img/no-audience-img.jpeg");
+    offset() {
+      return respondCols(this.$vuetify.breakpoint, 4, 3, 2, 1, 0);
+    },
+    imageForShow() {
+      return this.imageUrl
+        ? this.imageUrl
+        : audienceImage(this.audience.image?.url);
     },
   },
   methods: {
@@ -115,11 +113,12 @@ export default {
           this.headers
         );
         const userType = "audiences";
-        this.$store.dispatch("setAuthData", { res, userType });
+        this.setAuthData({ res, userType });
       } catch (error) {
         if (error.response) this.isError = true;
       }
     },
+    ...mapActions(["setAuthData"]),
   },
 };
 </script>

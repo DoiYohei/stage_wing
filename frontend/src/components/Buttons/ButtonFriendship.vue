@@ -1,49 +1,118 @@
 <template>
-  <v-btn
-    @click="changeFriendship"
-    :color="isFollowing ? 'grey lighten-2' : 'grey darken-2'"
-    :outlined="isFollowing"
-    small
+  <v-dialog
+    v-model="dialog"
+    width="380"
+    overlay-color="white"
+    overlay-opacity="0.2"
   >
-    {{ btnText }}
-  </v-btn>
+    <template v-slot:activator="{ on, attrs }">
+      <v-btn
+        v-bind="attrs"
+        v-on="on"
+        :color="friendship.isFollowing ? 'grey lighten-2' : 'grey darken-2'"
+        :outlined="friendship.isFollowing"
+        small
+        class="mx-2 my-1 px-2"
+      >
+        {{ friendship.btn }}
+      </v-btn>
+    </template>
+    <v-card>
+      <v-card-title>
+        <CardAvatar :avatar="band" size="50" userType="bands" />
+      </v-card-title>
+      <v-divider />
+      <v-card-text class="pt-6 pb-2 reflect-return">{{
+        friendship.description
+      }}</v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="changeFriendState" color="grey darken-3" block>{{
+          friendship.action
+        }}</v-btn>
+        <v-spacer />
+      </v-card-actions>
+      <v-card-actions class="pb-6">
+        <v-spacer />
+        <v-btn @click="dialog = false" color="grey darken-3" block
+          >キャンセル
+        </v-btn>
+        <v-spacer />
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
+import CardAvatar from "@/components/Cards/CardAvatar";
+
 export default {
+  components: {
+    CardAvatar,
+  },
   props: {
-    friendStatus: {
+    band: {
+      type: Object,
+      require: true,
+    },
+    friendState: {
       type: String,
       default: null,
-    },
-    bandId: {
-      type: Number,
-      require: true,
     },
     index: {
       type: Number,
       default: null,
     },
   },
+  data() {
+    return {
+      dialog: false,
+    };
+  },
   computed: {
-    isFollowing() {
-      return this.friendStatus === "friend" || this.friendStatus == "inviting";
-    },
-    btnText() {
-      if (this.friendStatus === "friend") {
-        return "Friend";
-      } else if (this.friendStatus === "inviting") {
-        return "Friend申請中";
-      } else if (this.friendStatus === "invited") {
-        return "承認する";
-      } else return "Friend申請する";
+    friendship() {
+      if (this.friendState === "friend") {
+        return {
+          action: "FRIENDを解除する",
+          btn: "FRIEND",
+          description:
+            "FRIENDです。\nFRIENDを解除するとチャットができなくなります。",
+          opposition: "invited",
+          isFollowing: true,
+        };
+      } else if (this.friendState === "inviting") {
+        return {
+          action: "申請を解除する",
+          btn: "REQUESTING",
+          description:
+            "FRIEND申請中です。\n承認されるとチャットができるようになります。",
+          opposition: null,
+          isFollowing: true,
+        };
+      } else if (this.friendState === "invited") {
+        return {
+          action: "承認する",
+          btn: "REQUESTED",
+          description:
+            "FRIEND申請を受けています。\n承認するとチャットができるようになります。",
+          opposition: "friend",
+          isFollowing: false,
+        };
+      } else
+        return {
+          action: "FRIEND申請する",
+          btn: "NOT FRIEND",
+          description:
+            "FRIENDではありません。\nFRIENDになるとチャットができるようになります。",
+          opposition: "inviting",
+          isFollowing: false,
+        };
     },
   },
   methods: {
-    changeFriendship() {
-      const formData = new FormData();
-      formData.append("followed_id", this.bandId);
-      this.$emit("change-friendship", this.isFollowing, formData, this.index);
+    changeFriendState() {
+      this.$emit("change-friend-state", this.band, this.friendship, this.index);
+      this.dialog = false;
     },
   },
 };

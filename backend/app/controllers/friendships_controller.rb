@@ -3,13 +3,7 @@ class FriendshipsController < ApplicationController
   before_action :set_other_band, except: :index
 
   def index
-    if current_band == Band.find(params[:band_id])
-      @friends = current_band.friends
-      @inviting = current_band.inviting
-      @inviters = current_band.inviters
-    else
-      head :unauthorized
-    end
+    head :forbidden if current_band != Band.find_by(id: params[:band_id])
   end
 
   def create

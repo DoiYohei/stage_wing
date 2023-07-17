@@ -52,7 +52,7 @@ class Band < ApplicationRecord
   end
 
   # 自分はフォローしているが、相手からフォローされていない(友達申請中の)Bandを返す
-  def inviting
+  def invitees
     following.where.not(id: followers.ids)
   end
 
@@ -62,10 +62,10 @@ class Band < ApplicationRecord
   end
 
   # 自分と対象のBandとの関係を返す
-  def friend_status(other_band)
+  def friend_state(other_band)
     if friends.include?(other_band)
       'friend'
-    elsif inviting.include?(other_band)
+    elsif invitees.include?(other_band)
       'inviting'
     elsif inviters.include?(other_band)
       'invited'

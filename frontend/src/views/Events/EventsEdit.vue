@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container :fluid="$vuetify.breakpoint.lgAndDown">
     <CardPageTitle title="Event 編集" />
     <FormEvent
       v-model="event"
@@ -11,9 +11,10 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
 import CardPageTitle from "@/components/Cards/CardPageTitle";
 import FormEvent from "@/components/Forms/FormEvent";
+import { mapGetters } from "vuex";
+import { goHome } from "@/utils/routers";
 
 export default {
   components: {
@@ -35,7 +36,7 @@ export default {
       );
       this.event = res.data;
     } catch (error) {
-      if (error.response) this.$router.replace("/");
+      if (error.response) goHome();
     }
   },
   computed: {

@@ -12,6 +12,6 @@ class AudiencesController < ApplicationController
   private
 
   def pass_account_owner
-    head :forbidden if current_audience != Audience.find(params[:id])
+    head :forbidden if current_audience != Audience.find_by(id: params[:id])
   end
 end

@@ -4,7 +4,7 @@
       <slot name="card-title" />
       <ValidationObserver v-slot="{ handleSubmit }">
         <v-card-text>
-          <template v-if="$route.name !== 'Login'">
+          <template v-if="$route.name === 'Signup'">
             <v-card flat class="d-flex align-center">
               <v-avatar size="50">
                 <v-img :src="userImage" />
@@ -17,7 +17,11 @@
                 />
               </v-card-text>
             </v-card>
-            <InputName v-model="user.name" :label="user.nameLabel" max="20" />
+            <InputName
+              v-model="user.name"
+              :label="user.nameLabel"
+              :max="nameLength"
+            />
           </template>
           <InputEmail v-model="user.email" />
           <InputPassword v-model="user.password" />
@@ -27,32 +31,33 @@
             class="mt-8 mb-0"
           />
         </v-card-text>
-        <ButtonSubmitForms @submit-forms="handleSubmit(submitForms)">
-          <slot name="btn-text" />
-        </ButtonSubmitForms>
+        <ButtonSubmitForms
+          @submit-forms="handleSubmit(submitForms)"
+          :text="btnText"
+        />
       </ValidationObserver>
     </v-col>
   </v-card>
 </template>
 
 <script>
-import { ValidationObserver } from "vee-validate";
 import InputImage from "@/components/Inputs/InputImage";
 import InputName from "@/components/Inputs/InputName";
 import InputEmail from "@/components/Inputs/InputEmail";
 import InputPassword from "@/components/Inputs/InputPassword";
 import AlertError from "@/components/Alerts/AlertError";
 import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
+import { ValidationObserver } from "vee-validate";
 
 export default {
   components: {
-    ValidationObserver,
     InputImage,
     InputName,
     InputEmail,
     InputPassword,
     AlertError,
     ButtonSubmitForms,
+    ValidationObserver,
   },
   props: {
     value: {
@@ -76,6 +81,13 @@ export default {
     },
     userImage() {
       return this.imageUrl ? this.imageUrl : this.value.image;
+    },
+    nameLength() {
+      // Audienceの場合は10、Bandの場合は50。
+      return this.value.nameLabel === "Name" ? "10" : "50";
+    },
+    btnText() {
+      return this.$route.name == "Signup" ? "Sign Up" : "Log In";
     },
   },
   methods: {

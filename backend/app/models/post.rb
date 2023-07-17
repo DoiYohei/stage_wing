@@ -10,5 +10,4 @@ class Post < ApplicationRecord
 
   belongs_to :band
   has_many :likes, dependent: :destroy
-  has_many :liking_bands, through: :likes, source: :band
 end

@@ -1,13 +1,13 @@
 <template>
-  <v-container>
+  <v-container :fluid="$vuetify.breakpoint.lgAndDown">
     <CardPageTitle title="Profile 編集" />
     <v-row class="mt-0">
-      <v-col>
+      <v-col class="px-0">
         <v-card color="#121212" flat class="d-flex flex-wrap">
-          <v-col md="7" cols="12">
-            <v-img :src="bandImage" aspect-ratio="1.37" />
+          <v-col md="7" cols="12" class="pa-0 px-md-2">
+            <v-img :src="imageForShow" aspect-ratio="1.37" />
           </v-col>
-          <v-col md="5" cols="12" class="text-left pb-0">
+          <v-col md="5" cols="12" class="text-left py-0">
             <ValidationObserver v-slot="{ handleSubmit }">
               <v-card-text class="pb-0">
                 <InputImage
@@ -24,11 +24,12 @@
                   label="Profile"
                   max="1000"
                 />
-                <AlertError :value="isError" text="更新できませんでした。" />
+                <AlertError :value="isError" text="更新できません。" />
               </v-card-text>
-              <ButtonSubmitForms @submit-forms="handleSubmit(patchBand)">
-                更新する
-              </ButtonSubmitForms>
+              <ButtonSubmitForms
+                @submit-forms="handleSubmit(patchBand)"
+                text="更新する"
+              />
             </ValidationObserver>
           </v-col>
         </v-card>
@@ -38,8 +39,6 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { ValidationObserver } from "vee-validate";
 import CardPageTitle from "@/components/Cards/CardPageTitle";
 import InputImage from "@/components/Inputs/InputImage";
 import InputName from "@/components/Inputs/InputName";
@@ -48,10 +47,13 @@ import InputUrl from "@/components/Inputs/InputUrl";
 import InputTextarea from "@/components/Inputs/InputTextarea";
 import AlertError from "@/components/Alerts/AlertError";
 import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
+import { ValidationObserver } from "vee-validate";
+import { mapGetters, mapActions } from "vuex";
+import { goHome } from "@/utils/routers";
+import { bandImage } from "@/utils/images";
 
 export default {
   components: {
-    ValidationObserver,
     CardPageTitle,
     InputImage,
     InputName,
@@ -60,6 +62,7 @@ export default {
     InputTextarea,
     AlertError,
     ButtonSubmitForms,
+    ValidationObserver,
   },
   props: ["id"],
   data() {
@@ -71,23 +74,18 @@ export default {
     };
   },
   async created() {
+    if (Number(this.id) !== this.bandId) goHome();
     try {
-      if (Number(this.id) !== this.bandId) throw { response: "status 401" };
       const res = await this.$axios.get(`/bands/${this.id}/edit`, this.headers);
       this.band = res.data;
     } catch (error) {
-      if (error.response) this.$router.replace("/");
+      if (error.response) goHome();
     }
   },
   computed: {
     ...mapGetters(["bandId", "headers"]),
-    bandImage() {
-      return this.imageUrl ? this.imageUrl : this.defaultUrl;
-    },
-    defaultUrl() {
-      return this.band.image
-        ? this.band.image.url
-        : require("@/assets/img/no-band-img.jpg");
+    imageForShow() {
+      return this.imageUrl ? this.imageUrl : bandImage(this.band.image?.url);
     },
   },
   methods: {
@@ -105,11 +103,12 @@ export default {
         if (this.imageFile) formData.append("image", this.imageFile);
         const res = await this.$axios.patch("/bands", formData, this.headers);
         const userType = "bands";
-        this.$store.dispatch("setAuthData", { res, userType });
+        this.setAuthData({ res, userType });
       } catch (error) {
         if (error.response) this.isError = true;
       }
     },
+    ...mapActions(["setAuthData"]),
   },
 };
 </script>

@@ -3,7 +3,7 @@
     <v-col>
       <v-card color="#121212" flat class="d-flex flex-wrap">
         <v-col md="7" cols="12" class="pa-0">
-          <v-img :src="eventFlyer" aspect-ratio="1.25" />
+          <v-img :src="imageForShow" aspect-ratio="1.25" />
         </v-col>
         <v-col class="text-left">
           <ValidationObserver v-slot="{ handleSubmit }">
@@ -41,10 +41,9 @@
               />
               <ButtonSubmitForms
                 @submit-forms="handleSubmit(submitForms)"
+                :text="`${submitText}する`"
                 class="px-0"
-              >
-                {{ submitText }}する
-              </ButtonSubmitForms>
+              />
             </v-card-text>
           </ValidationObserver>
         </v-col>
@@ -54,7 +53,6 @@
 </template>
 
 <script>
-import { ValidationObserver } from "vee-validate";
 import InputImage from "@/components/Inputs/InputImage";
 import InputName from "@/components/Inputs/InputName";
 import InputEventDate from "@/components/Inputs/InputEventDate";
@@ -64,10 +62,11 @@ import InputEventPrice from "@/components/Inputs/InputEventPrice";
 import InputTextarea from "@/components/Inputs/InputTextarea";
 import AlertError from "@/components/Alerts/AlertError";
 import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
+import { ValidationObserver } from "vee-validate";
+import { eventFlyer } from "@/utils/images";
 
 export default {
   components: {
-    ValidationObserver,
     InputImage,
     InputName,
     InputEventDate,
@@ -77,6 +76,7 @@ export default {
     InputTextarea,
     AlertError,
     ButtonSubmitForms,
+    ValidationObserver,
   },
   props: {
     value: {
@@ -107,13 +107,8 @@ export default {
         this.$emit("input", newValue);
       },
     },
-    eventFlyer() {
-      return this.imageUrl ? this.imageUrl : this.defaultUrl;
-    },
-    defaultUrl() {
-      return this.value.flyer
-        ? this.value.flyer.url
-        : require("@/assets/img/no-flyer.jpg");
+    imageForShow() {
+      return this.imageUrl ? this.imageUrl : eventFlyer(this.event.flyer?.url);
     },
   },
   methods: {

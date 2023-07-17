@@ -1,5 +1,5 @@
 class Comment < ApplicationRecord
-  include UserValidator
+  include UserPresenceValidatable
 
   validates :content, presence: true, length: { maximum: 1000 }
 

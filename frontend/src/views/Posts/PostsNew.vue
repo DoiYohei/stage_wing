@@ -1,19 +1,10 @@
 <template>
-  <v-container>
+  <v-container :fluid="$vuetify.breakpoint.lgAndDown">
     <CardPageTitle title="新規 Post 作成" />
     <v-row>
-      <v-col
-        xl="4"
-        offset-xl="4"
-        lg="6"
-        offset-lg="3"
-        sm="8"
-        offset-sm="2"
-        cols="10"
-        offset="1"
-      >
+      <v-col :cols="cols" :offset="offset">
         <v-card outlined>
-          <v-col>
+          <v-col class="px-0 px-sm-3">
             <ValidationObserver v-slot="{ handleSubmit }">
               <v-card-text>
                 <InputPostSelect v-model="format" />
@@ -22,8 +13,8 @@
                   v-if="isMediaPass"
                   v-model="embedCode"
                   :format="format"
-                  :mediaPass="mediaPass"
-                  :isValidMediaPass="isValidMediaPass"
+                  :media-pass="mediaPass"
+                  :is-valid-media-pass="isValidMediaPass"
                 />
               </v-card-text>
               <v-card-text class="pt-0">
@@ -35,10 +26,9 @@
                 <AlertError :value="isError" text="投稿できませんでした" />
                 <ButtonSubmitForms
                   @submit-forms="handleSubmit(createPost)"
+                  text="投稿する"
                   class="px-0"
-                >
-                  投稿する
-                </ButtonSubmitForms>
+                />
               </v-card-text>
             </ValidationObserver>
           </v-col>
@@ -49,8 +39,6 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import { ValidationObserver } from "vee-validate";
 import CardPageTitle from "@/components/Cards/CardPageTitle";
 import InputPostSelect from "@/components/Inputs/InputPostSelect";
 import InputPostFile from "@/components/Inputs/InputPostFile";
@@ -58,10 +46,12 @@ import InputPostEmbedCode from "@/components/Inputs/InputPostEmbedCode";
 import InputTextarea from "@/components/Inputs/InputTextarea";
 import AlertError from "@/components/Alerts/AlertError";
 import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
+import { ValidationObserver } from "vee-validate";
+import { mapGetters } from "vuex";
+import { respondCols } from "@/utils/grids";
 
 export default {
   components: {
-    ValidationObserver,
     CardPageTitle,
     InputPostSelect,
     InputPostFile,
@@ -69,19 +59,26 @@ export default {
     InputTextarea,
     AlertError,
     ButtonSubmitForms,
+    ValidationObserver,
   },
   data() {
     return {
       format: "",
       file: null,
-      embedCode: "",
-      mediaPass: "",
+      embedCode: "", //入力用
+      mediaPass: "", //表示&保存用
       description: "",
       isError: false,
     };
   },
   computed: {
     ...mapGetters(["bandId", "headers"]),
+    cols() {
+      return respondCols(this.$vuetify.breakpoint, 6, 8, 10, 12, 12);
+    },
+    offset() {
+      return respondCols(this.$vuetify.breakpoint, 3, 2, 1, 0, 0);
+    },
     isFile() {
       return this.format === "photo" || this.format === "audio";
     },
@@ -104,6 +101,8 @@ export default {
       this.embedCode = "";
     },
     embedCode(value) {
+      //ユーザーには埋め込みコード全体(embedCode)を入力してもらう。
+      //embedCodeのうち表示に必要な部分(mediaPass)を自動で抽出する。
       if (this.format === "soundcloud" && value) {
         const start = this.embedCode.indexOf("/tracks/");
         const end = this.embedCode.indexOf("&color=");

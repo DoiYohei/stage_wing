@@ -1,4 +1,4 @@
-module UserValidator
+module UserPresenceValidatable
   extend ActiveSupport::Concern
 
   included do

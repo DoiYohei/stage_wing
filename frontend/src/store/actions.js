@@ -37,20 +37,20 @@ export default {
       }
     }
   },
-  async logout({ dispatch, getters }) {
+  async logout({ getters, dispatch, commit }) {
     try {
       await axios.delete(`/${getters.userType}/sign_out`, getters.headers);
       return dispatch("deleteToken");
     } catch (error) {
-      if (error) return "ログアウトできませんでした";
+      if (error) return commit("showError", "ログアウトできませんでした");
     }
   },
-  async deleteAccount({ dispatch, getters }) {
+  async deleteAccount({ getters, dispatch, commit }) {
     try {
       await axios.delete(`/${getters.userType}`, getters.headers);
       return dispatch("deleteToken");
     } catch (error) {
-      if (error) return "退会できませんでした";
+      if (error) return commit("showError", "退会できませんでした");
     }
   },
   deleteToken({ commit }) {
@@ -68,5 +68,11 @@ export default {
     } else {
       router.replace("/");
     }
+  },
+  showError({ commit }, text) {
+    commit("showError", text);
+  },
+  clearError({ commit }) {
+    commit("clearError");
   },
 };

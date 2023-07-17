@@ -5,6 +5,7 @@
       :error-messages="errors"
       :label="label"
       background-color="grey darken-4"
+      :autofocus="isAutofocus"
       auto-grow
       outlined
     />
@@ -30,6 +31,10 @@ export default {
     max: {
       type: String,
       require: true,
+    },
+    isAutofocus: {
+      type: Boolean,
+      default: false,
     },
   },
   computed: {
