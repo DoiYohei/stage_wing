@@ -1,14 +1,19 @@
-import { shallowMount, createLocalVue } from "@vue/test-utils";
+import { mount, createLocalVue } from "@vue/test-utils";
 import Vuex from "vuex";
+import VueRouter from "vue-router";
+import Vuetify from "vuetify";
 import Home from "@/views/Home";
 
 const  localVue = createLocalVue();
 localVue.use(Vuex);
+localVue.use(VueRouter);
 
 describe("Displayed list", () => {
   let getters;
   let store;
   let wrapper;
+  const router = new VueRouter();
+  const vuetify = new Vuetify();
 
   context("when user hasn't logged in", () => {
     beforeEach(() => {
@@ -18,7 +23,7 @@ describe("Displayed list", () => {
       store = new Vuex.Store({
         getters
       });
-      wrapper = shallowMount(Home, { store, localVue });
+      wrapper = mount(Home, { store, router, vuetify, localVue });
     });
 
     it("includes 'SIGN UP' and 'LOG IN'", () => {
@@ -34,12 +39,12 @@ describe("Displayed list", () => {
   context("when user has logged in", () => {
     beforeEach(() => {
       getters = {
-        token: () => "mockToken"
+        token: () => "token"
       };
       store = new Vuex.Store({
         getters
       });
-      wrapper = shallowMount(Home, { store, localVue });
+      wrapper = mount(Home, { store, router, vuetify, localVue });
     });
 
     it("dosen't include 'SIGN UP' and 'LOG IN'", () => {
