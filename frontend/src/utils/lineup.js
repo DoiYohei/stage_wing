@@ -1,7 +1,7 @@
 import axios from "@/plugins/axios";
 import store from "@/store";
 import router from "@/routes";
-import { reloadPage } from "./routers";
+import { reloadPage } from "@/utils/routers";
 
 export const setLineupForShow = (event) => {
   let lineup = [];

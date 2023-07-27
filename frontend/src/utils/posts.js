@@ -1,6 +1,6 @@
 import axios from "@/plugins/axios";
 import store from "@/store";
-import { reloadPage } from "./routers";
+import { reloadPage } from "@/utils/routers";
 
 export const deletePost = async (postId) => {
   try {

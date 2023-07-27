@@ -1,6 +1,6 @@
 import axios from "@/plugins/axios";
 import store from "@/store";
-import { goTo401 } from "./routers";
+import { goTo401 } from "@/utils/routers";
 
 export const changeLike = (post) => {
   if (!store.getters.token) {
