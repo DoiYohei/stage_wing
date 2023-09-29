@@ -12,7 +12,7 @@
       <v-col>
         <PaginationBlocks v-model="page" :contents="posts" :rows="rows" />
       </v-col>
-      <ButtonToNew v-if="isMyPage" pass="/posts/new" />
+      <ButtonToNew v-if="isMyPage" pass="/posts/new" data-jest="new-post-btn" />
     </v-col>
   </v-card>
 </template>

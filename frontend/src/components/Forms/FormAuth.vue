@@ -5,7 +5,7 @@
       <ValidationObserver v-slot="{ handleSubmit }">
         <v-card-text>
           <template v-if="$route.name === 'Signup'">
-            <v-card flat class="d-flex align-center">
+            <v-card flat data-jest="input-img" class="d-flex align-center">
               <v-avatar size="50">
                 <v-img :src="userImage" />
               </v-avatar>
@@ -21,10 +21,11 @@
               v-model="user.name"
               :label="user.nameLabel"
               :max="nameLength"
+              data-jest="input-name"
             />
           </template>
-          <InputEmail v-model="user.email" />
-          <InputPassword v-model="user.password" />
+          <InputEmail v-model="user.email" data-jest="input-email" />
+          <InputPassword v-model="user.password" data-jest="input-password" />
           <AlertError
             :value="user.isError"
             :text="user.errorMessage"

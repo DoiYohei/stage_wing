@@ -2,13 +2,15 @@
   <v-col>
     <v-card flat>
       <CardComment :comment="comment" @delete-comment="deleteComment">
-        <v-card-actions class="py-0">
-          <v-btn icon small @click="show = !show">
-            <v-icon small>
-              {{ show ? "mdi-chevron-up" : "mdi-chevron-down" }}
-            </v-icon>
-          </v-btn>
-        </v-card-actions>
+        <v-card flat>
+          <v-card-actions class="py-0">
+            <v-btn icon small @click="show = !show">
+              <v-icon small>
+                {{ show ? "mdi-chevron-up" : "mdi-chevron-down" }}
+              </v-icon>
+            </v-btn>
+          </v-card-actions>
+        </v-card>
       </CardComment>
       <v-expand-transition>
         <div v-show="show" tile class="ml-2 reply-comment">
@@ -16,6 +18,7 @@
             <v-col
               v-for="reply of comment.replies"
               :key="reply.id"
+              data-jest="reply"
               class="py-0"
             >
               <CardComment :comment="reply" @delete-comment="deleteComment" />

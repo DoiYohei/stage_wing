@@ -1,46 +1,50 @@
 <template>
-  <v-dialog
-    v-model="dialog"
-    width="380"
-    overlay-color="white"
-    overlay-opacity="0.2"
-  >
-    <template v-slot:activator="{ on, attrs }">
-      <v-btn
-        v-bind="attrs"
-        v-on="on"
-        :color="friendship.isFollowing ? 'grey lighten-2' : 'grey darken-2'"
-        :outlined="friendship.isFollowing"
-        small
-        class="mx-2 my-1 px-2"
-      >
-        {{ friendship.btn }}
-      </v-btn>
-    </template>
-    <v-card>
-      <v-card-title>
-        <CardAvatar :avatar="band" size="50" userType="bands" />
-      </v-card-title>
-      <v-divider />
-      <v-card-text class="pt-6 pb-2 reflect-return">{{
-        friendship.description
-      }}</v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn @click="changeFriendState" color="grey darken-3" block>{{
-          friendship.action
-        }}</v-btn>
-        <v-spacer />
-      </v-card-actions>
-      <v-card-actions class="pb-6">
-        <v-spacer />
-        <v-btn @click="dialog = false" color="grey darken-3" block
-          >キャンセル
-        </v-btn>
-        <v-spacer />
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+  <span>
+    <v-btn
+      @click.stop="dialog = true"
+      :color="friendship.isFollowing ? 'grey lighten-2' : 'grey darken-2'"
+      :outlined="friendship.isFollowing"
+      small
+      data-jest="state-btn"
+      class="mx-2 my-1 px-2"
+    >
+      {{ friendship.btn }}
+    </v-btn>
+    <v-dialog
+      v-model="dialog"
+      width="380"
+      overlay-color="white"
+      overlay-opacity="0.2"
+    >
+      <v-card>
+        <v-card-title>
+          <CardAvatar :avatar="band" size="50" userType="bands" />
+        </v-card-title>
+        <v-divider />
+        <v-card-text data-jest="state-text" class="pt-6 pb-2 reflect-return">{{
+          friendship.description
+        }}</v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn
+            @click="changeFriendState"
+            color="grey darken-3"
+            block
+            data-jest="action-btn"
+            >{{ friendship.action }}</v-btn
+          >
+          <v-spacer />
+        </v-card-actions>
+        <v-card-actions class="pb-6">
+          <v-spacer />
+          <v-btn @click="dialog = false" color="grey darken-3" block
+            >キャンセル
+          </v-btn>
+          <v-spacer />
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </span>
 </template>
 
 <script>

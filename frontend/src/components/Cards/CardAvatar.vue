@@ -38,7 +38,7 @@ export default {
       return this.userType === "bands";
     },
     avatarImage() {
-      const image = this.avatar.image.url;
+      const image = this.avatar.image?.url;
       return this.isBand ? bandImage(image) : audienceImage(image);
     },
     bandPage() {

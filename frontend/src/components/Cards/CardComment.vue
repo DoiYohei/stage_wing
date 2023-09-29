@@ -15,8 +15,8 @@
       <v-card-subtitle class="grey--text py-0">
         - {{ $dayjs(comment.created_at).format("YYYY MMM DD") }}
       </v-card-subtitle>
-      <v-card-actions class="py-0">
-        <v-btn v-if="isCommentOwner" @click.stop="dialog = true" icon small>
+      <v-card-actions v-if="isCommentOwner" data-jest="trash-btn" class="py-0">
+        <v-btn @click.stop="dialog = true" icon small>
           <v-icon>mdi-trash-can-outline</v-icon>
         </v-btn>
       </v-card-actions>

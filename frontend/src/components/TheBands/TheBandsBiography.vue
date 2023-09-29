@@ -7,7 +7,12 @@
       <v-card color="#121212" flat>
         <v-card-title class="pb-0 pt-4 pt-md-0">{{ band.name }}</v-card-title>
         <v-card-actions v-if="existsLink" class="pb-0">
-          <v-btn v-if="isMyPage" :to="`/bands/${band.id}/edit`" icon>
+          <v-btn
+            v-if="isMyPage"
+            :to="`/bands/${band.id}/edit`"
+            icon
+            data-jest="edit-btn"
+          >
             <v-icon color="grey lighten-1">mdi-pencil-plus-outline</v-icon>
           </v-btn>
           <ButtonFriendship
@@ -15,8 +20,14 @@
             :band="band"
             :friend-state="friendState"
             @change-friend-state="changeFriendState"
+            data-jest="friendship-btn"
           />
-          <v-btn v-if="friendState === 'friend'" @click="startChat" icon>
+          <v-btn
+            v-if="friendState === 'friend'"
+            @click="startChat"
+            icon
+            data-jest="chat-btn"
+          >
             <v-icon>mdi-email-outline</v-icon>
           </v-btn>
           <v-btn v-if="band.website" icon :href="band.website">
