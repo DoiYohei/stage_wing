@@ -24,7 +24,7 @@ describe("FormAuth.vue", () => {
       },
     });
   });
-  
+
   context("when current route is '/signup'", () => {
     it("has 'Sign Up' submit button", () => {
       expect(wrapper.text()).toContain("Sign Up");
@@ -46,12 +46,12 @@ describe("FormAuth.vue", () => {
           },
         });
       });
-      
+
       it("passes max='50' porps to InputName component", () => {
         expect(wrapper.find("[data-jest='input-name']").props().max).toBe("50");
       });
     });
-    
+
     context("when user is audience", () => {
       beforeEach(() => {
         wrapper.setProps({
@@ -60,7 +60,7 @@ describe("FormAuth.vue", () => {
           },
         });
       });
-      
+
       it("passes max='10' porps to InputName component", () => {
         expect(wrapper.find("[data-jest='input-name']").props().max).toBe("10");
       });
@@ -86,4 +86,3 @@ describe("FormAuth.vue", () => {
     });
   });
 });
-

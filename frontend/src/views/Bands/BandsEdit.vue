@@ -74,12 +74,18 @@ export default {
     };
   },
   async created() {
-    if (Number(this.id) !== this.bandId) goHome();
-    try {
-      const res = await this.$axios.get(`/bands/${this.id}/edit`, this.headers);
-      this.band = res.data;
-    } catch (error) {
-      if (error.response) goHome();
+    if (Number(this.id) !== this.bandId) {
+      return goHome();
+    } else {
+      try {
+        const res = await this.$axios.get(
+          `/bands/${this.id}/edit`,
+          this.headers
+        );
+        this.band = res.data;
+      } catch (error) {
+        goHome();
+      }
     }
   },
   computed: {
@@ -105,7 +111,7 @@ export default {
         const userType = "bands";
         this.setAuthData({ res, userType });
       } catch (error) {
-        if (error.response) this.isError = true;
+        this.isError = true;
       }
     },
     ...mapActions(["setAuthData"]),

@@ -1,4 +1,4 @@
-import { 
+import {
   popFutureItems,
   sortDatesByEarliestToLatest,
   sortDatesByLatestToEarliest,
@@ -91,9 +91,7 @@ describe("narrowDownDates", () => {
       { date: "2020-01-06" },
     ];
     const keyword = "2020-01-02";
-    const narrowedItems = [
-      { date: "2020-01-02" },
-    ];
+    const narrowedItems = [{ date: "2020-01-02" }];
     expect(narrowDownDates(keyword, items)).toEqual(narrowedItems);
   });
 });

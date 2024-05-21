@@ -109,7 +109,7 @@ export default {
         this.friendState = res.data.friend_state;
         this.futureEvents = popFutureItems(this.band.events);
       } catch (error) {
-        if (error.response) goTo404();
+        goTo404();
       }
     },
     async startChat() {
@@ -118,9 +118,7 @@ export default {
         const room = findPartnerRoom(res.data, Number(this.id));
         goToChatShow(room.id, this.id);
       } catch (error) {
-        if (error.response) {
-          this.showError("チャットを開始できません。");
-        }
+        this.showError("チャットを開始できません。");
       }
     },
     changeFriendState(band, friendship) {

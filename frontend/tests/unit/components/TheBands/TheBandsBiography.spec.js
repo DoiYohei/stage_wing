@@ -42,25 +42,30 @@ describe("TheBandsBiography.vue", () => {
     });
   });
 
-  context("when user is login band but not owner and friend of this page band", () => {
-    beforeEach(() => {
-      store.state.bandId = 2;
-      wrapper.setProps({
-        band: {
-          id: 1,
-        },
-        isMyPage: false,
+  context(
+    "when user is login band but not owner and friend of this page band",
+    () => {
+      beforeEach(() => {
+        store.state.bandId = 2;
+        wrapper.setProps({
+          band: {
+            id: 1,
+          },
+          isMyPage: false,
+        });
       });
-    });
 
-    it("has not edit button and chat button", () => {
-      expect(wrapper.find("[data-jest='edit-btn']").exists()).toBe(false);
-      expect(wrapper.find("[data-jest='chat-btn']").exists()).toBe(false);
-    });
-    it("has friendship button", () => {
-      expect(wrapper.find("[data-jest='friendship-btn']").exists()).toBe(true);
-    });
-  });
+      it("has not edit button and chat button", () => {
+        expect(wrapper.find("[data-jest='edit-btn']").exists()).toBe(false);
+        expect(wrapper.find("[data-jest='chat-btn']").exists()).toBe(false);
+      });
+      it("has friendship button", () => {
+        expect(wrapper.find("[data-jest='friendship-btn']").exists()).toBe(
+          true
+        );
+      });
+    }
+  );
 
   context("when user is login band and friend of this page band", () => {
     beforeEach(() => {

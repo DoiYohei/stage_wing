@@ -49,7 +49,7 @@ export default {
       this.allPosts = res.data;
       this.slicePostsForShow();
     } catch (error) {
-      if (error.response) goHome();
+      goHome();
     }
   },
   computed: {

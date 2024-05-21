@@ -47,9 +47,7 @@ export const patchLineup = async (event, lineup) => {
     );
     if (lineupForDelete) await deleteLineup(lineupForDelete, event.id);
   } catch (error) {
-    if (error.response) {
-      router.replace({ query: { lineupUpdateError: true } });
-    }
+    router.replace({ query: { lineupUpdateError: true } });
   }
   reloadPage();
 };

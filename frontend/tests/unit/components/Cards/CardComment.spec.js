@@ -38,37 +38,43 @@ describe("CardComment.vue", () => {
     });
   });
 
-  context("when user has same userType and diffenrent userId with comment owner", () => {
-    beforeEach(() => {
-      wrapper.setProps({ 
-        comment: {
-          commenter: {
-            user_type: "bands",
-            id: 2,
-          }
-        }
+  context(
+    "when user has same userType and diffenrent userId with comment owner",
+    () => {
+      beforeEach(() => {
+        wrapper.setProps({
+          comment: {
+            commenter: {
+              user_type: "bands",
+              id: 2,
+            },
+          },
+        });
       });
-    });
 
-    it("has not trush button", () => {
-      expect(wrapper.find("[data-jest='trash-btn']").exists()).toBe(false);
-    });
-  });
-
-  context("when user has diffenrent userType and same userId with comment owner", () => {
-    beforeEach(() => {
-      wrapper.setProps({ 
-        comment: {
-          commenter: {
-            user_type: "audiences",
-            id: 1,
-          }
-        }
+      it("has not trush button", () => {
+        expect(wrapper.find("[data-jest='trash-btn']").exists()).toBe(false);
       });
-    });
+    }
+  );
 
-    it("has not trush button", () => {
-      expect(wrapper.find("[data-jest='trash-btn']").exists()).toBe(false);
-    });
-  });
+  context(
+    "when user has diffenrent userType and same userId with comment owner",
+    () => {
+      beforeEach(() => {
+        wrapper.setProps({
+          comment: {
+            commenter: {
+              user_type: "audiences",
+              id: 1,
+            },
+          },
+        });
+      });
+
+      it("has not trush button", () => {
+        expect(wrapper.find("[data-jest='trash-btn']").exists()).toBe(false);
+      });
+    }
+  );
 });

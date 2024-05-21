@@ -25,13 +25,15 @@
           frameborder="no"
           data-jest="soundcloud"
         />
-        <youtube
-          v-if="post.format === 'youtube'"
-          :video-id="post.media_pass"
-          fitParent
-          resize
-          data-jest="youtube"
-        />
+        <v-card flat>
+          <youtube
+            v-if="post.format === 'youtube'"
+            :video-id="post.media_pass"
+            fitParent
+            resize
+            data-jest="youtube"
+          />
+        </v-card>
       </v-card-subtitle>
       <v-card>
         <v-card-subtitle class="py-0 text-body-1 reflect-return">{{

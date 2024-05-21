@@ -7,7 +7,7 @@ describe("TheBandsPosts.vue", () => {
   beforeEach(() => {
     wrapper = shallowMount(TheBandsPosts, {
       propsData: {
-        posts: [{id: 1}],
+        posts: [{ id: 1 }],
         isMyPage: false,
       },
     });

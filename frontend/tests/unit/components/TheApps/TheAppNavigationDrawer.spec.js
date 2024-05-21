@@ -74,7 +74,7 @@ describe("TheAppNavigationDrawer.vue", () => {
       store.state.userName = "bandName";
       store.state.userImage = "url";
     });
-    
+
     it("has login band menues", () => {
       expect(wrapper.text()).toContain("bandName");
       expect(wrapper.text()).toContain("マイページ");

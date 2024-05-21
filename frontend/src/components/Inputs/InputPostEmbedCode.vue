@@ -40,10 +40,6 @@ export default {
       type: String,
       require: true,
     },
-    isValidMediaPass: {
-      type: Boolean,
-      require: true,
-    },
   },
   computed: {
     embedCode: {
@@ -62,9 +58,7 @@ export default {
       } else return "";
     },
     errorMessage() {
-      return this.value && !this.isValidMediaPass
-        ? "コンテンツが見つかりません"
-        : "";
+      return this.value && !this.mediaPass ? "コンテンツが見つかりません" : "";
     },
     showSoundcloud() {
       return this.value && this.format === "soundcloud";

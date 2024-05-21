@@ -16,7 +16,7 @@ describe("getEvent", () => {
 });
 
 describe("postEvent", () => {
-  it("posts string of joined unregistered_performers with */", async () => {
+  it("posts string of joined unregistered_performers with */", () => {
     const event = { name: "event" };
     const lineup = {
       newNoIdLineup: ["band1", "band2", "band3"],
@@ -24,6 +24,8 @@ describe("postEvent", () => {
     const flyer = "flyer";
     postEvent(event, lineup, flyer);
     expect(axios.post).toHaveBeenCalledTimes(1);
-    expect(axios.post.mock.calls[0][1].get("event[unregistered_performers]")).toBe("band1*/band2*/band3");
+    expect(
+      axios.post.mock.calls[0][1].get("event[unregistered_performers]")
+    ).toBe("band1*/band2*/band3");
   });
 });

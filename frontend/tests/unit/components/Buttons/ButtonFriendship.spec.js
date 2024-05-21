@@ -36,7 +36,9 @@ describe("ButtonFriendship.vue", () => {
       expect(stateBtn.text()).toBe("FRIEND");
     });
     it("has friend dialog", () => {
-      expect(stateText.text()).toBe( "FRIENDです。\nFRIENDを解除するとチャットができなくなります。");
+      expect(stateText.text()).toBe(
+        "FRIENDです。\nFRIENDを解除するとチャットができなくなります。"
+      );
       expect(actionBtn.text()).toBe("FRIENDを解除する");
     });
 
@@ -44,10 +46,18 @@ describe("ButtonFriendship.vue", () => {
       it("emits 'change-friend-state'", () => {
         actionBtn.vm.$emit("click");
         expect(wrapper.emitted("change-friend-state").length).toBe(1);
-        expect(wrapper.emitted("change-friend-state")[0][0]).toEqual(wrapper.vm.$props.band);
-        expect(wrapper.emitted("change-friend-state")[0][1].opposition).toEqual("invited");
-        expect(wrapper.emitted("change-friend-state")[0][1].isFollowing).toEqual(true);
-        expect(wrapper.emitted("change-friend-state")[0][2]).toEqual(wrapper.vm.$props.index);
+        expect(wrapper.emitted("change-friend-state")[0][0]).toEqual(
+          wrapper.vm.$props.band
+        );
+        expect(wrapper.emitted("change-friend-state")[0][1].opposition).toEqual(
+          "invited"
+        );
+        expect(
+          wrapper.emitted("change-friend-state")[0][1].isFollowing
+        ).toEqual(true);
+        expect(wrapper.emitted("change-friend-state")[0][2]).toEqual(
+          wrapper.vm.$props.index
+        );
       });
     });
   });
@@ -63,7 +73,9 @@ describe("ButtonFriendship.vue", () => {
       expect(stateBtn.text()).toBe("REQUESTING");
     });
     it("has inviting dialog", () => {
-      expect(stateText.text()).toBe("FRIEND申請中です。\n承認されるとチャットができるようになります。");
+      expect(stateText.text()).toBe(
+        "FRIEND申請中です。\n承認されるとチャットができるようになります。"
+      );
       expect(actionBtn.text()).toBe("申請を解除する");
     });
 
@@ -71,10 +83,18 @@ describe("ButtonFriendship.vue", () => {
       it("emits 'change-friend-state'", () => {
         actionBtn.vm.$emit("click");
         expect(wrapper.emitted("change-friend-state").length).toBe(1);
-        expect(wrapper.emitted("change-friend-state")[0][0]).toEqual(wrapper.vm.$props.band);
-        expect(wrapper.emitted("change-friend-state")[0][1].opposition).toEqual(null);
-        expect(wrapper.emitted("change-friend-state")[0][1].isFollowing).toEqual(true);
-        expect(wrapper.emitted("change-friend-state")[0][2]).toEqual(wrapper.vm.$props.index);
+        expect(wrapper.emitted("change-friend-state")[0][0]).toEqual(
+          wrapper.vm.$props.band
+        );
+        expect(wrapper.emitted("change-friend-state")[0][1].opposition).toEqual(
+          null
+        );
+        expect(
+          wrapper.emitted("change-friend-state")[0][1].isFollowing
+        ).toEqual(true);
+        expect(wrapper.emitted("change-friend-state")[0][2]).toEqual(
+          wrapper.vm.$props.index
+        );
       });
     });
   });
@@ -90,7 +110,9 @@ describe("ButtonFriendship.vue", () => {
       expect(stateBtn.text()).toBe("REQUESTED");
     });
     it("has inviting dialog", () => {
-      expect(stateText.text()).toBe("FRIEND申請を受けています。\n承認するとチャットができるようになります。");
+      expect(stateText.text()).toBe(
+        "FRIEND申請を受けています。\n承認するとチャットができるようになります。"
+      );
       expect(actionBtn.text()).toBe("承認する");
     });
 
@@ -98,10 +120,18 @@ describe("ButtonFriendship.vue", () => {
       it("emits 'change-friend-state'", () => {
         actionBtn.vm.$emit("click");
         expect(wrapper.emitted("change-friend-state").length).toBe(1);
-        expect(wrapper.emitted("change-friend-state")[0][0]).toEqual(wrapper.vm.$props.band);
-        expect(wrapper.emitted("change-friend-state")[0][1].opposition).toEqual("friend");
-        expect(wrapper.emitted("change-friend-state")[0][1].isFollowing).toEqual(false);
-        expect(wrapper.emitted("change-friend-state")[0][2]).toEqual(wrapper.vm.$props.index);
+        expect(wrapper.emitted("change-friend-state")[0][0]).toEqual(
+          wrapper.vm.$props.band
+        );
+        expect(wrapper.emitted("change-friend-state")[0][1].opposition).toEqual(
+          "friend"
+        );
+        expect(
+          wrapper.emitted("change-friend-state")[0][1].isFollowing
+        ).toEqual(false);
+        expect(wrapper.emitted("change-friend-state")[0][2]).toEqual(
+          wrapper.vm.$props.index
+        );
       });
     });
   });
@@ -117,7 +147,9 @@ describe("ButtonFriendship.vue", () => {
       expect(stateBtn.text()).toBe("NOT FRIEND");
     });
     it("has inviting dialog", () => {
-      expect(stateText.text()).toBe("FRIENDではありません。\nFRIENDになるとチャットができるようになります。");
+      expect(stateText.text()).toBe(
+        "FRIENDではありません。\nFRIENDになるとチャットができるようになります。"
+      );
       expect(actionBtn.text()).toBe("FRIEND申請する");
     });
 
@@ -125,10 +157,18 @@ describe("ButtonFriendship.vue", () => {
       it("emits 'change-friend-state'", () => {
         actionBtn.vm.$emit("click");
         expect(wrapper.emitted("change-friend-state").length).toBe(1);
-        expect(wrapper.emitted("change-friend-state")[0][0]).toEqual(wrapper.vm.$props.band);
-        expect(wrapper.emitted("change-friend-state")[0][1].opposition).toEqual("inviting");
-        expect(wrapper.emitted("change-friend-state")[0][1].isFollowing).toEqual(false);
-        expect(wrapper.emitted("change-friend-state")[0][2]).toEqual(wrapper.vm.$props.index);
+        expect(wrapper.emitted("change-friend-state")[0][0]).toEqual(
+          wrapper.vm.$props.band
+        );
+        expect(wrapper.emitted("change-friend-state")[0][1].opposition).toEqual(
+          "inviting"
+        );
+        expect(
+          wrapper.emitted("change-friend-state")[0][1].isFollowing
+        ).toEqual(false);
+        expect(wrapper.emitted("change-friend-state")[0][2]).toEqual(
+          wrapper.vm.$props.index
+        );
       });
     });
   });

@@ -1,11 +1,11 @@
 import store from "@/store";
 
 describe("autoLogin", () => {
-  let testDate
+  let testDate;
   beforeEach(() => {
     testDate = new Date();
     store.state.token = null;
-    localStorage.removeItem("authDataSW")
+    localStorage.removeItem("authDataSW");
   });
 
   context("when there is no token in localStorage", () => {

@@ -4,7 +4,7 @@ import VueRouter from "vue-router";
 import Vuetify from "vuetify";
 import Home from "@/views/Home";
 
-const  localVue = createLocalVue();
+const localVue = createLocalVue();
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
@@ -18,10 +18,10 @@ describe("Displayed list", () => {
   context("when user hasn't logged in", () => {
     beforeEach(() => {
       getters = {
-        token: () => null
+        token: () => null,
       };
       store = new Vuex.Store({
-        getters
+        getters,
       });
       wrapper = mount(Home, { store, router, vuetify, localVue });
     });
@@ -39,10 +39,10 @@ describe("Displayed list", () => {
   context("when user has logged in", () => {
     beforeEach(() => {
       getters = {
-        token: () => "token"
+        token: () => "token",
       };
       store = new Vuex.Store({
-        getters
+        getters,
       });
       wrapper = mount(Home, { store, router, vuetify, localVue });
     });

@@ -45,7 +45,7 @@ describe("CardPost.vue", () => {
       vuetify,
       router,
       store,
-      propsData: { post : { band: testBand } },
+      propsData: { post: { band: testBand } },
     });
   });
 
@@ -97,7 +97,7 @@ describe("CardPost.vue", () => {
           },
           band: testBand,
         },
-      })
+      });
     });
 
     it("has photo and hasn't audio and embed player", () => {
@@ -118,7 +118,7 @@ describe("CardPost.vue", () => {
           },
           band: testBand,
         },
-      })
+      });
     });
 
     it("has audio and hasn't photo and embed player", () => {
@@ -136,7 +136,7 @@ describe("CardPost.vue", () => {
           format: "soundcloud",
           band: testBand,
         },
-      })
+      });
     });
 
     it("has soundcloud and hasn't photo, audio and youtube", () => {
@@ -154,7 +154,7 @@ describe("CardPost.vue", () => {
           format: "youtube",
           band: testBand,
         },
-      })
+      });
     });
 
     it("has youtube and hasn't photo, audio and soundcloud", () => {
@@ -165,4 +165,3 @@ describe("CardPost.vue", () => {
     });
   });
 });
-

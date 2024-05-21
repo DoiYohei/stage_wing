@@ -7,7 +7,7 @@ module.exports = {
         useBuiltIns: "usage",
         corejs: 3,
         targets: {
-          node: true
+          node: true,
         },
       },
     ],
@@ -26,4 +26,4 @@ module.exports = {
       ],
     },
   },
-}
+};

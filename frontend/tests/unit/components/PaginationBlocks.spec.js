@@ -32,13 +32,15 @@ describe("PaginationBlocks.vue", () => {
     beforeEach(() => {
       wrapper.setProps({
         contents: ["content1", "content2", "content3", "content4", "content5"],
-      })
+      });
     });
 
     it("has correct pagination buttons", () => {
       expect(wrapper.find("[aria-label='Previous page']").exists()).toBe(true);
       expect(wrapper.find("[aria-label='Next page']").exists()).toBe(true);
-      expect(wrapper.find("[aria-label='Current Page, Page 1']").exists()).toBe(true);
+      expect(wrapper.find("[aria-label='Current Page, Page 1']").exists()).toBe(
+        true
+      );
       expect(wrapper.find("[aria-label='Goto Page 2']").exists()).toBe(true);
       expect(wrapper.find("[aria-label='Goto Page 3']").exists()).toBe(true);
       expect(wrapper.find("[aria-label='Goto Page 4']").exists()).toBe(false);

@@ -112,7 +112,7 @@ export default {
       this.setLineupForEdit();
       this.lineupForShow = setLineupForShow(this.event);
     } catch (error) {
-      if (error.response) goTo404();
+      goTo404();
     }
   },
   computed: {

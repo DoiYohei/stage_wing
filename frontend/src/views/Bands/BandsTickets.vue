@@ -86,16 +86,19 @@ export default {
     };
   },
   async created() {
-    if (Number(this.id) !== this.bandId) goHome();
-    try {
-      const res = await this.$axios.get(
-        `/bands/${this.id}/tickets`,
-        this.headers
-      );
-      this.allEvents = res.data;
-      this.futureEvents = popFutureItems(this.allEvents);
-    } catch (error) {
-      if (error.response) goHome();
+    if (Number(this.id) !== this.bandId) {
+      return goHome();
+    } else {
+      try {
+        const res = await this.$axios.get(
+          `/bands/${this.id}/tickets`,
+          this.headers
+        );
+        this.allEvents = res.data;
+        this.futureEvents = popFutureItems(this.allEvents);
+      } catch (error) {
+        goHome();
+      }
     }
   },
   computed: {

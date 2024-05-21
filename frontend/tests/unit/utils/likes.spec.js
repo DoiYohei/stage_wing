@@ -3,10 +3,9 @@ import store from "@/store";
 import { changeLike } from "@/utils/likes";
 
 jest.mock("@/plugins/axios");
-store.commit("updateAuthData", {token: "token"});
+store.commit("updateAuthData", { token: "token" });
 
 describe("changeLike", () => {
-
   it("calls axios.delete when post.favorite is true", () => {
     const post = { id: 1, favorite: true, likes_count: 10 };
     changeLike(post);

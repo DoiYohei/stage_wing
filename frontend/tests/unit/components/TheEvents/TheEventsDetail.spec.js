@@ -30,7 +30,7 @@ describe("TheEventsDetail.vue", () => {
       localVue,
       store,
       propsData: {
-        event : {
+        event: {
           id: 1,
           owner: {
             id: 1,
@@ -46,34 +46,40 @@ describe("TheEventsDetail.vue", () => {
     });
   });
 
-  context("when event has place, open_at, start_at, ticket_price and date", () => {
-    it("renders correct format", () => {
-      expect(wrapper.html()).toContain("Location: test place");
-      expect(wrapper.html()).toContain("Open/Start: 00:00/00:30");
-      expect(wrapper.html()).toContain("Ticket: ¥ 1000");
-      expect(wrapper.html()).toContain("Date: 2020年01月01日");
-    });
-  });
-
-  context("when event does't have place, open_at, start_at and ticket_price", () => {
-    beforeEach(() => {
-      wrapper.setProps({
-        event: {
-          id: 1,
-          place: "",
-          open_at: null,
-          start_at: null,
-          ticket_price: null,
-        },
+  context(
+    "when event has place, open_at, start_at, ticket_price and date",
+    () => {
+      it("renders correct format", () => {
+        expect(wrapper.html()).toContain("Location: test place");
+        expect(wrapper.html()).toContain("Open/Start: 00:00/00:30");
+        expect(wrapper.html()).toContain("Ticket: ¥ 1000");
+        expect(wrapper.html()).toContain("Date: 2020年01月01日");
       });
-    });
+    }
+  );
 
-    it("renders '未定'", () => {
-      expect(wrapper.html()).toContain("Location: 未定");
-      expect(wrapper.html()).toContain("Open/Start: 未定");
-      expect(wrapper.html()).toContain("Ticket: 未定");
-    });
-  });
+  context(
+    "when event does't have place, open_at, start_at and ticket_price",
+    () => {
+      beforeEach(() => {
+        wrapper.setProps({
+          event: {
+            id: 1,
+            place: "",
+            open_at: null,
+            start_at: null,
+            ticket_price: null,
+          },
+        });
+      });
+
+      it("renders '未定'", () => {
+        expect(wrapper.html()).toContain("Location: 未定");
+        expect(wrapper.html()).toContain("Open/Start: 未定");
+        expect(wrapper.html()).toContain("Ticket: 未定");
+      });
+    }
+  );
 
   context("when event has open_at and does not have start_at", () => {
     beforeEach(() => {
@@ -161,7 +167,9 @@ describe("TheEventsDetail.vue", () => {
 
     context("when user does not have ticket", () => {
       it("does not have ticket cancel button and has ticket new button", () => {
-        expect(wrapper.find("[data-jest='ticket-cancel']").exists()).toBe(false);
+        expect(wrapper.find("[data-jest='ticket-cancel']").exists()).toBe(
+          false
+        );
         expect(wrapper.find("[data-jest='ticket-new']").exists()).toBe(true);
       });
     });
@@ -202,7 +210,9 @@ describe("TheEventsDetail.vue", () => {
       });
 
       it("does not have ticket button", () => {
-        expect(wrapper.find("[data-jest='ticket-cancel']").exists()).toBe(false);
+        expect(wrapper.find("[data-jest='ticket-cancel']").exists()).toBe(
+          false
+        );
         expect(wrapper.find("[data-jest='ticket-new']").exists()).toBe(false);
       });
     });

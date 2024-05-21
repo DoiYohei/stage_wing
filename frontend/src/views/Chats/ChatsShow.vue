@@ -147,7 +147,7 @@ export default {
       this.$cable.subscribe({ channel: "RoomChannel", room: this.roomId });
       this.scrollToEnd();
     } catch (error) {
-      if (error.response) goTo404();
+      goTo404();
     }
   },
   updated() {
