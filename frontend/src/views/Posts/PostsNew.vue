@@ -14,7 +14,6 @@
                   v-model="embedCode"
                   :format="format"
                   :media-pass="mediaPass"
-                  :is-valid-media-pass="isValidMediaPass"
                 />
               </v-card-text>
               <v-card-text class="pt-0">
@@ -65,8 +64,7 @@ export default {
     return {
       format: "",
       file: null,
-      embedCode: "", //入力用
-      mediaPass: "", //表示&保存用
+      embedCode: "",
       description: "",
       isError: false,
     };
@@ -82,17 +80,25 @@ export default {
     isFile() {
       return this.format === "photo" || this.format === "audio";
     },
+    mediaPass() {
+      //ユーザーには埋め込みコード全体(embedCode)を入力してもらう。
+      //embedCodeのうち表示に必要な部分(mediaPass)を抽出する。
+      if (this.format === "soundcloud" && this.embedCode) {
+        const start = this.embedCode.indexOf("/tracks/");
+        const end = this.embedCode.indexOf("&color=");
+        const mediaPass = this.embedCode.slice(start + 8, end);
+        const validation = /^[0-9]+$/;
+        return validation.test(mediaPass) ? mediaPass : "";
+      } else if (this.format === "youtube" && this.embedCode) {
+        const start = this.embedCode.indexOf("/embed/");
+        const end = this.embedCode.indexOf("?si=");
+        const mediaPass = this.embedCode.slice(start + 7, end);
+        const validation = /^[A-Za-z0-9]+$/;
+        return validation.test(mediaPass) ? mediaPass : "";
+      } else return "";
+    },
     isMediaPass() {
       return this.format === "soundcloud" || this.format === "youtube";
-    },
-    isValidMediaPass() {
-      let validation;
-      if (this.format === "soundcloud") {
-        validation = /^[0-9]+$/;
-      } else if (this.format === "youtube") {
-        validation = /^[A-Za-z0-9]+$/;
-      } else return undefined;
-      return validation.test(this.mediaPass);
     },
   },
   watch: {
@@ -100,27 +106,10 @@ export default {
       this.file = null;
       this.embedCode = "";
     },
-    embedCode(value) {
-      //ユーザーには埋め込みコード全体(embedCode)を入力してもらう。
-      //embedCodeのうち表示に必要な部分(mediaPass)を自動で抽出する。
-      if (this.format === "soundcloud" && value) {
-        const start = this.embedCode.indexOf("/tracks/");
-        const end = this.embedCode.indexOf("&color=");
-        if (start !== -1 && end !== -1) {
-          this.mediaPass = this.embedCode.slice(start + 8, end);
-        } else this.mediaPass = "";
-      } else if (this.format === "youtube" && value) {
-        const start = this.embedCode.indexOf("/embed/");
-        const end = this.embedCode.indexOf('" title=');
-        if (start !== -1 && end !== -1) {
-          this.mediaPass = this.embedCode.slice(start + 7, end);
-        } else this.mediaPass = "";
-      } else this.mediaPass = "";
-    },
   },
   methods: {
     async createPost() {
-      if (this.isMediaPass && !this.isValidMediaPass) {
+      if (this.isMediaPass && !this.mediaPass) {
         return (this.isError = true);
       } else {
         try {
@@ -136,7 +125,7 @@ export default {
           await this.$axios.post(`/posts`, formData, this.headers);
           this.$router.replace(`/bands/${this.bandId}`);
         } catch (error) {
-          if (error.response) this.isError = true;
+          this.isError = true;
         }
       }
     },

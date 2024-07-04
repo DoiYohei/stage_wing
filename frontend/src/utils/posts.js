@@ -1,15 +1,13 @@
 import axios from "@/plugins/axios";
 import store from "@/store";
-import { reloadPage } from "./routers";
+import { reloadPage } from "@/utils/routers";
 
 export const deletePost = async (postId) => {
   try {
     await axios.delete(`/posts/${postId}`, store.getters.headers);
     return reloadPage();
   } catch (error) {
-    if (error.response) {
-      return store.dispatch("showError", "投稿を削除できませんでした。");
-    }
+    return store.dispatch("showError", "投稿を削除できませんでした。");
   }
 };
 
@@ -20,8 +18,6 @@ export const patchPost = async (postId, postDescription) => {
     await axios.patch(`/posts/${postId}`, formData, store.getters.headers);
     return reloadPage();
   } catch (error) {
-    if (error.response) {
-      return store.dispatch("showError", "投稿を更新できませんでした。");
-    }
+    return store.dispatch("showError", "投稿を更新できませんでした。");
   }
 };

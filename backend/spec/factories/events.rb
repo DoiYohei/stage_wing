@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :event do
-    name { 'test' }
+    sequence(:name) { |n| "Test Event #{n}" }
     flyer { Rack::Test::UploadedFile.new(Rails.root.join('spec/fixtures/test_img.jpg')) }
     place { 'test' }
     date { Date.current }

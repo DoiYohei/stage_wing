@@ -83,109 +83,200 @@ RSpec.describe Band, type: :model do
 
   describe 'methods of Friendship related' do
     let(:band) { create(:band) }
-    let(:other_band) { create(:band) }
+    let(:another_band) { create(:band) }
+
+    describe '#follow' do
+      context 'band has not followed another band' do
+        it 'creates a new active_friendship with another band' do
+          expect(band.active_friendships).to be_empty
+          band.follow(another_band)
+          expect(band.active_friendships.size).to eq 1
+          expect(band.active_friendships[0].followed).to eq another_band
+        end
+      end
+
+      context 'band has followed another band' do
+        before { band.follow(another_band) }
+
+        it 'raises ActiveRecord::RecordInvalid' do
+          expect { band.follow(another_band) }.to raise_error ActiveRecord::RecordInvalid
+        end
+      end
+    end
+    describe 'unfollow' do
+      context 'band has followed another band' do
+        before { band.follow(another_band) }
+
+        it 'destroys the active_friendship with another band' do
+          expect(band.active_friendships.size).to eq 1
+          band.unfollow(another_band)
+          expect(band.active_friendships).to be_empty
+        end
+      end
+
+      context 'two bands have followed each other and have the room' do
+        before do
+          band.follow(another_band)
+          another_band.follow(band)
+          room = create(:room)
+          create(:band_room, band: band, room: room)
+          create(:band_room, band: another_band, room: room)
+        end
+
+        it 'destroys the room and the band_rooms of two bands and the active_friendship of the band with another band' do
+          expect(band.active_friendships[0].followed).to eq another_band
+          expect(band.rooms.size).to eq 1
+          expect(another_band.active_friendships[0].followed).to eq band
+          expect(another_band.rooms.size).to eq 1
+          band.unfollow(another_band)
+          band.reload
+          another_band.reload
+          expect(band.active_friendships).to be_empty
+          expect(band.rooms).to be_empty
+          expect(another_band.active_friendships[0].followed).to eq band
+          expect(another_band.rooms).to be_empty
+        end
+      end
+
+      context 'band has not followed another band' do
+        it 'does nothing' do
+          expect(band.active_friendships).to be_empty
+          band.unfollow(another_band)
+          expect(band.active_friendships).to be_empty
+        end
+      end
+    end
+
+    describe '#following?' do
+      context 'band has followed another band' do
+        before { band.follow(another_band) }
+
+        it 'returns true' do
+          expect(band.following?(another_band)).to be_truthy
+        end
+      end
+
+      context 'band has not followed another band' do
+        it 'returns false' do
+          expect(band.following?(another_band)).to be_falsy
+        end
+      end
+    end
 
     describe '#friends' do
-      context 'when two bands are following each other' do
+      context 'when two bands have followed each other' do
         before do
-          band.follow(other_band)
-          other_band.follow(band)
+          band.follow(another_band)
+          another_band.follow(band)
         end
 
         it 'includes each other' do
-          expect(band.friends).to include other_band
-          expect(other_band.friends).to include band
-          expect(band.inviting).not_to include other_band
-          expect(other_band.inviting).not_to include band
-          expect(band.inviters).not_to include other_band
-          expect(other_band.inviters).not_to include band
+          expect(band.friends).to include another_band
+          expect(another_band.friends).to include band
+          expect(band.invitees).not_to include another_band
+          expect(another_band.invitees).not_to include band
+          expect(band.inviters).not_to include another_band
+          expect(another_band.inviters).not_to include band
         end
       end
     end
 
-    describe '#inviting, #inviters' do
-      context "when band is following other_band, but other_band isn't following band" do
-        before { band.follow(other_band) }
+    describe '#invitees' do
+      context 'when band has followed another band, but another band has not followed band' do
+        before { band.follow(another_band) }
 
-        it 'is that inviting of band includes other_band' do
-          expect(band.inviting).to include other_band
-          expect(band.friends).not_to include other_band
-          expect(band.inviters).not_to include other_band
+        it 'includes another band' do
+          expect(band.invitees).to include another_band
+          expect(band.friends).to be_empty
+          expect(band.inviters).to be_empty
         end
+      end
 
-        it 'is that inviters of other_band includes band' do
-          expect(other_band.inviters).to include band
-          expect(other_band.friends).not_to include band
-          expect(other_band.inviting).not_to include band
+      context 'when band has not followed another band' do
+        it 'is empty' do
+          expect(band.invitees).to be_empty
+          expect(band.friends).to be_empty
+          expect(band.inviters).to be_empty
         end
       end
     end
 
-    describe '#friend_status' do
-      subject { band.friend_status(other_band) }
+    describe '#inviters' do
+      context 'when band has been followed by another band, but band has not followed another band' do
+        before { another_band.follow(band) }
 
-      context 'when two bands are following each other' do
+        it 'includes another band' do
+          expect(band.inviters).to include another_band
+          expect(band.invitees).to be_empty
+          expect(band.friends).to be_empty
+        end
+      end
+    end
+
+    describe '#friend_state' do
+      subject { band.friend_state(another_band) }
+
+      context 'when two bands have followed each other' do
         before do
-          band.follow(other_band)
-          other_band.follow(band)
+          band.follow(another_band)
+          another_band.follow(band)
         end
 
         it { is_expected.to eq 'friend' }
       end
 
-      context "when band is following other_band, but other_band isn't following band" do
-        before { band.follow(other_band) }
+      context 'when band has followed another band, but another band has not followed band' do
+        before { band.follow(another_band) }
 
         it { is_expected.to eq 'inviting' }
       end
 
-      context "when other_band is following band, but band isn't following other_band" do
-        before { other_band.follow(band) }
+      context "when another band has followed band, but band has not followed another band" do
+        before { another_band.follow(band) }
 
         it { is_expected.to eq 'invited' }
       end
 
-      context "when two bands aren't following each other" do
+      context 'when two bands have not followed each other' do
         it { is_expected.to be_nil }
       end
     end
   end
 
-  describe 'methods of Chat related' do
+  describe 'methods of Room related' do
     let(:band) { create(:band) }
-    let(:other_band) { create(:band) }
+    let(:another_band) { create(:band) }
 
     describe '#fetch_rooms' do
       let(:first_room) { band.fetch_rooms[0] }
 
-      context 'when two bands are following each other' do
+      context 'when two bands have followed each other' do
         before do
-          band.follow(other_band)
-          other_band.follow(band)
+          band.follow(another_band)
+          another_band.follow(band)
         end
 
-        context "when room hasn't been created yet" do
-          it 'has hash of no room_id and other_band params' do
+        context 'when room has not created' do
+          it 'has another band params and does not have room_id' do
             expect(first_room[:id]).to be_nil
-            expect(first_room[:friend_id]).to eq(other_band.id)
-            expect(first_room[:friend_name]).to eq(other_band.name)
-            expect(first_room[:friend_img]).to eq(other_band.image.url)
+            expect(first_room[:friend_id]).to eq(another_band.id)
+            expect(first_room[:friend_name]).to eq(another_band.name)
+            expect(first_room[:friend_img]).to eq(another_band.image.url)
           end
         end
 
-        context 'when room has been already created' do
+        context 'when room has created' do
           let(:room) { create(:room) }
-
           before do
             create(:band_room, band: band, room: room)
-            create(:band_room, band: other_band, room: room)
+            create(:band_room, band: another_band, room: room)
           end
 
-          it 'has hash of room_id and other_band params' do
+          it 'has room_id and another band params' do
             expect(first_room[:id]).to eq(room.id)
-            expect(first_room[:friend_id]).to eq(other_band.id)
-            expect(first_room[:friend_name]).to eq(other_band.name)
-            expect(first_room[:friend_img]).to eq(other_band.image.url)
+            expect(first_room[:friend_id]).to eq(another_band.id)
+            expect(first_room[:friend_name]).to eq(another_band.name)
+            expect(first_room[:friend_img]).to eq(another_band.image.url)
           end
         end
       end
@@ -195,20 +286,92 @@ RSpec.describe Band, type: :model do
           expect(band.fetch_rooms).to be_empty
         end
       end
-      context "when band is following other_band, but other_band isn't following band" do
-        before { band.follow(other_band) }
+
+      context 'when band has followed another band, but another band has not followed band' do
+        before { band.follow(another_band) }
 
         it_behaves_like 'fetch_rooms of band is empty'
       end
 
-      context "when other_band is following band, but band isn't following other_band" do
-        before { other_band.follow(band) }
+      context 'when another band has followed band, but band has not followed another band' do
+        before { another_band.follow(band) }
 
         it_behaves_like 'fetch_rooms of band is empty'
       end
 
-      context "when two bands aren't following each other" do
+      context 'when two bands have not followed each other' do
         it_behaves_like 'fetch_rooms of band is empty'
+      end
+    end
+
+    describe '#has_room_with?' do
+      before do
+        band.follow(another_band)
+        another_band.follow(band)
+      end
+
+      context 'when two bands have had a room with each other' do
+        let(:room) { create(:room) }
+        before do
+          create(:band_room, band: band, room: room)
+          create(:band_room, band: another_band, room: room)
+        end
+
+        it 'returns true' do
+          expect(band.has_room_with?(another_band)).to be_truthy
+        end
+      end
+      context 'when two bands have not had a room with each other' do
+        it 'returns false' do
+          expect(band.has_room_with?(another_band)).to be_falsy
+        end
+      end
+    end
+
+    describe '#create_room_with' do
+      it 'creates a new room and band_rooms with another band' do
+        expect(band.rooms).to be_empty
+        expect(another_band.rooms).to be_empty
+        band.create_room_with(another_band)
+        expect(band.rooms.size).to eq 1
+        expect(another_band.rooms.size).to eq 1
+        expect(band.has_room_with?(another_band)).to be_truthy
+        expect(another_band.has_room_with?(band)).to be_truthy
+      end
+    end
+
+    describe '#destroy_room_with' do
+      before do
+        band.follow(another_band)
+        another_band.follow(band)
+      end
+
+      context 'when two bands have had a room with each other' do
+        let(:room) { create(:room) }
+        before do
+          create(:band_room, band: band, room: room)
+          create(:band_room, band: another_band, room: room)
+        end
+
+        it 'destroys the room and the band_rooms of two bands' do
+          expect(band.rooms.size).to eq 1
+          expect(another_band.rooms.size).to eq 1
+          band.destroy_room_with(another_band)
+          band.reload
+          another_band.reload
+          expect(band.rooms).to be_empty
+          expect(another_band.rooms).to be_empty
+        end
+      end
+
+      context 'when two bands have not had a room with each other' do
+        it 'does nothing' do
+          expect(band.rooms).to be_empty
+          expect(another_band.rooms).to be_empty
+          band.destroy_room_with(another_band)
+          expect(band.rooms).to be_empty
+          expect(another_band.rooms).to be_empty
+        end
       end
     end
   end

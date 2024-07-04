@@ -36,7 +36,7 @@ export default {
       );
       this.event = res.data;
     } catch (error) {
-      if (error.response) goHome();
+      goHome();
     }
   },
   computed: {
@@ -58,7 +58,7 @@ export default {
         await this.$axios.patch(`/events/${this.id}`, formData, this.headers);
         this.$router.replace(`/events/${this.id}`);
       } catch (error) {
-        if (error.response) this.isError = true;
+        this.isError = true;
       }
     },
   },

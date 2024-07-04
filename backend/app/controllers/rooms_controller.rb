@@ -1,27 +1,22 @@
 class RoomsController < ApplicationController
+  include Accessable
   before_action :authenticate_band!
+  before_action ->{ pass_band_owner(params[:band_id]) }, only: :index
 
   def index
-    if current_band == Band.find_by(id: params[:band_id])
-      rooms = current_band.fetch_rooms
-      render json: rooms
-    else
-      head :forbidden
-    end
+    rooms = current_band.fetch_rooms
+    render json: rooms, status: :ok
   end
 
   def create
-    room = Room.create!
-    band_room = current_band.band_rooms.build(room_id: room.id)
-    if band_room.save
-      other_band_room = BandRoom.new(band_room_params.merge(room_id: room.id))
-      if other_band_room.save
-        render json: room.id, status: :created
-      else
-        head :unprocessable_entity
-      end
+    band = Band.find(band_room_params[:band_id])
+    return head :forbidden if !current_band.friends.include?(band)
+    return head :unprocessable_entity if current_band.has_room_with?(band)
+    result = current_band.create_room_with(band)
+    if result.is_a?(Room)
+      render json: result.id, status: :created
     else
-      head :bad_request
+      head :internal_server_error
     end
   end
 

@@ -121,9 +121,9 @@ export default {
   data() {
     return {
       tab: 0,
-      friends: [], // 初期値
-      invitees: [], // 初期値
-      inviters: [], // 初期値
+      friends: [],
+      invitees: [],
+      inviters: [],
       statesOfFriends: [], // 現在値
       statesOfInvitees: [], // 現在値
       statesOfInviters: [], // 現在値
@@ -131,29 +131,33 @@ export default {
     };
   },
   async created() {
-    if (Number(this.id) !== this.bandId) goHome();
-    try {
-      const res = await this.$axios.get(
-        `/bands/${this.id}/friendships`,
-        this.headers
-      );
-      this.friends = res.data.friends;
-      this.invitees = res.data.invitees;
-      this.inviters = res.data.inviters;
+    if (Number(this.id) !== this.bandId) {
+      return goHome();
+    } else {
+      try {
+        const res = await this.$axios.get(
+          `/bands/${this.id}/friendships`,
+          this.headers
+        );
+        this.friends = res.data.friends;
+        this.invitees = res.data.invitees;
+        this.inviters = res.data.inviters;
 
-      // ページを更新しない限り、初期表示位置を維持する。
-      // 現在のFriendshipの状態(現在値)を初期値とは別で管理する。
-      for (let n = 0; n < this.friends.length; n++) {
-        this.statesOfFriends.push("friend");
+        // 以下二点を行うために、現在のFriendshipの状態(現在値)は別で管理する。
+        // 1.各ユーザー名の隣に表示するFriendshipボタンで状態を切り替えられるようにする。
+        // 2.各ユーザーの表示位置は初期表示位置を維持する。
+        for (let n = 0; n < this.friends.length; n++) {
+          this.statesOfFriends.push("friend");
+        }
+        for (let n = 0; n < this.invitees.length; n++) {
+          this.statesOfInvitees.push("inviting");
+        }
+        for (let n = 0; n < this.inviters.length; n++) {
+          this.statesOfInviters.push("invited");
+        }
+      } catch (error) {
+        goHome();
       }
-      for (let n = 0; n < this.invitees.length; n++) {
-        this.statesOfInvitees.push("inviting");
-      }
-      for (let n = 0; n < this.inviters.length; n++) {
-        this.statesOfInviters.push("invited");
-      }
-    } catch (error) {
-      if (error.response) goHome();
     }
   },
   computed: {
@@ -164,12 +168,12 @@ export default {
       changeFriendship(band.id, friendship.isFollowing);
       if (band.friend_state === "friend") {
         this.$set(this.statesOfFriends, index, friendship.opposition);
-      }
-      if (band.friend_state === "inviting") {
+      } else if (band.friend_state === "inviting") {
         this.$set(this.statesOfInvitees, index, friendship.opposition);
-      }
-      if (band.friend_state === "invited") {
+      } else if (band.friend_state === "invited") {
         this.$set(this.statesOfInviters, index, friendship.opposition);
+      } else {
+        this.$set(this.statesOfInvitees, index, friendship.opposition);
       }
     },
     async startChat(partnerId) {
@@ -178,9 +182,7 @@ export default {
         const room = findPartnerRoom(res.data, partnerId);
         goToChatShow(room.id, partnerId);
       } catch (error) {
-        if (error.response) {
-          this.showError("チャットを開始できません。");
-        }
+        this.showError("チャットを開始できません。");
       }
     },
     ...mapActions(["showError"]),

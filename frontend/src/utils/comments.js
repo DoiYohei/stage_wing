@@ -1,6 +1,6 @@
 import axios from "@/plugins/axios";
 import store from "@/store";
-import { goTo401, reloadPage } from "./routers";
+import { goTo401, reloadPage } from "@/utils/routers";
 
 export const postComment = async (reply, parentId, comment, eventId) => {
   if (!store.getters.token) {
@@ -18,9 +18,7 @@ export const postComment = async (reply, parentId, comment, eventId) => {
       await axios.post("/comments", formData, store.getters.headers);
       reloadPage();
     } catch (error) {
-      if (error.response) {
-        store.dispatch("showError", "コメントを投稿できませんでした。");
-      }
+      store.dispatch("showError", "コメントを投稿できませんでした。");
     }
   }
 };
@@ -30,8 +28,6 @@ export const deleteComment = async (commentId) => {
     await axios.delete(`/comments/${commentId}`, store.getters.headers);
     reloadPage();
   } catch (error) {
-    if (error.response) {
-      store.dispatch("showError", "コメントを削除できませんでした。");
-    }
+    store.dispatch("showError", "コメントを削除できませんでした。");
   }
 };

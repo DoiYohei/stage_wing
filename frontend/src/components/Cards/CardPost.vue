@@ -5,10 +5,15 @@
         <CardAvatar :avatar="post.band" userType="bands" />
       </v-card-subtitle>
       <v-card-subtitle v-if="post.format !== 'text'" class="pt-0">
-        <v-img v-if="post.format === 'photo'" :src="post.photo.url" />
+        <v-img
+          v-if="post.format === 'photo'"
+          :src="post.photo.url"
+          data-jest="photo"
+        />
         <VuetifyAudio
           v-if="post.format === 'audio'"
           :file="post.audio.url"
+          data-jest="audio"
           class="black"
         />
         <iframe
@@ -18,13 +23,17 @@
           height="166"
           scrolling="no"
           frameborder="no"
+          data-jest="soundcloud"
         />
-        <youtube
-          v-if="post.format === 'youtube'"
-          :video-id="post.media_pass"
-          fitParent
-          resize
-        />
+        <v-card flat>
+          <youtube
+            v-if="post.format === 'youtube'"
+            :video-id="post.media_pass"
+            fitParent
+            resize
+            data-jest="youtube"
+          />
+        </v-card>
       </v-card-subtitle>
       <v-card>
         <v-card-subtitle class="py-0 text-body-1 reflect-return">{{
@@ -46,11 +55,11 @@
         <v-card-actions class="pa-0">
           <v-menu v-if="isMyPost">
             <template v-slot:activator="{ on, attrs }">
-              <v-btn icon v-bind="attrs" v-on="on">
+              <v-btn icon v-bind="attrs" v-on="on" data-jest="menu-btn">
                 <v-icon color="grey lighten-1" small>mdi-dots-vertical</v-icon>
               </v-btn>
             </template>
-            <v-card-text class="pa-0">
+            <v-card-text class="pa-0" data-jest="owner-menu">
               <v-list dense class="py-0" color="grey darken-3">
                 <v-list-item-group>
                   <v-dialog

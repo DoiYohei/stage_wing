@@ -99,14 +99,14 @@ export default {
       this.lineupDialog = false;
     },
     async postEvent(flyer) {
-      let eventId; // 投稿後にEventのidを入れる。
+      let eventId; // EventのPOST後に生成されたidを入れる。LineupのPOSTに使用する。
 
       // 新規Eventを投稿
       try {
         const res = await postEvent(this.event, this.lineup, flyer);
         eventId = res.data.id;
       } catch (error) {
-        if (error.response) this.isEventError = true;
+        this.isEventError = true;
       }
 
       // 投稿したEventのLineupを登録。
@@ -116,12 +116,10 @@ export default {
           this.$router.replace(`/events/${eventId}`);
         } catch (error) {
           // Lineup登録時のエラーはEventページ遷移後に表示する。
-          if (error.response) {
-            this.$router.replace({
-              path: `/events/${eventId}`,
-              query: { lineupCreateError: true },
-            });
-          }
+          this.$router.replace({
+            path: `/events/${eventId}`,
+            query: { lineupCreateError: true },
+          });
         }
       }
     },

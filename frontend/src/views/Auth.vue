@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <CardPageTitle :title="pageTitle" />
+    <CardPageTitle :title="pageTitle" data-jest="page-title" />
     <v-row v-if="$vuetify.breakpoint.mdAndUp">
       <v-col xl="4" offset-xl="2">
         <FormAuth v-model="band" @submit-forms="submitBand">
@@ -108,10 +108,8 @@ export default {
         const userType = "bands";
         this.setAuthData({ res, userType });
       } catch (error) {
-        if (error.response) {
-          this.band.isError = true;
-          this.band.errorMessage = this.errorText;
-        }
+        this.band.isError = true;
+        this.band.errorMessage = this.errorText;
       }
     },
     async submitAudience() {
@@ -130,10 +128,8 @@ export default {
         const userType = "audiences";
         this.setAuthData({ res, userType });
       } catch (error) {
-        if (error.response) {
-          this.audience.isError = true;
-          this.audience.errorMessage = this.errorText;
-        }
+        this.audience.isError = true;
+        this.audience.errorMessage = this.errorText;
       }
     },
     ...mapActions(["setAuthData"]),

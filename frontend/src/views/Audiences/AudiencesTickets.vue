@@ -88,24 +88,27 @@ export default {
     };
   },
   async created() {
-    if (Number(this.id) !== this.audienceId) goHome();
-    try {
-      const res = await this.$axios.get(
-        `/audiences/${this.id}/tickets`,
-        this.headers
-      );
+    if (Number(this.id) !== this.audienceId) {
+      return goHome();
+    } else {
+      try {
+        const res = await this.$axios.get(
+          `/audiences/${this.id}/tickets`,
+          this.headers
+        );
 
-      // 長いEvent名、Band名を短縮。
-      this.allTickets = res.data.map((ticket) => {
-        ticket.event_name = this.shortenName(ticket.event_name);
-        ticket.band_name = this.shortenName(ticket.band_name);
-        return ticket;
-      });
+        // 長いEvent名、Band名を短縮。
+        this.allTickets = res.data.map((ticket) => {
+          ticket.event_name = this.shortenName(ticket.event_name);
+          ticket.band_name = this.shortenName(ticket.band_name);
+          return ticket;
+        });
 
-      // 未開催EventのTicketを抽出。
-      this.futureTickets = popFutureItems(this.allTickets);
-    } catch (error) {
-      if (error.response) goHome();
+        // 未開催EventのTicketを抽出。
+        this.futureTickets = popFutureItems(this.allTickets);
+      } catch (error) {
+        goHome();
+      }
     }
   },
   computed: {

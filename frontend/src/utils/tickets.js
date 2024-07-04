@@ -1,6 +1,6 @@
 import axios from "@/plugins/axios";
 import store from "@/store";
-import { reloadPage } from "./routers";
+import { reloadPage } from "@/utils/routers";
 
 export const postTicket = async (id, bandId) => {
   try {
@@ -10,9 +10,7 @@ export const postTicket = async (id, bandId) => {
     await axios.post(`/tickets`, formData, store.getters.headers);
     return reloadPage();
   } catch (error) {
-    if (error.response) {
-      store.dispatch("showError", "チケットを取り置きできませんでした。");
-    }
+    store.dispatch("showError", "チケットを取り置きできませんでした。");
   }
 };
 
@@ -21,8 +19,6 @@ export const deleteTicket = async (id) => {
     await axios.delete(`/tickets/${id}`, store.getters.headers);
     return reloadPage();
   } catch (error) {
-    if (error.response) {
-      store.dispatch("showError", "チケットをキャンセルできませんでした。");
-    }
+    store.dispatch("showError", "チケットをキャンセルできませんでした。");
   }
 };

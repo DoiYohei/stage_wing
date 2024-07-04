@@ -9,11 +9,11 @@ export const popFutureItems = (allItems) => {
 };
 
 export const sortDatesByEarliestToLatest = (items) => {
-  items.sort((a, b) => new Date(a.date) - new Date(b.date));
+  return items.sort((a, b) => new Date(a.date) - new Date(b.date));
 };
 
 export const sortDatesByLatestToEarliest = (items) => {
-  items.sort((a, b) => new Date(b.date) - new Date(a.date));
+  return items.sort((a, b) => new Date(b.date) - new Date(a.date));
 };
 
 export const narrowDownNames = (input, items) => {

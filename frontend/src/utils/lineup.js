@@ -1,7 +1,7 @@
 import axios from "@/plugins/axios";
 import store from "@/store";
 import router from "@/routes";
-import { reloadPage } from "./routers";
+import { reloadPage } from "@/utils/routers";
 
 export const setLineupForShow = (event) => {
   let lineup = [];
@@ -47,9 +47,7 @@ export const patchLineup = async (event, lineup) => {
     );
     if (lineupForDelete) await deleteLineup(lineupForDelete, event.id);
   } catch (error) {
-    if (error.response) {
-      router.replace({ query: { lineupUpdateError: true } });
-    }
+    router.replace({ query: { lineupUpdateError: true } });
   }
   reloadPage();
 };

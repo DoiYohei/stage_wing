@@ -1,5 +1,6 @@
 class AudiencesController < ApplicationController
-  before_action :pass_account_owner
+  include Accessable
+  before_action ->{ pass_audience_owner(params[:id]) }
 
   def edit
     render json: current_audience
@@ -7,11 +8,5 @@ class AudiencesController < ApplicationController
 
   def tickets
     @tickets = current_audience.tickets
-  end
-
-  private
-
-  def pass_account_owner
-    head :forbidden if current_audience != Audience.find_by(id: params[:id])
   end
 end

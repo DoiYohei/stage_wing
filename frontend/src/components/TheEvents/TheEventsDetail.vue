@@ -2,7 +2,7 @@
   <v-card flat>
     <v-card flat class="d-flex align-start grey--text text--lighten-2">
       <v-card-title>{{ event.name }}</v-card-title>
-      <v-card-actions v-if="isEventOwner" class="pt-4">
+      <v-card-actions v-if="isEventOwner" data-jest="owner-menu" class="pt-4">
         <v-menu>
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon v-bind="attrs" v-on="on">
@@ -56,6 +56,7 @@
         @click.stop="ticketDialog = true"
         color="grey darken-2"
         small
+        data-jest="ticket-cancel"
       >
         チケットを取り置きしています。
       </v-btn>
@@ -73,6 +74,7 @@
         :place="eventPlace"
         :price="ticketPrice"
         @post-ticket="postTicket"
+        data-jest="ticket-new"
       />
     </v-card-actions>
     <v-card-subtitle class="d-flex align-center justify-end">
@@ -82,6 +84,7 @@
         :avatar="event.owner"
         max-width="175"
         userType="bands"
+        data-jest="owner-avatar"
         class="ml-2"
       />
       <template v-if="!event.owner">作成者は退会しました</template>

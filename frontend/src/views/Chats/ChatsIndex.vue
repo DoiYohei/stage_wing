@@ -55,12 +55,15 @@ export default {
     };
   },
   async created() {
-    try {
-      if (Number(this.id) !== this.bandId) goHome();
-      const res = await fetchRooms();
-      if (res.data[0]) this.rooms = res.data;
-    } catch (error) {
-      if (error.response) goHome();
+    if (Number(this.id) !== this.bandId) {
+      return goHome();
+    } else {
+      try {
+        const res = await fetchRooms();
+        if (res.data[0]) this.rooms = res.data;
+      } catch (error) {
+        goHome();
+      }
     }
   },
   computed: {
@@ -80,9 +83,7 @@ export default {
       try {
         goToChatShow(roomId, partnerId);
       } catch (error) {
-        if (error.response) {
-          this.showError("チャットを開始できません。");
-        }
+        this.showError("チャットを開始できません。");
       }
     },
     ...mapActions(["showError"]),

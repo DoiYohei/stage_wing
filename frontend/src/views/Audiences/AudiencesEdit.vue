@@ -72,15 +72,18 @@ export default {
     };
   },
   async created() {
-    if (Number(this.id) !== this.audienceId) goHome();
-    try {
-      const res = await this.$axios.get(
-        `/audiences/${this.id}/edit`,
-        this.headers
-      );
-      this.audience = res.data;
-    } catch (error) {
-      if (error.response) goHome();
+    if (Number(this.id) !== this.audienceId) {
+      return goHome();
+    } else {
+      try {
+        const res = await this.$axios.get(
+          `/audiences/${this.id}/edit`,
+          this.headers
+        );
+        this.audience = res.data;
+      } catch (error) {
+        goHome();
+      }
     }
   },
   computed: {
@@ -115,7 +118,7 @@ export default {
         const userType = "audiences";
         this.setAuthData({ res, userType });
       } catch (error) {
-        if (error.response) this.isError = true;
+        this.isError = true;
       }
     },
     ...mapActions(["setAuthData"]),
