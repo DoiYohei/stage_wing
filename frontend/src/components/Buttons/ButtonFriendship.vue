@@ -80,7 +80,7 @@ export default {
           action: "FRIENDを解除する",
           btn: "FRIEND",
           description:
-            "FRIENDです。\nFRIENDを解除するとチャットができなくなります。",
+            "FRIENDです。\nFRIENDを解除するとチャットができなくなります。\nまた、チャット履歴も削除されます。",
           opposition: "invited",
           isFollowing: true,
         };

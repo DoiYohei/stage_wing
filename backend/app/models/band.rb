@@ -31,37 +31,39 @@ class Band < ApplicationRecord
   has_many :rooms, through: :band_rooms, dependent: :destroy
   has_many :tickets, dependent: :destroy
 
-  # Bandをフォローする
+  # Bandをフォローする。
   def follow(other_band)
     following << other_band
   end
 
-  # Bandをフォロー解除する
+  # Bandをフォロー解除する。
+  # Roomが存在する場合はRoomも削除する。
   def unfollow(other_band)
-    active_friendships.find_by!(followed_id: other_band.id).destroy
+    destroy_room_with(other_band) if has_room_with?(other_band)
+    following.delete(other_band)
   end
 
-  # フォローしていたらtrueを返す
+  # フォローしていたらtrueを返す。
   def following?(other_band)
     following.include?(other_band)
   end
 
-  # 相互フォロー(友達)の関係にあるBandを返す
+  # 相互フォロー(友達)の関係にあるBandを返す。
   def friends
     following & followers
   end
 
-  # 自分はフォローしているが、相手からフォローされていない(友達申請中の)Bandを返す
+  # 自分はフォローしているが、相手からフォローされていない(友達申請中の)Bandを返す。
   def invitees
     following.where.not(id: followers.ids)
   end
 
-  # 自分はフォローしていないが、相手からフォローされている(友達申請されている)Bandを返す
+  # 自分はフォローしていないが、相手からフォローされている(友達申請されている)Bandを返す。
   def inviters
     followers.where.not(id: following.ids)
   end
 
-  # 自分と対象のBandとの関係を返す
+  # 自分と対象のBandとの関係を返す。
   def friend_state(other_band)
     if friends.include?(other_band)
       'friend'
@@ -72,9 +74,9 @@ class Band < ApplicationRecord
     end
   end
 
-  # 相互フォロー(友達)関係にあるBandと共通のroom_idを取得
-  # そのBandの情報と合わせて新しい配列を作る
-  # roomが未作成の場合idにはnullが入る
+  # 相互フォロー(友達)関係にあるBandと共通のroom_idを取得。
+  # そのBandの情報と合わせて新しい配列を作る。
+  # roomが未作成の場合idにはnullが入る。
   def fetch_rooms
     chat_rooms = []
     my_room_ids = rooms.ids
@@ -89,5 +91,28 @@ class Band < ApplicationRecord
                       })
     end
     chat_rooms
+  end
+
+  def has_room_with?(band)
+    room_ids = BandRoom.where(band_id: band.id).pluck(:room_id)
+    rooms.exists?(id: room_ids)
+  end
+
+  def create_room_with(band)
+    ActiveRecord::Base.transaction do
+      room = Room.create!
+      rooms << room
+      band.rooms << room
+      room
+    end
+  end
+
+  def destroy_room_with(band)
+    friend_band_rooms = BandRoom.where(band_id: band.id)
+    rooms.each do |room|
+      friend_band_rooms.each do |friend_band_room|
+        room.destroy! if room.id == friend_band_room.room_id
+      end
+    end
   end
 end

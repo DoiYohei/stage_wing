@@ -2,10 +2,10 @@ require 'rails_helper'
 
 RSpec.describe Friendship, type: :model do
   describe 'validation' do
-    subject { build(:friendship, follower: band, followed: other_band) }
+    subject { build(:friendship, follower: band, followed: another_band) }
 
     let(:band) { create(:band) }
-    let(:other_band) { create(:band) }
+    let(:another_band) { create(:band) }
 
     describe 'combination of :follower and :followed' do
       context 'when unique' do
@@ -13,7 +13,7 @@ RSpec.describe Friendship, type: :model do
       end
 
       context 'when duplicated' do
-        before { band.follow(other_band) }
+        before { band.follow(another_band) }
 
         it { is_expected.to be_invalid }
       end

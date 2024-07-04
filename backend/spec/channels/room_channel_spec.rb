@@ -50,10 +50,10 @@ RSpec.describe RoomChannel, type: :channel do
       end
     end
 
-    context "when new message hasn't a content" do
+    context 'when new message does not have a content' do
       let(:message) { build(:message, band: band, room: room, content: nil) }
 
-      it "dosen't creat and broadcact new message" do
+      it 'dose not creat and broadcact new message' do
         expect do
           perform(:speak, { message: message.content })
         end

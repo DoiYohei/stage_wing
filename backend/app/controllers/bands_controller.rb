@@ -1,5 +1,6 @@
 class BandsController < ApplicationController
-  before_action :pass_account_owner, only: %i[edit tickets]
+  include Accessable
+  before_action ->{ pass_band_owner(params[:id]) }, only: %i[edit tickets]
 
   def index
     @bands = Band.all.order(:name)
@@ -15,11 +16,5 @@ class BandsController < ApplicationController
 
   def tickets
     @tickets = current_band.tickets
-  end
-
-  private
-
-  def pass_account_owner
-    head :forbidden if current_band != Band.find_by(id: params[:id])
   end
 end

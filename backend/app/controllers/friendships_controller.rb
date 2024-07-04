@@ -1,9 +1,10 @@
 class FriendshipsController < ApplicationController
+  include Accessable
   before_action :authenticate_band!
   before_action :set_other_band, except: :index
+  before_action ->{ pass_band_owner(params[:band_id]) } , only: :index
 
   def index
-    head :forbidden if current_band != Band.find_by(id: params[:band_id])
   end
 
   def create
