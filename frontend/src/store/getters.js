@@ -21,10 +21,10 @@ export default {
   audienceId: (state) => {
     return state.userType === "audiences" ? state.userId : null;
   },
-  isError: (state) => {
-    return state.isError;
+  resultDialog: (state) => {
+    return state.resultDialog;
   },
-  errorText: (state) => {
-    return state.errorText;
+  resultText: (state) => {
+    return state.resultText;
   },
 };

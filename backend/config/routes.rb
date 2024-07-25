@@ -2,15 +2,13 @@ Rails.application.routes.draw do
   mount_devise_token_auth_for 'Band', at: 'bands', controllers: {
     registrations: 'auth/bands/registrations',
     sessions: 'auth/bands/sessions',
-    passwords: 'auth/bands/passwords',
-    token_validations: 'auth/bands/token_validations'
+    passwords: 'auth/bands/passwords'
   }
 
   mount_devise_token_auth_for 'Audience', at: 'audiences', controllers: {
     registrations: 'auth/audiences/registrations',
     sessions: 'auth/audiences/sessions',
-    passwords: 'auth/audiences/passwords',
-    token_validations: 'auth/audiences/token_validations'
+    passwords: 'auth/audiences/passwords'
   }
 
   mount ActionCable.server => '/cable'

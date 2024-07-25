@@ -1,6 +1,7 @@
 import { extend, localize, setInteractionMode } from "vee-validate";
 import ja from "vee-validate/dist/locale/ja.json";
 import {
+  confirmed,
   email,
   ext,
   integer,
@@ -11,6 +12,7 @@ import {
   size,
 } from "vee-validate/dist/rules";
 
+extend("confirmed", confirmed);
 extend("email", email);
 extend("ext", ext);
 extend("integer", {

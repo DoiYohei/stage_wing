@@ -37,7 +37,7 @@ describe("ButtonFriendship.vue", () => {
     });
     it("has friend dialog", () => {
       expect(stateText.text()).toBe(
-        "FRIENDです。\nFRIENDを解除するとチャットができなくなります。"
+        "FRIENDです。\nFRIENDを解除するとチャットができなくなります。\nまた、チャット履歴も削除されます。"
       );
       expect(actionBtn.text()).toBe("FRIENDを解除する");
     });

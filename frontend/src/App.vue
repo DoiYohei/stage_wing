@@ -3,9 +3,9 @@
     <TheAppHeader v-if="!isHome || isSmallDisplay" v-model="drawer" />
     <TheAppNavigationDrawer v-model="drawer" />
     <TheAppDialog
-      :isShow="isError"
-      :text="errorText"
-      @close-dialog="clearError"
+      :isShow="resultDialog"
+      :text="resultText"
+      @close-dialog="clearResult"
     />
     <v-main><router-view v-model="drawer" /></v-main>
     <TheAppFooter />
@@ -32,7 +32,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["isError", "errorText"]),
+    ...mapGetters(["resultDialog", "resultText"]),
     isHome() {
       return this.$route.path === "/";
     },
@@ -41,7 +41,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["clearError"]),
+    ...mapActions(["clearResult"]),
   },
 };
 </script>
@@ -79,5 +79,9 @@ img {
   white-space: nowrap;
   text-overflow: ellipsis;
   width: 100%;
+}
+
+.underline {
+  text-decoration: underline;
 }
 </style>

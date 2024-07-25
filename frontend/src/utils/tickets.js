@@ -10,7 +10,7 @@ export const postTicket = async (id, bandId) => {
     await axios.post(`/tickets`, formData, store.getters.headers);
     return reloadPage();
   } catch (error) {
-    store.dispatch("showError", "チケットを取り置きできませんでした。");
+    store.dispatch("showResult", "チケットを取り置きできませんでした。");
   }
 };
 
@@ -19,6 +19,6 @@ export const deleteTicket = async (id) => {
     await axios.delete(`/tickets/${id}`, store.getters.headers);
     return reloadPage();
   } catch (error) {
-    store.dispatch("showError", "チケットをキャンセルできませんでした。");
+    store.dispatch("showResult", "チケットをキャンセルできませんでした。");
   }
 };

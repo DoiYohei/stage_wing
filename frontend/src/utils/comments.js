@@ -18,7 +18,7 @@ export const postComment = async (reply, parentId, comment, eventId) => {
       await axios.post("/comments", formData, store.getters.headers);
       reloadPage();
     } catch (error) {
-      store.dispatch("showError", "コメントを投稿できませんでした。");
+      store.dispatch("showResult", "コメントを投稿できませんでした。");
     }
   }
 };
@@ -28,6 +28,6 @@ export const deleteComment = async (commentId) => {
     await axios.delete(`/comments/${commentId}`, store.getters.headers);
     reloadPage();
   } catch (error) {
-    store.dispatch("showError", "コメントを削除できませんでした。");
+    store.dispatch("showResult", "コメントを削除できませんでした。");
   }
 };
