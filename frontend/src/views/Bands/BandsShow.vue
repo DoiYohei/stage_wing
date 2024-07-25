@@ -118,7 +118,7 @@ export default {
         const room = findPartnerRoom(res.data, Number(this.id));
         goToChatShow(room.id, this.id);
       } catch (error) {
-        this.showError("チャットを開始できません。");
+        this.showResult("チャットを開始できません。");
       }
     },
     changeFriendState(band, friendship) {
@@ -134,7 +134,7 @@ export default {
     changeLike(post) {
       changeLike(post);
     },
-    ...mapActions(["showError"]),
+    ...mapActions(["showResult"]),
   },
 };
 </script>

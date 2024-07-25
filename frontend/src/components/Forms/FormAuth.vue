@@ -37,6 +37,14 @@
           :text="btnText"
         />
       </ValidationObserver>
+      <v-card-actions class="underline pt-4">
+        <v-spacer />
+        <v-btn text @click.stop="user.resetDialog = true">
+          パスワードを忘れた{{ user.cardTitle }}
+        </v-btn>
+        <v-spacer />
+      </v-card-actions>
+      <DialogEmailForm v-model="user" @submit-email="resetPassword" />
     </v-col>
   </v-card>
 </template>
@@ -48,6 +56,7 @@ import InputEmail from "@/components/Inputs/InputEmail";
 import InputPassword from "@/components/Inputs/InputPassword";
 import AlertError from "@/components/Alerts/AlertError";
 import ButtonSubmitForms from "@/components/Buttons/ButtonSubmitForms";
+import DialogEmailForm from "@/components/Dialogs/DialogEmailForm";
 import { ValidationObserver } from "vee-validate";
 
 export default {
@@ -58,6 +67,7 @@ export default {
     InputPassword,
     AlertError,
     ButtonSubmitForms,
+    DialogEmailForm,
     ValidationObserver,
   },
   props: {
@@ -69,6 +79,7 @@ export default {
   data() {
     return {
       imageUrl: "",
+      mail: "",
     };
   },
   computed: {
@@ -97,6 +108,9 @@ export default {
     },
     submitForms() {
       this.$emit("submit-forms");
+    },
+    resetPassword() {
+      this.$emit("reset-password");
     },
   },
 };

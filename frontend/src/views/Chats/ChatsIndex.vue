@@ -83,10 +83,10 @@ export default {
       try {
         goToChatShow(roomId, partnerId);
       } catch (error) {
-        this.showError("チャットを開始できません。");
+        this.showResult("チャットを開始できません。");
       }
     },
-    ...mapActions(["showError"]),
+    ...mapActions(["showResult"]),
   },
 };
 </script>

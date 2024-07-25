@@ -20,6 +20,7 @@ import AudiencesTickets from "@/views/Audiences/AudiencesTickets";
 import LikesIndex from "@/views/Likes/LikesIndex";
 import ErrorsUnauthorized from "@/views/Errors/ErrorsUnauthorized";
 import ErrorsNotFound from "@/views/Errors/ErrorsNotFound";
+import PasswordReset from "@/views/PasswordReset";
 
 Vue.use(Router);
 
@@ -34,6 +35,11 @@ export default new Router({
       path: "/",
       name: "Home",
       component: Home,
+    },
+    {
+      path: "/password_reset",
+      name: "PasswordReset",
+      component: PasswordReset,
     },
     {
       path: "/signup",

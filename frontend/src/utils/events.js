@@ -36,6 +36,6 @@ export const deleteEvent = async (id) => {
     await axios.delete(`/events/${id}`, store.getters.headers);
     router.replace("/events");
   } catch (error) {
-    store.dispatch("showError", "イベントを削除できませんでした。");
+    store.dispatch("showResult", "イベントを削除できませんでした。");
   }
 };

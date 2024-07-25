@@ -182,10 +182,10 @@ export default {
         const room = findPartnerRoom(res.data, partnerId);
         goToChatShow(room.id, partnerId);
       } catch (error) {
-        this.showError("チャットを開始できません。");
+        this.showResult("チャットを開始できません。");
       }
     },
-    ...mapActions(["showError"]),
+    ...mapActions(["showResult"]),
   },
 };
 </script>

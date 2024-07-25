@@ -6,12 +6,12 @@ export default {
     state.userName = authData.userName;
     state.userType = authData.userType;
   },
-  showError(state, text) {
-    state.isError = true;
-    state.errorText = text;
+  showResult(state, text) {
+    state.resultDialog = true;
+    state.resultText = text;
   },
-  clearError(state) {
-    state.isError = false;
-    state.errorText = "";
+  clearResult(state) {
+    state.resultDialog = false;
+    state.resultText = "";
   },
 };

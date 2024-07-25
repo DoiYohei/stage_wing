@@ -25,7 +25,7 @@ describe("EventsShow.vue", () => {
 
   beforeEach(() => {
     actions = {
-      showError: jest.fn(),
+      showResult: jest.fn(),
     };
     store = new Vuex.Store({
       actions,
@@ -51,7 +51,7 @@ describe("EventsShow.vue", () => {
     });
 
     it("shows a lineup create error message", () => {
-      expect(actions.showError).toHaveBeenCalledWith(expect.any(Object), "Lineup作成に失敗しました。");
+      expect(actions.showResult).toHaveBeenCalledWith(expect.any(Object), "Lineup作成に失敗しました。");
       expect(wrapper.vm.$route.query).toEqual({});
     });
   });
@@ -75,7 +75,7 @@ describe("EventsShow.vue", () => {
     });
 
     it("shows a lineup update error message", () => {
-      expect(actions.showError).toHaveBeenCalledWith(expect.any(Object), "Lineup更新に失敗しました。");
+      expect(actions.showResult).toHaveBeenCalledWith(expect.any(Object), "Lineup更新に失敗しました。");
       expect(wrapper.vm.$route.query).toEqual({});
     });
   });
@@ -94,7 +94,7 @@ describe("EventsShow.vue", () => {
     });
 
     it("doesn't show any error message", () => {
-      expect(actions.showError).not.toHaveBeenCalled();
+      expect(actions.showResult).not.toHaveBeenCalled();
     });
   });
 });

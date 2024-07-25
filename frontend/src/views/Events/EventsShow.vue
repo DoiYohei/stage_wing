@@ -99,11 +99,11 @@ export default {
     // Lineup作成or更新処理後このページに遷移してくる。
     // Lineup作成or更新でエラーがあった場合、このページでメッセージを表示する。
     if (this.$route.query.lineupCreateError) {
-      this.showError("Lineup作成に失敗しました。");
+      this.showResult("Lineup作成に失敗しました。");
       this.$router.replace({ query: {} });
     }
     if (this.$route.query.lineupUpdateError) {
-      this.showError("Lineup更新に失敗しました。");
+      this.showResult("Lineup更新に失敗しました。");
       this.$router.replace({ query: {} });
     }
 
@@ -150,7 +150,7 @@ export default {
       this.lineup.newLineup = [...this.event.performers];
       this.lineup.newNoIdLineup = [...this.event.unregistered_performers];
     },
-    ...mapActions(["showError"]),
+    ...mapActions(["showResult"]),
   },
 };
 </script>

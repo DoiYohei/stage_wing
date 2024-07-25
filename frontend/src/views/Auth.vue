@@ -3,7 +3,11 @@
     <CardPageTitle :title="pageTitle" data-jest="page-title" />
     <v-row v-if="$vuetify.breakpoint.mdAndUp">
       <v-col xl="4" offset-xl="2">
-        <FormAuth v-model="band" @submit-forms="submitBand">
+        <FormAuth
+          v-model="band"
+          @submit-forms="submitBand"
+          @reset-password="resetBandPassword"
+        >
           <template #card-title>
             <v-card-subtitle class="text-center">
               {{ band.cardTitle }}
@@ -12,7 +16,11 @@
         </FormAuth>
       </v-col>
       <v-col xl="4">
-        <FormAuth v-model="audience" @submit-forms="submitAudience">
+        <FormAuth
+          v-model="audience"
+          @submit-forms="submitAudience"
+          @reset-password="resetAudiencePassword"
+        >
           <template #card-title>
             <v-card-subtitle class="text-center">
               {{ audience.cardTitle }}
@@ -31,10 +39,18 @@
             </v-tabs>
             <v-tabs-items v-model="tabs">
               <v-tab-item>
-                <FormAuth v-model="band" @submit-forms="submitBand" />
+                <FormAuth
+                  v-model="band"
+                  @submit-forms="submitBand"
+                  @reset-password="resetBandPassword"
+                />
               </v-tab-item>
               <v-tab-item>
-                <FormAuth v-model="audience" @submit-forms="submitAudience" />
+                <FormAuth
+                  v-model="audience"
+                  @submit-forms="submitAudience"
+                  @reset-password="resetAudiencePassword"
+                />
               </v-tab-item>
             </v-tabs-items>
           </v-card-text>
@@ -69,6 +85,9 @@ export default {
         nameLabel: "Band Name",
         isError: false,
         errorMessage: "",
+        resetEmail: "",
+        resetDialog: false,
+        resetError: false,
       },
       audience: {
         image: require("@/assets/img/no-audience-img.jpeg"),
@@ -80,6 +99,9 @@ export default {
         nameLabel: "Name",
         isError: false,
         errorMessage: "",
+        resetEmail: "",
+        resetDialog: false,
+        resetError: false,
       },
     };
   },
@@ -89,6 +111,20 @@ export default {
     },
     errorText() {
       return `${this.pageTitle}できませんでした。`;
+    },
+  },
+  watch: {
+    "band.resetDialog"(newValue) {
+      if (!newValue) {
+        this.band.resetEmail = "";
+        this.band.resetError = false;
+      }
+    },
+    "audience.resetDialog"(newValue) {
+      if (!newValue) {
+        this.audience.resetEmail = "";
+        this.audience.resetError = false;
+      }
     },
   },
   methods: {
@@ -132,7 +168,29 @@ export default {
         this.audience.errorMessage = this.errorText;
       }
     },
-    ...mapActions(["setAuthData"]),
+    async resetBandPassword() {
+      try {
+        const formData = new FormData();
+        formData.append("email", this.band.resetEmail);
+        await this.$axios.post("/bands/password", formData);
+        this.band.resetDialog = false;
+        this.showResult("パスワード再設定のためのメールを送信しました。");
+      } catch (error) {
+        this.band.resetError = true;
+      }
+    },
+    async resetAudiencePassword() {
+      try {
+        const formData = new FormData();
+        formData.append("email", this.audience.resetEmail);
+        await this.$axios.post("/audiences/password", formData);
+        this.audience.resetDialog = false;
+        this.showResult("パスワード再設定のためのメールを送信しました。");
+      } catch (error) {
+        this.audience.resetError = true;
+      }
+    },
+    ...mapActions(["setAuthData", "showResult"]),
   },
 };
 </script>
